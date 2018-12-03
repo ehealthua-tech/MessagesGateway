@@ -44,14 +44,10 @@ defmodule MessagesGateway.MqPublisher do
   end
 
   def connect(%{queue_name: queue_name} = state) do
-    default_opts = [host: nil, port: nil]
+    host = Application.get_env(:messages_gateway, :mq_host, "localhost")
+    port = Application.get_env(:messages_gateway, :mq_port, 5672)
 
-    opts =
-      [host: "localhost", port: 1414]
-      |> Enum.filter(fn({_, v}) -> v != "" && v != nil end)
-
-   # case Connection.open(Keyword.merge(default_opts, opts)) do
-      case Connection.open do
+    case Connection.open([host: host, port: port]) do
       {:ok, conn} ->
         Process.monitor(conn.pid)
 

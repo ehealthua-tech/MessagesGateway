@@ -143,7 +143,7 @@ defmodule MessagesGatewayWeb.AdminController do
 
   def send_message(conn, %{"resource" => body}) do
     case :ok do # mockup
-      # case QueueMq.publish(body) do
+      # case MessagesGateway.MqPublisher.publish(body) do
       :ok ->
     render(conn, "index.json",
       %{:body => %{
@@ -157,7 +157,7 @@ defmodule MessagesGatewayWeb.AdminController do
 
   def send_sms(conn, %{"resource" => body}) do
     case :ok do # mockup
-      # case QueueMq.publish(body) do
+      # case MessagesGateway.MqPublisher.publish(body) do
       :ok ->
     render(conn, "index.json",
       %{:body => %{
@@ -171,8 +171,7 @@ defmodule MessagesGatewayWeb.AdminController do
 
   def send_email(conn, %{"resource" => body}) do
     case :ok do # mockup
-      # case QueueMq.publish(body) do
-      # case AMQP.Basic.publish(channel, "", "hello", body) do
+      # case MessagesGateway.MqPublisher.publish(body) do
       :ok ->
     render(conn, "index.json",
       %{:body => %{
