@@ -2,7 +2,6 @@ defmodule MessagesGateway.MqPublisher do
   use GenServer
   use AMQP
 
-  @amqp [host: "localhost", port: 5682]
   @reconnect_timeout 5000
   @exchange    "message_exchange"
   @queue       "message_queue"
@@ -18,11 +17,10 @@ defmodule MessagesGateway.MqPublisher do
 
   def publish(message) do
     GenServer.call(__MODULE__, {:publish, message})
-    # AMQP.Queue.subscribe channel, "message_queue", fn(payload, _meta) -> IO.puts("Received: #{payload}") end
   end
 
   def handle_call({:publish, message}, _, %{chan: chan, connected: true, queue_name: queue_name} = state) do
-    result = Basic.publish(chan, "", queue_name, message, persistent: true)
+    result = Basic.publish(chan, "", @queue, message, persistent: true)
     {:reply, result, state}
   end
 
@@ -49,10 +47,11 @@ defmodule MessagesGateway.MqPublisher do
     default_opts = [host: nil, port: nil]
 
     opts =
-      @amqp
+      [host: "localhost", port: 1414]
       |> Enum.filter(fn({_, v}) -> v != "" && v != nil end)
 
-    case Connection.open(Keyword.merge(default_opts, opts)) do
+   # case Connection.open(Keyword.merge(default_opts, opts)) do
+      case Connection.open do
       {:ok, conn} ->
         Process.monitor(conn.pid)
 
