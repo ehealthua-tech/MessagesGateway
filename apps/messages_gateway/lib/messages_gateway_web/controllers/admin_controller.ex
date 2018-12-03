@@ -143,7 +143,7 @@ defmodule MessagesGatewayWeb.AdminController do
 
   def send_message(conn, %{"resource" => body}) do
     case :ok do # mockup
-      # case MessagesRouter.send_message(body) do
+      # case QueueMq.publish(body) do
       :ok ->
     render(conn, "index.json",
       %{:body => %{
@@ -157,7 +157,7 @@ defmodule MessagesGatewayWeb.AdminController do
 
   def send_sms(conn, %{"resource" => body}) do
     case :ok do # mockup
-      # case MessagesRouter.send_sms(body) do
+      # case QueueMq.publish(body) do
       :ok ->
     render(conn, "index.json",
       %{:body => %{
@@ -171,7 +171,8 @@ defmodule MessagesGatewayWeb.AdminController do
 
   def send_email(conn, %{"resource" => body}) do
     case :ok do # mockup
-      # case MessagesRouter.send_email(body) do
+      # case QueueMq.publish(body) do
+      # case AMQP.Basic.publish(channel, "", "hello", body) do
       :ok ->
     render(conn, "index.json",
       %{:body => %{
@@ -196,4 +197,14 @@ defmodule MessagesGatewayWeb.AdminController do
         render(conn, "index.json", %{:body => %{:status => "error", :message => error}})
     end
   end
+
+  def wait_for_messages do
+    receive do
+      {:basic_deliver, payload, _meta} ->
+        IO.puts " [x] Received #{payload}"
+        wait_for_messages()
+    end
+  end
+
 end
+
