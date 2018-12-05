@@ -6,7 +6,7 @@ defmodule MessagesGateway.Prioritization do
   @operators_config :operators_config
   @first_priority 1
 
-  def message_prioritization() do
+  def get_priority_list() do
     with {:ok, priority_model} <- Redis.get(@messages_gateway_conf),
         {:ok, operators_type_config} <- Redis.get(@operators_config),
         {:ok, priority} <- select_priority(operators_type_config, priority_model, [])
@@ -15,7 +15,7 @@ defmodule MessagesGateway.Prioritization do
     end
   end
 
-  def message_prioritization(operator_type_id) do
+  def get_priority_list(operator_type_id) do
     with {:ok, operators_type_config} <- Redis.get(@operators_config) do
       {operator_type_id, operator_info_map} = List.keyfind(operators_type_config, operator_type_id, 0)
       {:ok, [%{
