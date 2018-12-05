@@ -9,7 +9,7 @@ defmodule MessagesGateway.Mixfile do
       config_path: "../../config/config.exs",
       deps_path: "../../deps",
       lockfile: "../../mix.lock",
-      elixir: "~> 1.4",
+      elixir: "~> 1.7.4",
       elixirc_paths: elixirc_paths(Mix.env),
       compilers: [:phoenix, :gettext] ++ Mix.compilers,
       start_permanent: Mix.env == :prod,
@@ -42,8 +42,9 @@ defmodule MessagesGateway.Mixfile do
       {:phoenix_live_reload, "~> 1.0", only: :dev},
       {:gettext, "~> 0.11"},
       {:amqp, "~> 1.0"},
-      {:plug_cowboy, "~> 1.0"},
-      {:redix, ">= 0.0.0"}
+      {:redix, ">= 0.0.0"},
+      {:jason, "~> 1.1"},
+      {:plug_cowboy, "~> 1.0"}
     ]
   end
 end
