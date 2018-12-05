@@ -7,7 +7,9 @@ use Mix.Config
 
 # General application configuration
 config :messages_gateway,
-  namespace: MessagesGateway
+  namespace: MessagesGateway,
+  mq_host: "localhost",
+  mq_port: 5672
 
 # Configures the endpoint
 config :messages_gateway, MessagesGatewayWeb.Endpoint,
@@ -17,10 +19,11 @@ config :messages_gateway, MessagesGatewayWeb.Endpoint,
   pubsub: [name: MessagesGateway.PubSub,
            adapter: Phoenix.PubSub.PG2]
 
+
 # Configures Elixir's Logger
 config :logger, :console,
-  format: "$time $metadata[$level] $message\n",
-  metadata: [:user_id]
+       format: "$time $metadata[$level] $message\n",
+       metadata: [:user_id]
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
