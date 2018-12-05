@@ -3,8 +3,6 @@ defmodule MessagesGateway.Prioritization do
   alias MessagesGateway.Redis
 
   @messages_gateway_conf :messages_gateway_conf
-  @priority_on_price :priority_on_price
-  @priority_on_rang :priority_on_rang
   @operators_config :operators_config
   @first_priority 1
 
@@ -27,13 +25,13 @@ defmodule MessagesGateway.Prioritization do
     end
   end
 
-  defp select_priority([], priority_key, acc), do: acc
+  defp select_priority([], _, acc), do: acc
   defp select_priority([{operator_type_id, operator_info_map} | tail], priority_key, acc) do
     priority = %{
       operator_type_id: operator_type_id,
       priority: Map.get(operator_info_map, priority_key),
       configs: operator_info_map.operator_configs}
-    select_priority([head | tail], priority_key, [priority | acc])
+    select_priority(tail, priority_key, [priority | acc])
   end
 
 end

@@ -41,7 +41,7 @@ defmodule MessagesGateway.Redis do
 
   @spec command(list) :: {:ok, term} | {:error, term}
   defp command(command) when is_list(command) do
-    pool_size = config()[:pool_size]
+    pool_size = Application.get_env(:messages_gateway,  MessagesGateway.Redis)
     connection_index = rem(System.unique_integer([:positive]), pool_size)
 
     Redix.command(:"redis_#{connection_index}", command)
