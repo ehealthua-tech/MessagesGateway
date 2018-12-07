@@ -7,7 +7,7 @@ defmodule MessagesGateway.Application do
   def start(_type, _args) do
     import Supervisor.Spec
 
-    config = Application.get_env(:messages_gateway,  MessagesGateway.Redis)
+    config = Application.get_env(:messages_gateway,  MessagesGateway.RedisManager)
     hostname = config[:host]
     password = config[:password]
     database = config[:database]

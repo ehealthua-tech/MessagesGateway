@@ -1,103 +1,106 @@
 defmodule MessagesGatewayWeb.MessageController do
   use MessagesGatewayWeb, :controller
+  alias MessagesGateway.UUID
+  alias MessagesGateway.Prioritization
 
-  def send_message(conn, %{"resource" => %{"request_id" => request_id, "contact" => contact, "body" => body} = resource}) do
-    uuid = MessagesGateway.UUID.generate_uuid()
-    priority_list = MessagesGateway.DbAgent.get_priority_list()
-    body = Jason.encode!(Map.merge(resource, %{"uuid" => uuid, "priority_list" => priority_list}))
-    case :ok do # mockup
-      # case MessagesGateway.MqPublisher.publish(body) do
-      :ok ->
-        case :ok do # mockup
-          # case MessagesGateway.RedisMannager.put(uuid, "true", "false") do  TODO RedisMannager
-          :ok ->
-            render(conn, "index.json",
-              %{:body => %{
-                :meta => %{:url => "https://localhost:4000", :type => "list", :code => "200",:idempotency_key => "iXXekd88DKqo", :request_id => "qudk48fFlaP"},
-                :data => %{:status => "ok"}}}
-            )
-          :error ->
-            render(conn, "index.json", %{:body => %{:status => "error", :message => "Redis error"}})
-        end
-      {:error, error} ->
-        render(conn, "index.json", %{:body => %{:status => "error", :message => error}})
+  @sending_start_status true
+  @status_not_send false
+
+  action_fallback(MessagesGatewayWeb.FallbackController)
+
+#  ---- send a message to the client any available way ------------------------
+
+  def new_message(conn, %{"resource" => %{"request_id" => request_id, "contact" => contact, "body" => body} = resource}) do
+    with {:ok, priority_list} <- Prioritization.get_priority_list(),
+         {:ok, message_id} <- add_to_db_and_queue(request_id, contact, body, priority_list)
+      do
+      render(conn, "index.json", request_id: request_id, message_id: message_id)
     end
   end
 
-  def send_message(conn,  _) do
+  def new_message(conn,  _) do
     render(conn, "index.json", %{:body => %{:status => "error", :message => "Missed some request params"}})
   end
 
-  def send_sms(conn, %{"resource" => %{"request_id" => request_id, "phone" => phone, "body" => body} = resource}) do
-    uuid = MessagesGateway.UUID.generate_uuid()
-    priority_list = [1] #only sms
-    body = Jason.encode!(Map.merge(resource, %{"uuid" => uuid, "priority_list" => priority_list}))
-    #  case :ok do # mockup
-    case MessagesGateway.MqPublisher.publish(body) do
-      :ok ->
-        case :ok do # mockup
-          # case MessagesGateway.RedisMannager.put(uuid, "true", "false") do  TODO RedisMannager
-          :ok ->
-            render(conn, "index.json",
-              %{:body => %{
-                :meta => %{:url => "https://localhost:4000", :type => "list", :code => "200",:idempotency_key => "iXXekd88DKqo", :request_id => "qudk48fFlaP"},
-                :data => %{:status => "ok"}}}
-            )
-          :error ->
-            render(conn, "index.json", %{:body => %{:status => "error", :message => "Redis error"}})
-        end
-      {:error, error} ->
-        render(conn, "index.json", %{:body => %{:status => "error", :message => error}})
+#  ---- send a message to the client only by SMS way --------------------------
+
+  def new_sms(conn, %{"resource" => %{"request_id" => request_id, "phone" => phone, "body" => body} = resource}) do
+    with {:ok, priority_list} <- Prioritization.get_priority_list(),
+         {:ok, message_id} <- add_to_db_and_queue(request_id, phone, body, priority_list)
+      do
+      render(conn, "index.json", request_id: request_id, message_id: message_id)
     end
+
   end
 
-  def send_sms(conn,  _) do
+  def new_sms(conn,  _) do
     render(conn, "index.json", %{:body => %{:status => "error", :message => "Missed some request params"}})
   end
 
-  def send_email(conn, %{"resource" => %{"request_id" => request_id, "email" => email, "body" => body} = resource}) do
-    uuid = MessagesGateway.UUID.generate_uuid()
-    priority_list = [2] #only email
-    body = Jason.encode!(Map.merge(resource, %{"uuid" => uuid, "priority_list" => priority_list}))
-    case :ok do # mockup
-      # case MessagesGateway.MqPublisher.publish(body) do
-      :ok ->
-        case :ok do # mockup
-          # case MessagesGateway.RedisMannager.put(uuid, "true", "false") do  TODO RedisMannager
-          :ok ->
-            render(conn, "index.json",
-              %{:body => %{
-                :meta => %{:url => "https://localhost:4000", :type => "list", :code => "200",:idempotency_key => "iXXekd88DKqo", :request_id => "qudk48fFlaP"},
-                :data => %{:status => "ok"}}}
-            )
-          :error ->
-            render(conn, "index.json", %{:body => %{:status => "error", :message => "Redis error"}})
-        end
-      {:error, error} ->
-        render(conn, "index.json", %{:body => %{:status => "error", :message => error}})
+#  ---- send only e-mail ------------------------------------------------------
+
+  def new_email(conn, %{"resource" => %{"request_id" => request_id, "email" => email, "body" => body} = resource}) do
+    with {:ok, priority_list} <- Prioritization.get_priority_list(),
+         {:ok, message_id} <- add_to_db_and_queue(request_id, email, body, priority_list)
+      do
+      render(conn, "index.json", request_id: request_id, message_id: message_id)
     end
+
   end
 
-  def send_email(conn,  _) do
+  def new_email(conn,  _) do
     render(conn, "index.json", %{:body => %{:status => "error", :message => "Missed some request params"}})
   end
 
-  def message_status(conn, %{"resource" => %{"request_id" => request_id}}) do
-    case {:ok, %{:status => "sending"}} do # mockup
-      # case MessagesRouter.message_status(request_id) do
-      {:ok, response} ->
-        render(conn, "index.json",
-          %{:body => %{
-            :meta => %{:url => "https://localhost:4000", :type => "list", :code => "200",:idempotency_key => "iXXekd88DKqo", :request_id => "qudk48fFlaP"},
-            :data => response}}
-        )
-      {:error, error} ->
-        render(conn, "index.json", %{:body => %{:status => "error", :message => error}})
+# ---- Check message status ---------------------------------------------------------
+
+  def message_status(conn, %{"resource" => %{"request_id" => request_id, "message_id" => message_id}}) do
+    with {:ok, message_info} <- MessagesGateway.RedisManager.get(message_id),
+         message_info_map <- Jason.decode!(message_info)
+      do
+      render(conn, "message_status.json", request_id: request_id, message_id: message_id, message_status: message_info_map.sending_status)
     end
   end
 
   def message_status(conn,  _) do
     render(conn, "index.json", %{:body => %{:status => "error", :message => "Missed some request params"}})
+  end
+
+# ---- Change message status ---------------------------------------------------------
+
+  def change_message_status(conn, %{"resource" => %{"request_id" => request_id, "message_id" => message_id, "sending_active" => active}}) do
+    with {:ok, json_body} <- Jason.encode(%{sending_status: active}),
+          :ok <- MessagesGateway.RedisManager.set(message_id, json_body)
+      do
+      render(conn, "message_change_status.json", %{sending_status: active})
+    end
+
+  end
+
+  def change_message_status(conn,  _) do
+    render(conn, "index.json", %{:body => %{:status => "error", :message => "Missed some request params"}})
+  end
+
+# ---- Help functions ---------------------------------------------------------
+
+  def add_to_db_and_queue(request_id, contact, body, priority_list) do
+    with {:ok, message_id} <- UUID.generate_uuid(),
+         :ok <- add_to_redis(message_id, %{actrive: @sending_start_status, sending_status: @status_not_send}),
+         :ok <- add_to_message_queue(message_id, %{message_id: message_id, contact: contact, body: body,
+           priority_list: priority_list})
+      do
+        {:ok, message_id}
+    end
+  end
+
+  def add_to_redis(message_id, body) do
+    redis_body = Jason.encode!(body)
+    MessagesGateway.RedisManager.set(message_id, redis_body)
+  end
+
+  def add_to_message_queue(message_id, body) do
+    Jason.encode!(body)
+    |> MessagesGateway.MqPublisher.publish()
   end
 
 end

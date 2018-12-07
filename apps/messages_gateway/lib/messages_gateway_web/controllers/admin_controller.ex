@@ -1,131 +1,102 @@
 defmodule MessagesGatewayWeb.AdminController do
   use MessagesGatewayWeb, :controller
 
+  action_fallback(MessagesGatewayWeb.FallbackController)
+
+  @messages_gateway_conf :messages_gateway_conf
+  @operators_config :operators_config
+
+#  ---- send a message to the client any available way ------------------------
+
   def get_system_config(conn, _params) do
-    case {:ok, %{:auth => "user", :password => "12345"}} do # mockup
-   # case DbAgent.get_system_config() do
-      {:ok, response} ->
-        render(conn, "index.json",
-          %{:body => %{
-            :meta => %{:url => "https://localhost:4000", :type => "list", :code => "200",:idempotency_key => "iXXekd88DKqo", :request_id => "qudk48fFlaP"},
-            :data => response}}
-        )
-      {:error, error} ->
-        render(conn, "index.json", %{:body => %{:status => "error", :message => error}})
+    with {:ok, system_config} <- RedisManager.get(@messages_gateway_conf)
+      do
+      render(conn, "system_config.json",  %{:config => system_config})
     end
+
   end
 
+#  ---- send a message to the client any available way ------------------------
+
   def add_system_config(conn, %{"resource" => %{"auth" => auth, "password" => password}}) do
-    case :ok do # mockup
-      # case DbAgent.add_system_config(auth, password) do
-      :ok ->
-        render(conn, "index.json",
-          %{:body => %{
-            :meta => %{:url => "https://localhost:4000", :type => "list", :code => "200",:idempotency_key => "iXXekd88DKqo", :request_id => "qudk48fFlaP"},
-            :data => %{:status => "ok"}}}
-        )
-      {:error, error} ->
-        render(conn, "index.json", %{:body => %{:status => "error", :message => error}})
+    with :ok <- RedisManager.set(@messages_gateway_conf)
+      do
+       render(conn, "change_system_config.json", %{status: :ok})
     end
   end
 
   def add_system_config(conn,  _) do
-    render(conn, "index.json", %{:body => %{:status => "error", :message => "Missed some request params"}})
+    render(conn, "index.json", %{status: :ok})
   end
 
+#  ---- send a message to the client any available way ------------------------
+
   def edit_system_config(conn, %{"resource" => %{"auth" => auth, "password" => password}}) do
-    case :ok do # mockup
-      # case DbAgent.edit_system_config(auth, password) do
-      :ok ->
-        render(conn, "index.json",
-          %{:body => %{
-            :meta => %{:url => "https://localhost:4000", :type => "list", :code => "200",:idempotency_key => "iXXekd88DKqo", :request_id => "qudk48fFlaP"},
-            :data => %{:status => "ok"}}}
-        )
-      {:error, error} ->
-        render(conn, "index.json", %{:body => %{:status => "error", :message => error}})
+    with {:ok, system_config} <- RedisManager.set(@messages_gateway_conf)
+      do
+      render(conn, "change_system_config.json", %{status: :ok})
     end
+
   end
 
   def edit_system_config(conn,  _) do
     render(conn, "index.json", %{:body => %{:status => "error", :message => "Missed some request params"}})
   end
+#################################### END ######################################
+
+#  ---- send a message to the client any available way ------------------------
 
   def get_operator_types(conn, _params) do
-    case {:ok, [%{:operator_type_id => 1, :operator_type_name => "SMS"}, %{:operator_type_id => 2, :operator_type_name => "Email"}, %{:operator_type_id => 3, :operator_type_name => "Messenger"}]} do # mockup
-      # case DbAgent.get_operator_types() do
-      {:ok, response} ->
-        render(conn, "index.json",
-          %{:body => %{
-            :meta => %{:url => "https://localhost:4000", :type => "list", :code => "200",:idempotency_key => "iXXekd88DKqo", :request_id => "qudk48fFlaP"},
-            :data => response}})
-      {:error, error} ->
-        render(conn, "index.json", %{:body => %{:status => "error", :message => error}})
+    with {:ok, operator_types} <- ABAgent.OperatorTypes.select_all_operator_types()
+      do
+      render(conn, "operator_types.json", %{operator_types: operator_types})
     end
   end
 
-  def add_operator_type(conn, %{"resource" => %{"name" => name}}) do
-    case :ok do # mockup
-      # case DbAgent.add_operator_type(name) do
-      :ok ->
-        render(conn, "index.json",
-          %{:body => %{
-            :meta => %{:url => "https://localhost:4000", :type => "list", :code => "200",:idempotency_key => "iXXekd88DKqo", :request_id => "qudk48fFlaP"},
-            :data => %{:status => "ok"}}}
-        )
-      {:error, error} ->
-        render(conn, "index.json", %{:body => %{:status => "error", :message => error}})
+  def add_operator_type(conn, %{"resource" => %{"operator_type_name" => operator_type_name}}) do
+    with :ok <- ABAgent.OperatorTypes.insert_operator_types(operator_type_name)
+      do
+      render(conn, "change_operator_type.json", %{status: :ok})
     end
+
   end
 
   def add_operator_type(conn,  _) do
     render(conn, "index.json", %{:body => %{:status => "error", :message => "Missed some request params"}})
   end
 
-  def delete_operator_type(conn, %{"resource" => %{"name" => name}}) do
-    case :ok do # mockup
-      # case DbAgent.delete_operator_type(name) do
-      :ok ->
-        render(conn, "index.json",
-          %{:body => %{
-            :meta => %{:url => "https://localhost:4000", :type => "list", :code => "200",:idempotency_key => "iXXekd88DKqo", :request_id => "qudk48fFlaP"},
-            :data => %{:status => "ok"}}}
-        )
-      {:error, error} ->
-        render(conn, "index.json", %{:body => %{:status => "error", :message => error}})
+#  ---- send a message to the client any available way ------------------------
+
+  def delete_operator_type(conn, %{"resource" => %{"operator_type_id" => operator_type_id}}) do
+    with :ok <- ABAgent.OperatorTypes.deactivate(operator_type_id)
+      do
+      render(conn, "change_operator_type.json", %{status: :ok})
     end
+
   end
 
   def delete_operator_type(conn,  _) do
     render(conn, "index.json", %{:body => %{:status => "error", :message => "Missed some request params"}})
   end
 
+#################################### END ######################################
+
+#  ---- send a message to the client any available way ------------------------
+
   def get_all_operators(conn, _params) do
-    case {:ok, [%{:id => 1, :name => "LifeCell", :limit => 1000, :price => 12, :config => %{:api => "lifecell.com"}},
-                %{:id => 2, :name => "Vodafone", :limit => 2000, :price => 13, :config => %{:api => "vodafone.com"}}]} do # mockup
-      # case DbAgent.get_all_operators() do
-      {:ok, response} ->
-        render(conn, "index.json",
-          %{:body => %{
-            :meta => %{:url => "https://localhost:4000", :type => "list", :code => "200",:idempotency_key => "iXXekd88DKqo", :request_id => "qudk48fFlaP"},
-            :data => response}}
-        )
-      {:error, error} ->
-        render(conn, "index.json", %{:body => %{:status => "error", :message => error}})
+    with {:ok, operators} <- ABAgent.Operators.select_all_operators()
+      do
+      render(conn, "operators.json", %{operators: operators})
     end
   end
 
-  def add_operator(conn, %{"resource" => %{"name" => name, "limit" => limit, "price" => price, "config" => config}}) do
-    case :ok do # mockup
-      # case DbAgent.add_operator(name, limit, price, config) do
-      :ok ->
-        render(conn, "index.json",
-          %{:body => %{
-            :meta => %{:url => "https://localhost:4000", :type => "list", :code => "200",:idempotency_key => "iXXekd88DKqo", :request_id => "qudk48fFlaP"},
-            :data => %{:status => "ok"}}}
-        )
-      {:error, error} ->
-        render(conn, "index.json", %{:body => %{:status => "error", :message => error}})
+#  ---- send a message to the client any available way ------------------------
+
+  def add_operator(conn, %{"resource" => %{"operator_name" => operator_name, "limit_per_sec" => limit,
+    "message_price" => price, "operator_config" => config} = operator_info}) do
+    with :ok <- ABAgent.Operators.insert_operator(operator_info)
+      do
+      render(conn, "change_operator.json", %{status: :ok})
     end
   end
 
@@ -133,35 +104,29 @@ defmodule MessagesGatewayWeb.AdminController do
     render(conn, "index.json", %{:body => %{:status => "error", :message => "Missed some request params"}})
   end
 
-  def operator_edit(conn, %{"resource" => %{"name" => name, "limit" => limit, "price" => price, "config" => config}}) do
-    case :ok do # mockup
-      # case DbAgent.operator_edit(name, limit, price, config) do
-      :ok ->
-        render(conn, "index.json",
-          %{:body => %{
-            :meta => %{:url => "https://localhost:4000", :type => "list", :code => "200",:idempotency_key => "iXXekd88DKqo", :request_id => "qudk48fFlaP"},
-            :data => %{:status => "ok"}}}
-        )
-      {:error, error} ->
-        render(conn, "index.json", %{:body => %{:status => "error", :message => error}})
+#  ---- send a message to the client any available way ------------------------
+
+  def operator_edit(conn, %{"resource" => %{"operator_id" => operator_id, "operator_name" => name,
+    "limit_per_sec" => limit, "message_price" => price, "operator_config" => config,
+    "operator_active" => operator_active} = operator_info}) do
+
+    with :ok <- ABAgent.Operators.update_operator(operator_info)
+      do
+      render(conn, "change_operator.json", %{status: :ok})
     end
+
   end
 
   def operator_edit(conn,  _) do
     render(conn, "index.json", %{:body => %{:status => "error", :message => "Missed some request params"}})
   end
 
+#  ---- send a message to the client any available way ------------------------
+
   def operator_delete(conn, %{"resource" => %{"operator_id" => operator_id}}) do
-    case :ok do # mockup
-      # case DbAgent.operator_delete(operator_id) do
-      :ok ->
-        render(conn, "index.json",
-          %{:body => %{
-            :meta => %{:url => "https://localhost:4000", :type => "list", :code => "200",:idempotency_key => "iXXekd88DKqo", :request_id => "qudk48fFlaP"},
-            :data => %{:status => "ok"}}}
-        )
-      {:error, error} ->
-        render(conn, "index.json", %{:body => %{:status => "error", :message => error}})
+    with :ok <- ABAgent.Operators.deactivate_operator(operator_id)
+      do
+      render(conn, "change_operator.json", %{status: :ok})
     end
   end
 
