@@ -53,7 +53,7 @@ defmodule MessagesGateway.MqPublisher do
 
         {:ok, chan} = Channel.open(conn)
 
-        Queue.declare(chan, queue_name, durable: true)
+        Queue.declare(chan, queue_name, [durable: true, arguments: [{"x-max-priority", :short, 10}]])
         Exchange.fanout(chan, @exchange, durable: true)
         Queue.bind(chan, queue_name, @exchange)
 
