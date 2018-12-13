@@ -40,7 +40,6 @@ defmodule DbAgent.Mixfile do
       {:ecto, "~> 2.1"},
       {:phoenix_ecto, "~> 3.2"},
       {:scrivener_ecto, "~> 1.2"},
-      {:ecto_trail, "0.2.3"},
       {:jason, "~> 1.0"},
       {:httpoison, "~> 1.1.0"},
       {:timex, "~> 3.2"},

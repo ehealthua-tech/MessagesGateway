@@ -12,4 +12,8 @@ defmodule DbAgent.Repo.Migrations.CreateContacts do
 
     create unique_index(:contacts, [:phone_number])
   end
+
+  def down do
+    drop table(:contacts)
+  end
 end

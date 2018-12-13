@@ -12,4 +12,8 @@ defmodule DbAgent.Repo.Migrations.CreateOperatorTypes do
 
     create unique_index(:operator_types, [:name])
   end
+
+  def down do
+    drop table(:operator_types)
+  end
 end

@@ -3,6 +3,7 @@ defmodule DbAgent.Operators do
   import Ecto.Changeset
   alias DbAgent.OperatorTypes
 
+  @primary_key {:id, :binary_id, autogenerate: true}
 
   schema "operators" do
     field(:name, :string, null: false)
@@ -12,18 +13,17 @@ defmodule DbAgent.Operators do
     field(:limit, :integer)
     field(:active, :boolean, default: false)
 
-    belongs_to(:operator_types_id, OperatorTypes)
+    belongs_to(:operator_types, OperatorTypes, foreign_key: :operator_type_id, type: :binary_id)
 
     timestamps()
   end
 
-  @doc false
-
+  @spec changeset(operators :: Operators.t(), %{}) :: Ecto.Changeset.t()
   def changeset(operators, attrs) do
     operators
-    |> cast(attrs, [:name, :config, :priority, :price, :limit, :active])
-    |> validate_required([:name, :active])
+    |> cast(attrs, [:name, :operator_type_id, :config, :priority, :price, :limit, :active])
+    |> validate_required([:name, :operator_type_id, :config, :priority, :price, :limit, :active])
     |> unique_constraint(:name)
-    |> foreign_key_constraint(:operator_types_id)
+    |> foreign_key_constraint(:operator_type_id)
   end
 end

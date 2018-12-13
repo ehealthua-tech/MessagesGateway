@@ -3,21 +3,19 @@ defmodule DbAgent.Contacts do
   import Ecto.Changeset
   alias DbAgent.Operators
 
+  @primary_key {:id, :binary_id, autogenerate: true}
 
   schema "contacts" do
     field(:phone_number, :string,  null: false)
 
-    belongs(:operator_id, Operators)
-
+    belongs_to(:operator, Operators, foreign_key: :operator_id, type: :binary_id)
     timestamps()
   end
 
-  @doc false
-  def changeset(operator_type, attrs) do
-    operator_type
-    |> cast(attrs, [:phone_number])
+  def changeset(contacts, attrs) do
+    contacts
+    |> cast(attrs, [:phone_number, :operator])
     |> validate_required([:phone_number])
     |> unique_constraint(:phone_number)
-    |> foreign_key_constraint(:name)
   end
 end

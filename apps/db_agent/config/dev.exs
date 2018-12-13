@@ -5,6 +5,6 @@ config :db_agent, DbAgent.Repo,
   adapter: Ecto.Adapters.Postgres,
   username: "postgres",
   password: "postgres",
-  database: "db_agent_dev",
+  database: "messages_gateway",
   hostname: "localhost",
   pool_size: 10
