@@ -19,23 +19,11 @@ defmodule MqSubscriber do
       GenServer.call(__MODULE__, {:publish, message, priority})
     end
 
-#    def subscribe() do
-#         GenServer.call(__MODULE__, :subscribe)
-#    end
-
     def handle_call({:publish, message, priority}, _, %{chan: chan, connected: true, queue_name: queue_name} = state) do
       :io.format("Priority:~p~n",[priority])
       result = Basic.publish(chan, "", @queue, message, [persistent: true, priority: priority])
       {:reply, result, state}
     end
-
-#    def handle_call(:subscribe, _, %{chan: chan, queue_name: queue_name} = state) do
-#      sub = AMQP.Queue.subscribe chan, queue_name,
-#                                 fn(payload, _meta) ->
-#                                   ProviderSelector.send_message(payload)
-#                                 end
-#      {:reply, :ok, %{state | subscribe: sub}}
-#    end
 
     def handle_info(:message, state) do
       new_state = connect(state)
@@ -75,7 +63,7 @@ defmodule MqSubscriber do
           Queue.bind(chan, queue_name, @exchange)
           {ok, sub} = AMQP.Queue.subscribe chan, queue_name,
                                            fn(payload, _meta) ->
-                                             ProviderSelector.send_message(payload)
+                                             OperatorSelector.send_message(payload)
                                            end
           %{ state | chan: chan, connected: true, conn: conn, subscribe: sub }
         {:error, _} ->
