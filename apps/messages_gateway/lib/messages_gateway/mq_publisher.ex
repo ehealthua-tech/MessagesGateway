@@ -20,7 +20,7 @@ defmodule MessagesGateway.MqPublisher do
   end
 
   def handle_call({:publish, message}, _, %{chan: chan, connected: true, queue_name: queue_name} = state) do
-    result = Basic.publish(chan, "", @queue, message, persistent: true)
+    result = Basic.publish(chan, "", @queue, message, [persistent: true, priority: 0])
     {:reply, result, state}
   end
 
