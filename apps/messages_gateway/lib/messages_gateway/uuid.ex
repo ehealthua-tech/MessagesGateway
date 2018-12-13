@@ -3,7 +3,8 @@ defmodule MessagesGateway.UUID do
 
   def generate_uuid() do
     <<u0::48, _::4, u1::12, _::2, u2::62>> = :crypto.strong_rand_bytes(16)
-    bytes_to_string(<<u0::48, 4::4, u1::12, 2::2, u2::62>>)
+    string_uuid = bytes_to_string(<<u0::48, 4::4, u1::12, 2::2, u2::62>>)
+    {:ok, string_uuid}
   end
 
   # Convert bytes to String.

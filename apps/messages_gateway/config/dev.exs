@@ -47,7 +47,7 @@ config :logger, :console, format: "[$level] $message\n"
 # in production as building large stacktraces may be expensive.
 config :phoenix, :stacktrace_depth, 20
 
-config :messages_gateway, MessagesGateway.Redis,
+config :messages_gateway, MessagesGateway.RedisManager,
        host: "127.0.0.1",
        database: "1",
        password: nil,
