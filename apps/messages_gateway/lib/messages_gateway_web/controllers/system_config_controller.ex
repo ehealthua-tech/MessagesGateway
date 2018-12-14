@@ -12,7 +12,7 @@ defmodule SystemConfigController do
   def show(conn, _params) do
     with {:ok, system_config} <- RedisManager.get(@messages_gateway_conf)
       do
-      render(conn, "system_config.json",  %{:config => system_config})
+        render(conn, "system_config.json",  %{:config => system_config})
     end
 
   end
@@ -22,7 +22,7 @@ defmodule SystemConfigController do
   def add(conn, %{"resource" => %{"auth" => auth, "password" => password}}) do
     with :ok <- RedisManager.set(@messages_gateway_conf)
       do
-      render(conn, "change_system_config.json", %{status: :ok})
+        render(conn, "change_system_config.json", %{status: :ok})
     end
   end
 
@@ -31,7 +31,7 @@ defmodule SystemConfigController do
   def edit(conn, %{"resource" => %{"auth" => auth, "password" => password}}) do
     with {:ok, system_config} <- RedisManager.set(@messages_gateway_conf)
       do
-      render(conn, "change_system_config.json", %{status: :ok})
+        render(conn, "change_system_config.json", %{status: :ok})
     end
 
   end

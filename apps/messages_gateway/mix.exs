@@ -43,8 +43,10 @@ defmodule MessagesGateway.Mixfile do
       {:phoenix_live_reload, "~> 1.0", only: :dev},
       {:gettext, "~> 0.11"},
       {:amqp, "~> 1.0"},
+      {:eview, "~> 0.12"},
       {:redix, ">= 0.0.0"},
       {:jason, "~> 1.1"},
+      {:plug_logger_json, "~> 0.5"},
       {:plug_cowboy, "~> 1.0"}
     ]
   end

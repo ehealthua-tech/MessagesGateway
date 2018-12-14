@@ -20,18 +20,9 @@ defmodule DbAgent.OperatorTypesRequests do
 
   @spec change_status(params :: Keyword.t()) :: {:ok, OperatorTypesSchema.t()} | {:error, Ecto.Changeset.t()}
   def change_status(params) do
-    operator_type = get_by_id!(params.id)
-    with updates <-
-        operator_type
-        |> change
-        |> put_change(:active, params.active) do
-      Repo.update(updates)
-    end
+    OperatorTypesSchema
+    |> where([ot], ot.id == ^params.id)
+    |> Repo.update_all( set: [active: params.active])
   end
 
-  def get_by_id!(id) do
-      OperatorTypesSchema
-      |> where([ot], ot.id == ^id)
-      |> Repo.one!()
-  end
 end
