@@ -85,7 +85,7 @@ defmodule MessagesGatewayWeb.MessageController do
 
   def add_to_db_and_queue(request_id, contact, body, priority_list) do
     with {:ok, message_id} <- UUID.generate_uuid(),
-         :ok <- add_to_redis(message_id, %{actrive: @sending_start_status, sending_status: @status_not_send}),
+         :ok <- add_to_redis(message_id, %{active: @sending_start_status, sending_status: @status_not_send}),
          :ok <- add_to_message_queue(message_id, %{message_id: message_id, contact: contact, body: body,
            priority_list: priority_list})
       do

@@ -36,9 +36,9 @@ defmodule MessagesGatewayWeb.Router do
     post "/operator_edit", AdminController, :operator_edit
     post "/operator_delete", AdminController, :operator_delete
 
-    post "/send_message", MessageController, :send_message
-    post "/send_sms", MessageController, :send_sms
-    post "/send_email", MessageController, :send_email
+    post "/send_message", MessageController, :new_message
+    post "/send_sms", MessageController, :new_sms
+    post "/send_email", MessageController, :new_email
     post "/message_status", MessageController, :message_status
 
   end

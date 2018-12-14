@@ -20,7 +20,7 @@ defmodule MessagesGateway.MqPublisher do
   end
 
   def handle_call({:publish, message}, _, %{chan: chan, connected: true, queue_name: queue_name} = state) do
-    result = Basic.publish(chan, "", @queue, message, persistent: true)
+    result = Basic.publish(chan, "", @queue, message, [persistent: true, priority: 0])
     {:reply, result, state}
   end
 
@@ -53,7 +53,7 @@ defmodule MessagesGateway.MqPublisher do
 
         {:ok, chan} = Channel.open(conn)
 
-        Queue.declare(chan, queue_name, durable: true)
+        Queue.declare(chan, queue_name, [durable: true, arguments: [{"x-max-priority", :short, 10}]])
         Exchange.fanout(chan, @exchange, durable: true)
         Queue.bind(chan, queue_name, @exchange)
 
