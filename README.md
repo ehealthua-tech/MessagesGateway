@@ -1,6 +1,6 @@
 # MessagesGateway
 
-###Rest API
+### Rest API
 ```
 
 HOST: http://192.168.100.165
@@ -9,7 +9,7 @@ PORT: 4011
 ```
 
 
-####Requests from web.admin
+#### Requests from web.admin
 
 
 **get_operator_types**
@@ -151,7 +151,7 @@ Method: POST
 
 url: HOST:PORT/operators
 ```
-*body:
+body:
 ```json
     {"resource": {
     "name":"sms4", 
