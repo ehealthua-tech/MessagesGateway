@@ -9,10 +9,10 @@ PORT: 4011
 ```
 
 
-***Requests from web.admin***
+####Requests from web.admin
 
 
-#####get_operator_types
+**get_operator_types**
 
 *request:*
 ```
@@ -46,7 +46,7 @@ url: HOST:PORT/operator_type
 }
 ```
 
-#####add_operator_type
+**add_operator_type**
 
 *request:*
 ```
@@ -54,7 +54,7 @@ Method: POST
 
 url: HOST:PORT/operator_type
 ```
-######body:
+body:
 ```json
     {"resource": {"operator_type_name":"viber1"}}
 
@@ -75,7 +75,7 @@ url: HOST:PORT/operator_type
 }
 ```
 
-#####delete_operator_type
+**delete_operator_type**
 
 *request:*
 ```
@@ -83,7 +83,7 @@ Method: POST
 
 url: HOST:PORT/operator_type/deactivate
 ```
-######body:
+body:
 ```json
     {"resource": {"operator_type_id": "4d7ae33b-0542-4381-bfd1-dca84d90df9e", "active": true}}
 
@@ -104,7 +104,7 @@ url: HOST:PORT/operator_type/deactivate
 }
 ```
 
-#####get_all_operators
+**get_all_operators**
 
 *request:*
 ```
@@ -144,14 +144,14 @@ url: HOST:PORT//operators
 }
 ```
 
-#####add_operator
+**add_operator**
 *request:*
 ```
 Method: POST 
 
 url: HOST:PORT/operators
 ```
-######body:
+*body:
 ```json
     {"resource": {
     "name":"sms4", 
@@ -179,14 +179,14 @@ url: HOST:PORT/operators
     }
 }
 ```
-#####operator_edit
+**operator_edit**
 *request:*
 ```
 Method: POST 
 
 url: HOST:PORT/operators/update_priority
 ```
-######body:
+body:
 ```json
 
     {"resource": [
@@ -225,7 +225,7 @@ url: HOST:PORT/operators/update_priority
     }
 }
 ```
-#####operator_delete
+**operator_delete**
 
 *request:*
 ```
