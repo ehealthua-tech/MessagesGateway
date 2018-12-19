@@ -5,7 +5,7 @@ defmodule ViberProtocol do
     import Supervisor.Spec
 
     children = [
-      worker(Subscriber, [])
+      worker(ViberSubscriber, [])
     ]
 
     opts = [strategy: :one_for_one, name: ViberProtocol.Supervisor]

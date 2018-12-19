@@ -25,7 +25,7 @@ defmodule MessagesGateway.Prioritization do
     end
   end
 
-  defp select_priority([], _, acc), do: acc
+  defp select_priority([], _, acc), do: {:ok, acc}
   defp select_priority([operator_type_map | tail], priority_key, acc) do
     [operator_type_id] = Map.keys(operator_type_map)
     operator_info_map = Map.get(operator_type_map, operator_type_id)

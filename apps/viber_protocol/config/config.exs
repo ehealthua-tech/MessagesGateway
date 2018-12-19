@@ -28,3 +28,8 @@ use Mix.Config
 # here (which is why it is important to import them last).
 #
 #     import_config "#{Mix.env()}.exs"
+
+config :messages_router,
+       namespace: MessagesRouter,
+       mq_host: "localhost",
+       mq_port: 5672
