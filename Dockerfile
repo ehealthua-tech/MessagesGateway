@@ -57,3 +57,7 @@ ENV REPLACE_OS_VARS=true \
       APP=${APP_NAME}
 
 CMD ./bin/${APP} foreground
+
+
+
+
