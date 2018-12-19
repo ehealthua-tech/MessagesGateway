@@ -21,8 +21,8 @@ defmodule OperatorSelector do
   end
 
   defp send_to_operator(payload, provider) do
-    # MqSubscriber.send_to_operator(payload, operator)
     :io.format("Sent to provider queue")
+    MqSubscriber.send_to_operator(payload, "operator_queue")
   end
 
 end

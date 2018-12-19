@@ -19,9 +19,17 @@ defmodule MqSubscriber do
       GenServer.call(__MODULE__, {:publish, message, priority})
     end
 
+    def send_to_operator(message, operator_queue) do
+      GenServer.call(__MODULE__, {:send_to_operator, message, operator_queue})
+    end
+
     def handle_call({:publish, message, priority}, _, %{chan: chan, connected: true, queue_name: queue_name} = state) do
-      :io.format("Priority:~p~n",[priority])
       result = Basic.publish(chan, "", @queue, message, [persistent: true, priority: priority])
+      {:reply, result, state}
+    end
+
+    def handle_call({:send_to_operator, message, operator_queue}, _, %{chan: chan, connected: true, queue_name: queue_name} = state) do
+      result = Basic.publish(chan, "", operator_queue, message, [persistent: true, priority: 0])
       {:reply, result, state}
     end
 
