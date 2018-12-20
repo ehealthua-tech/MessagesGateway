@@ -18,7 +18,7 @@ defmodule ViberApi do
 
 
   def set_webhook(url)do
-    body = %{url: url, event_types: ["delivered", "seen","failed", "subscribed","unsubscribed", "conversation_started", "message"],
+    body = %{url: url, event_types: ["delivered", "seen","failed", "subscribed","unsubscribed", "conversation_started"],
                                                                                                 send_name: true, send_photo: true}
     ViberEndpoint.request("set_webhook", body)
   end
