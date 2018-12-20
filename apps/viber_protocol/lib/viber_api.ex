@@ -67,7 +67,7 @@ defmodule ViberApi do
         [_, number] = String.split(text, "+380")
         :io.format("~n~nlength :~p~n", [length])
         case String.to_integer(number) do
-          is_integer(x) ->
+          x ->
             :io.format("~n~nx :~p~n", [x])
             DbAgent.ContactsRequests.add_viber_id(%{phone_number: text, viber_id: user_id})
                   :noreply
