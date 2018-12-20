@@ -5,6 +5,7 @@ defmodule ViberProtocol do
     import Supervisor.Spec
 
     children = [
+      worker(Plug.Cowboy, [scheme: :http, plug: ViberCallback, options: [port: 6012]]),
       worker(Subscriber, [])
     ]
 
