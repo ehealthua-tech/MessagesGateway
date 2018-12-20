@@ -5,9 +5,11 @@ defmodule ViberEndpoint do
   def viber_api(), do: @viber_url
 
   def request(method, body \\ []) do
+    newbody = Jason.encode!(body)
+    :io.format("~nnewbody: ~p~n", [newbody])
     method
     |> build_url()
-    |> HTTPoison.post(body, headers())
+    |> HTTPoison.post(newbody, headers())
     |> response()
   end
 
@@ -23,19 +25,26 @@ defmodule ViberEndpoint do
 
   defp decode_response(response) do
     with {:ok, %HTTPoison.Response{body: body}} <- response,
-         {:ok, %{result: result}} <- Poison.decode(body, keys: :atoms),
+         {:ok, %{result: result}} <- Jason.decode(body, keys: :atoms),
          do: {:ok, result}
   end
 
   defp build_url(method) do
-    @viber_url <> "/" <> method
+    url = @viber_url <> "/" <> method
+
+    :io.format("~nurl:~p~n", [url])
+    url
   end
 
   defp headers() do
     auth_token = Application.get_env(:viber_protocol, :auth_token)
-    [
-      "Content-Type": "application/json",
-      "X-Viber-Auth-Token": auth_token
-    ]
+    header =
+      [
+        "Content-Type": "application/json",
+        "X-Viber-Auth-Token": auth_token
+      ]
+
+    :io.format("~nheader: ~p~n", [header])
+    header
   end
 end
