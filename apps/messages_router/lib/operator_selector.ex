@@ -7,7 +7,9 @@ defmodule OperatorSelector do
     if active do
       if sending_status == false do
         if priority_list != [] do
-          [%{"operator_type_id" => operator_type_id} | new_priority_list] = priority_list
+          selected_operator = Enum.min_by(priority_list, fn e -> Map.get(e, "priority") end)
+          %{"operator_type_id" => operator_type_id} = selected_operator
+          new_priority_list = List.delete(priority_list, selected_operator)
           send_to_operator(payload, operator_type_id)
         else
           :callback_failed

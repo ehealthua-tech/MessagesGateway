@@ -10,11 +10,11 @@ use Mix.Config
 
 # You can configure your application as:
 #
-#     config :viber_protocol, key: :value
+#     config :telegram_protocol, key: :value
 #
 # and access this configuration in your application as:
 #
-#     Application.get_env(:viber_protocol, :key)
+#     Application.get_env(:telegram_protocol, :key)
 #
 # You can also configure a 3rd-party app:
 #
@@ -29,7 +29,7 @@ use Mix.Config
 #
 #     import_config "#{Mix.env()}.exs"
 
-config :viber_protocol,
+config :telegram_protocol,
        namespace: MessagesRouter,
        mq_host: "localhost",
        mq_port: 5672
