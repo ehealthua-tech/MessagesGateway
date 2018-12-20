@@ -29,6 +29,7 @@ defmodule ViberEndpoint do
          do
       :io.format("~n~nresponse result:~p~n", [result])
       {:ok, result}
+    end
   end
 
   defp build_url(method) do
