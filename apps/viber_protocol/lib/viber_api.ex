@@ -42,7 +42,7 @@ defmodule ViberApi do
   end
 
   def check_body("text", body) do
-    :io.format("~n~ntext :~p~n", [text])
+    :io.format("~n~ntext :~p~n", [body])
     text =  get_in(body, ["text"])
 
   end
