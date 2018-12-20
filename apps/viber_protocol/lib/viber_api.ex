@@ -37,7 +37,7 @@ defmodule ViberApi do
     id = get_in(body, ["user", "id"])
     body = %{receiver: id, min_api_version: 1, sender: %{name: "E-Test", avatar: "http://avatar.example.com"},
          tracking_data: "Phone_number", type: "text", text: "Введіть Ваший номер телефону у форматі +380ххххххххх"}
-    {:ok, result} = ViberEndpoint.request("send_message", %{id: id})
+    {:ok, result} = ViberEndpoint.request("send_message", body)
 
   end
 
