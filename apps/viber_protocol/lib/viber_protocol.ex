@@ -5,8 +5,8 @@ defmodule ViberProtocol do
     import Supervisor.Spec
 
     children = [
-      worker(Plug.Cowboy, [scheme: :http, plug: ViberCallback, options: [port: 6012]]),
-      worker(Subscriber, [])
+      Plug.Cowboy.child_spec(scheme: :http, plug: ViberCallback, options: [port: 6012]),
+      worker(ViberSubscriber, [])
     ]
 
     opts = [strategy: :one_for_one, name: ViberProtocol.Supervisor]

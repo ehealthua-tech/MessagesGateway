@@ -18,7 +18,8 @@ defmodule ViberProtocol.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger]
+      mod: {ViberProtocol, []},
+      extra_applications: [:logger,  :plug_cowboy]
     ]
   end
 

@@ -1,10 +1,10 @@
-defmodule Subscriber do
+defmodule ViberSubscriber do
   use GenServer
   use AMQP
 
   @reconnect_timeout 5000
   @exchange    "message_exchange"
-  @queue       "message_viber"
+  @queue       "1"
 
   def start_link do
     GenServer.start_link(__MODULE__, [], name: __MODULE__)
@@ -20,7 +20,6 @@ defmodule Subscriber do
   end
 
   def handle_call({:publish, message, priority}, _, %{chan: chan, connected: true, queue_name: queue_name} = state) do
-    :io.format("Priority:~p~n",[priority])
     result = Basic.publish(chan, "", @queue, message, [persistent: true, priority: priority])
     {:reply, result, state}
   end
@@ -51,8 +50,8 @@ defmodule Subscriber do
   end
 
   def connect(%{queue_name: queue_name} = state) do
-    host = Application.get_env(:messages_router, :mq_host, "localhost")
-    port = Application.get_env(:messages_router, :mq_port, 5672)
+    host = Application.get_env(:viber_protocol, :mq_host, "localhost")
+    port = Application.get_env(:viber_protocol, :mq_port, 5672)
 
     case Connection.open([host: host, port: port]) do
       {:ok, conn} ->
@@ -62,8 +61,9 @@ defmodule Subscriber do
         Exchange.fanout(chan, @exchange, durable: true)
         Queue.bind(chan, queue_name, @exchange)
         {ok, sub} = AMQP.Queue.subscribe chan, queue_name,
-                                         fn(%{phone: phone, message: message}, _meta) ->
-                                           ViberApi.send_message(phone, message)
+                                         fn(payload, _meta) ->
+                                           %{"body" => body, "contact" => contact} = Jason.decode!(payload)
+                                           ViberApi.send_message(contact, body)
                                          end
         %{ state | chan: chan, connected: true, conn: conn, subscribe: sub }
       {:error, _} ->
