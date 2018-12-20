@@ -26,6 +26,7 @@ defmodule ViberProtocol.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:db_agent, in_umbrella: true},
       {:httpoison, "~> 1.4"},
       {:jason, "~> 1.1"},
       {:plug_cowboy, "~> 1.0"},

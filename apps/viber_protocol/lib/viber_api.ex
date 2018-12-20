@@ -3,8 +3,12 @@ defmodule ViberApi do
   alias ViberEndpoint
 
   def send_message(phone, message) do
-      DbAgent.select_viber_id(phone)
-
+    conn = DbAgent.ContactsRequests.select_viber_id(phone)
+    :io.format("~n~nconn :~p~n", [conn])
+    :io.format("~n~nviber_id :~p~n", [conn.viber_id])
+    body = %{receiver: conn.viber_id, min_api_version: 1, sender: %{name: "E-Test", avatar: "http://avatar.example.com"},
+      type: "text", text: message}
+    {:ok, _} = ViberEndpoint.request("send_message", body)
   end
 
   def add_contact(conn) do
@@ -36,15 +40,37 @@ defmodule ViberApi do
   def check_body("conversation_started", body) do
     id = get_in(body, ["user", "id"])
     body = %{receiver: id, min_api_version: 1, sender: %{name: "E-Test", avatar: "http://avatar.example.com"},
-         tracking_data: "Phone_number", type: "text", text: "Введіть Ваший номер телефону у форматі +380ххххххххх"}
-    {:ok, result} = ViberEndpoint.request("send_message", body)
+         tracking_data: "Phone_number", type: "text", text: "Щоб отримувати отримувати повідомлення, будь ласка,
+          увімкніть діалог(в меню інформація) та введіть Ваший номер телефону у форматі +380ххххххххх"}
+    {:ok, _} = ViberEndpoint.request("send_message", body)
 
   end
 
   def check_body("text", body) do
     :io.format("~n~ntext :~p~n", [body])
-    text =  get_in(body, ["text"])
 
+    message = get_in(body, ["message"])
+    tracking_data = get_in(message, ["tracking_data"])
+    text = get_in(message, ["text"])
+
+    sender  = get_in(body, ["sender"])
+    user_id = get_in(sender, ["id"])
+
+    check_phone_number(tracking_data, text, user_id)
+  end
+
+  def check_phone_number("Phone_number", text, user_id) do
+    length = String.length(text)
+    case length do
+      13 ->
+        [_, number] = String.split(text, "+380")
+        case is_integer(number) do
+          true -> DbAgent.ContactsRequests.add_viber_id(%{phone_number: text, viber_id: user_id})
+                  :noreply
+          _-> :noreply
+        end
+        _->  :noreply
+    end
   end
 
 end

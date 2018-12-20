@@ -19,20 +19,11 @@ defmodule DbAgent.ContactsRequests do
     |> Repo.insert()
   end
 
-  @spec change_contact(contact :: ContactsSchema.t(), %{}) :: {:ok, ContactsSchema.t()} | {:error, Ecto.Changeset.t()}
-  def change_contact(%ContactsSchema{} = contact, attrs) do
-    contact
-    |> ContactsSchema.changeset(attrs)
-    |> Repo.update()
-  end
-
-  def change_contact(contact_info) do
-    with updates <-
-           get_by_id!(Map.get(contact_info, "phone_number"))
-           |> change(contact_info)
-      do
-      Repo.update(updates)
-    end
+#  @spec change_phone_number(contact :: ContactsSchema.t(), %{}) :: {:ok, ContactsSchema.t()} | {:error, Ecto.Changeset.t()}
+  def change_phone_number(params) do
+    ContactsSchema
+    |> where([ot], ot.phone_number == ^params.phone_number)
+    |> Repo.update_all( set: [viber_id: params.viber_id])
   end
 
   def get_by_id!(phone_number) do
@@ -41,4 +32,17 @@ defmodule DbAgent.ContactsRequests do
     |> Repo.one!()
   end
 
+  def select_viber_id(phone_number) do
+    ContactsSchema
+    |> where([con], con.phone_number == ^phone_number)
+    |> Repo.one()
+  end
+
+  def add_viber_id(params) do
+    select_viber_id(params.phone_number)
+    |> insert_viber_id(params)
+  end
+
+  def insert_viber_id(nil, params), do: add_contact(params)
+  def insert_viber_id(present_contact, params), do: change_phone_number(params )
 end
