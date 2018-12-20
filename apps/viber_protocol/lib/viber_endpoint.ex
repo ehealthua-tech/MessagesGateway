@@ -25,8 +25,10 @@ defmodule ViberEndpoint do
 
   defp decode_response(response) do
     with {:ok, %HTTPoison.Response{body: body}} <- response,
-         {:ok, %{result: result}} <- Jason.decode(body, keys: :atoms),
-         do: {:ok, result}
+         {:ok, %{result: result}} <- Jason.decode(body, [{:keys, :atoms}] )
+         do
+      :io.format("~n~nresponse result:~p~n", [result])
+      {:ok, result}
   end
 
   defp build_url(method) do
