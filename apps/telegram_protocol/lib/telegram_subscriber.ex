@@ -62,8 +62,7 @@ defmodule TelegramSubscriber do
           Queue.bind(chan, queue_name, @exchange)
           {ok, sub} = AMQP.Queue.subscribe chan, queue_name,
                                            fn(payload, _meta) ->
-                                             %{"body" => body, "contact" => contact} = Jason.decode!(payload)
-                                             TelegramApi.send_message(contact, body)
+                                             TelegramApi.send_message(Jason.decode!(payload))
                                            end
           :io.format("~nSUB TELEGRAM~n")
           %{ state | chan: chan, connected: true, conn: conn, subscribe: sub }
