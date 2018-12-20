@@ -40,7 +40,7 @@ defmodule ViberApi do
   def check_body("conversation_started", body) do
     id = get_in(body, ["user", "id"])
     body = %{receiver: id, min_api_version: 1, sender: %{name: "E-Test", avatar: "http://avatar.example.com"},
-         tracking_data: "Phone_number", type: "text", text: "Щоб отримувати отримувати повідомлення, будь ласка,
+         tracking_data: "Phone_number", type: "text", text: "Щоб отримувати повідомлення, будь ласка,
           увімкніть діалог(в меню інформація) та введіть Ваший номер телефону у форматі +380ххххххххх"}
     {:ok, _} = ViberEndpoint.request("send_message", body)
 
@@ -61,11 +61,15 @@ defmodule ViberApi do
 
   def check_phone_number("Phone_number", text, user_id) do
     length = String.length(text)
-    case length do
-      13 ->
+    case length == 13 do
+      true ->
+        :io.format("~n~nlength :~p~n", [length])
         [_, number] = String.split(text, "+380")
-        case is_integer(number) do
-          true -> DbAgent.ContactsRequests.add_viber_id(%{phone_number: text, viber_id: user_id})
+        :io.format("~n~nlength :~p~n", [length])
+        case String.to_integer(number) do
+          is_integer(x) ->
+            :io.format("~n~nx :~p~n", [x])
+            DbAgent.ContactsRequests.add_viber_id(%{phone_number: text, viber_id: user_id})
                   :noreply
           _-> :noreply
         end
