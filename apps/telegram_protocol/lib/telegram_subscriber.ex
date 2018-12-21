@@ -11,7 +11,8 @@ defmodule TelegramSubscriber do
     end
 
     def init(_opts) do
-      state = %{connected: false, chan: nil, queue_name: @queue, conn: nil, subscribe: nil}
+      queue_name = DbAgent.OperatorsRequests.get_by_name("telegram")
+      state = %{connected: false, chan: nil, queue_name: queue_name.id, conn: nil, subscribe: nil}
       {:ok, connect(state)}
     end
 
@@ -20,7 +21,8 @@ defmodule TelegramSubscriber do
     end
 
     def handle_call({:publish, message, priority}, _, %{chan: chan, connected: true, queue_name: queue_name} = state) do
-      result = Basic.publish(chan, "", @queue, message, [persistent: true, priority: priority])
+      queue_name = DbAgent.OperatorsRequests.get_by_name("telegram")
+      result = Basic.publish(chan, "", queue_name.id, message, [persistent: true, priority: priority])
       {:reply, result, state}
     end
 
@@ -62,7 +64,9 @@ defmodule TelegramSubscriber do
           Queue.bind(chan, queue_name, @exchange)
           {ok, sub} = AMQP.Queue.subscribe chan, queue_name,
                                            fn(payload, _meta) ->
-                                             TelegramApi.send_message(Jason.decode!(payload))
+                                             :io.format("~nPayload:~p~n",[payload])
+                                             %{"contact" => phone, "body" => message} = Jason.decode!(payload)
+                                             TelegramApi.send_message(phone, message)
                                            end
           :io.format("~nSUB TELEGRAM~n")
           %{ state | chan: chan, connected: true, conn: conn, subscribe: sub }

@@ -1,10 +1,10 @@
-defmodule SystemConfigController do
+defmodule MessagesGatewayWeb.SystemConfigController do
   @moduledoc false
 
   use MessagesGatewayWeb, :controller
   action_fallback(MessagesGatewayWeb.FallbackController)
 
-  @messages_gateway_conf :messages_gateway_conf
+  @messages_gateway_conf "messages_gateway_conf"
   @operators_config :operators_config
 
   #  ---- send a message to the client any available way ------------------------
@@ -19,10 +19,10 @@ defmodule SystemConfigController do
 
   #  ---- send a message to the client any available way ------------------------
 
-  def add(conn, %{"resource" => %{"auth" => auth, "password" => password}}) do
-    with :ok <- RedisManager.set(@messages_gateway_conf)
+  def add(conn, %{"resource" => %{"priority_model" => priority_model}}) do
+    with :ok <- MessagesGateway.RedisManager.set(@messages_gateway_conf, Jason.encode!(%{"priority_model" => priority_model}))
       do
-        render(conn, "change_system_config.json", %{status: :ok})
+      render(conn, "index.json", %{status: :ok})
     end
   end
 
