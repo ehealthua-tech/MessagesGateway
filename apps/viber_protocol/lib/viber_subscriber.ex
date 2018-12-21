@@ -11,7 +11,8 @@ defmodule ViberSubscriber do
   end
 
   def init(_opts) do
-    state = %{connected: false, chan: nil, queue_name: @queue, conn: nil, subscribe: nil}
+    queue_name = DbAgent.OperatorsRequests.get_by_name("viber")
+    state = %{connected: false, chan: nil, queue_name: queue_name.id, conn: nil, subscribe: nil}
     {:ok, connect(state)}
   end
 
@@ -20,7 +21,8 @@ defmodule ViberSubscriber do
   end
 
   def handle_call({:publish, message, priority}, _, %{chan: chan, connected: true, queue_name: queue_name} = state) do
-    result = Basic.publish(chan, "", @queue, message, [persistent: true, priority: priority])
+    queue_name = DbAgent.OperatorsRequests.get_by_name("viber")
+    result = Basic.publish(chan, "", queue_name.id, message, [persistent: true, priority: priority])
     {:reply, result, state}
   end
 

@@ -29,6 +29,13 @@ defmodule DbAgent.OperatorsRequests do
     |> Repo.update_all( set: operator_info)
   end
 
+  def get_by_name(name) do
+    OperatorsSchema
+    |> where([op], op.name == ^name)
+    |> Repo.one!()
+  end
+
+
   def delete(id) do
     from(p in Post, where: p.id == ^id)
     |> Repo.delete()
