@@ -41,7 +41,7 @@ defmodule DbAgent.Mixfile do
       {:phoenix_ecto, "~> 3.2"},
       {:scrivener_ecto, "~> 1.2"},
       {:jason, "~> 1.0"},
-      {:httpoison, "~> 1.1.0"},
+      {:httpoison, "~> 1.4"},
       {:timex, "~> 3.2"},
       {:plug, "~> 1.4"},
       {:ecto_logger_json, git: "https://github.com/edenlabllc/ecto_logger_json.git", branch: "query_params"},

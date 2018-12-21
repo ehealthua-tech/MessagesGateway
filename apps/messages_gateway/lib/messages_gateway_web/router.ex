@@ -11,17 +11,18 @@ defmodule MessagesGatewayWeb.Router do
 
     scope "/operator_type"  do
       post "/deactivate", OperatorTypeController, :deactivate
-      resources "", OperatorTypeController, except: [:new, :delete, :show, :edit, :update]
+      resources "/", OperatorTypeController, except: [:new, :delete, :show, :edit, :update]
 
     end
 
     scope "/operators" do
       post "/change", OperatorsController, :change_info
       post "/update_priority", OperatorsController, :update_priority
-      resources "", OperatorsController, except: [:new, :edit, :update]
+      resources "/", OperatorsController, except: [:new, :edit, :update]
 
     end
 
+    post "/system_config", SystemConfigController, :add
     post "/send_message", MessageController, :new_message
     post "/send_sms", MessageController, :new_sms
     post "/send_email", MessageController, :new_email

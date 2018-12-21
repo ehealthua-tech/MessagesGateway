@@ -1,17 +1,18 @@
-defmodule MqSubscriber do
+defmodule TelegramSubscriber do
     use GenServer
     use AMQP
 
     @reconnect_timeout 5000
     @exchange    "message_exchange"
-    @queue       "message_queue"
+    @queue       "2"
 
     def start_link do
       GenServer.start_link(__MODULE__, [], name: __MODULE__)
     end
 
     def init(_opts) do
-      state = %{connected: false, chan: nil, queue_name: @queue, conn: nil, subscribe: nil}
+      queue_name = DbAgent.OperatorsRequests.get_by_name("telegram")
+      state = %{connected: false, chan: nil, queue_name: queue_name.id, conn: nil, subscribe: nil}
       {:ok, connect(state)}
     end
 
@@ -19,17 +20,9 @@ defmodule MqSubscriber do
       GenServer.call(__MODULE__, {:publish, message, priority})
     end
 
-    def send_to_operator(message, operator_queue) do
-      GenServer.call(__MODULE__, {:send_to_operator, message, operator_queue})
-    end
-
     def handle_call({:publish, message, priority}, _, %{chan: chan, connected: true, queue_name: queue_name} = state) do
-      result = Basic.publish(chan, "", @queue, message, [persistent: true, priority: priority])
-      {:reply, result, state}
-    end
-
-    def handle_call({:send_to_operator, message, operator_queue}, _, %{chan: chan, connected: true, queue_name: queue_name} = state) do
-      result = Basic.publish(chan, "", operator_queue, message, [persistent: true, priority: 0])
+      queue_name = DbAgent.OperatorsRequests.get_by_name("telegram")
+      result = Basic.publish(chan, "", queue_name.id, message, [persistent: true, priority: priority])
       {:reply, result, state}
     end
 
@@ -59,21 +52,23 @@ defmodule MqSubscriber do
     end
 
     def connect(%{queue_name: queue_name} = state) do
-      host = Application.get_env(:messages_router, :mq_host, "localhost")
-      port = Application.get_env(:messages_router, :mq_port, 5672)
+      host = Application.get_env(:telegram_protocol, :mq_host, "localhost")
+      port = Application.get_env(:telegram_protocol, :mq_port, 5672)
 
       case Connection.open([host: host, port: port]) do
         {:ok, conn} ->
           Process.monitor(conn.pid)
           {:ok, chan} = Channel.open(conn)
           Queue.declare(chan, queue_name, [durable: true, arguments: [{"x-max-priority", :short, 10}]])
-          Queue.declare(chan, "1", [durable: true, arguments: [{"x-max-priority", :short, 10}]])
           Exchange.fanout(chan, @exchange, durable: true)
           Queue.bind(chan, queue_name, @exchange)
           {ok, sub} = AMQP.Queue.subscribe chan, queue_name,
                                            fn(payload, _meta) ->
-                                             OperatorSelector.send_message(Jason.decode!(payload))
+                                             :io.format("~nPayload:~p~n",[payload])
+                                             %{"contact" => phone, "body" => message} = Jason.decode!(payload)
+                                             TelegramApi.send_message(phone, message)
                                            end
+          :io.format("~nSUB TELEGRAM~n")
           %{ state | chan: chan, connected: true, conn: conn, subscribe: sub }
         {:error, _} ->
           reconnect(state)
@@ -85,4 +80,4 @@ defmodule MqSubscriber do
       Process.send_after(self(), :connect, @reconnect_timeout)
     end
 
-end
+  end

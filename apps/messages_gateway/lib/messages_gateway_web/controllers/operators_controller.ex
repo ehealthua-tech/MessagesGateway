@@ -43,10 +43,21 @@ defmodule MessagesGatewayWeb.OperatorsController do
   defp convert(v), do: v
 
   def update_priority(conn, %{"resource" => operator_info}) do
-    with {n, _} <- OperatorsRequests.update_priority(operator_info)
+    with {n, new_priority} <- OperatorsRequests.update_priority(operator_info),
+          operators <- OperatorsRequests.list_operators(),
+          priority <- select_operators_id(operators, []),
+          {:ok, json} <- Jason.encode(priority),
+          :ok <- MessagesGateway.RedisManager.set("operators_config", json)
       do
+        :io.format("~nnew_priority: ~p~n~n", [priority])
       render(conn, "create.json", %{status: "success"})
     end
+  end
+
+  def select_operators_id([], acc), do: acc
+  def select_operators_id([%{operator: operator_struct}| t], acc) do
+    operator = Map.from_struct(operator_struct)
+    select_operators_id(t, [%{operator.id => %{operator_configs: operator.config, priority_on_price: operator.priority}} | acc])
   end
 
 end
