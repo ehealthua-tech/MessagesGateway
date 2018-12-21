@@ -31,6 +31,14 @@ defmodule ViberApi do
     :noreply
   end
 
+  def check_body("seen", body) do
+    :noreply
+  end
+
+  def check_body("delivered", body) do
+    :noreply
+  end
+
   def check_body("subscribed", body) do
     id = get_in(body, ["user", "id"])
       with {:ok, result} = ViberEndpoint.request("get_user_details", %{id: id}) do
