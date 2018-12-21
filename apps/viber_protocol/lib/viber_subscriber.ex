@@ -64,8 +64,9 @@ defmodule ViberSubscriber do
         Queue.bind(chan, queue_name, @exchange)
         {ok, sub} = AMQP.Queue.subscribe chan, queue_name,
                                          fn(payload, _meta) ->
-                                           %{"body" => body, "contact" => contact} = Jason.decode!(payload)
-                                           ViberApi.send_message(contact, body)
+                                         :io.format("~nPayload:~p~n",[payload])
+                                           %{"contact" => phone, "body" => message} = Jason.decode!(payload)
+                                           ViberApi.send_message(phone, message)
                                          end
         %{ state | chan: chan, connected: true, conn: conn, subscribe: sub }
       {:error, _} ->
