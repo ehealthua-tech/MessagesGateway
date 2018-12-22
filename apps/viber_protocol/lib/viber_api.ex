@@ -8,6 +8,7 @@ defmodule ViberApi do
     :io.format("~n~nviber_id :~p~n", [conn.viber_id])
     body = %{receiver: conn.viber_id, min_api_version: 1, sender: %{name: "E-Test", avatar: "http://avatar.example.com"},
       type: "text", text: message}
+    :io.format("~nVIBER API~n")
     {:ok, _} = ViberEndpoint.request("send_message", body)
   end
 
@@ -36,6 +37,7 @@ defmodule ViberApi do
   end
 
   def check_body("delivered", body) do
+    :io.format("~nBody delivired~n~p~n",[body])
     :noreply
   end
 
