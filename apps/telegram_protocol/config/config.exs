@@ -36,3 +36,4 @@ config :telegram_protocol,
 
 config :telegram_protocol, api_id: 539444
 config :telegram_protocol, api_hash: "1a6a0ad0726805c353f26b5f859ea279"
+config :telegram_protocol, phone: "+380000000"

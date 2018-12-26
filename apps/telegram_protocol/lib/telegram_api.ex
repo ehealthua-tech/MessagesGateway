@@ -8,6 +8,7 @@ defmodule TelegramApi do
   @session :demosession
   @api_id Application.get_env(:telegram_protocol, :api_id)
   @api_hash Application.get_env(:telegram_protocol, :api_hash)
+  @phone Application.get_env(:telegram_protocol, :phone)
 
   def init(_opts) do
     config = struct(TDLib.default_config(), %{api_id: @api_id, api_hash: @api_hash})
@@ -25,19 +26,24 @@ defmodule TelegramApi do
   def telegram_authorization_process(%Object.AuthorizationStateWaitEncryptionKey{}), do: :ignore
 
   def telegram_authorization_process(%Object.AuthorizationStateWaitPhoneNumber{}) do
-    phone_number = IO.gets("Please provide phone number: ") |> String.trim
     query = %Method.SetAuthenticationPhoneNumber{
-      phone_number: phone_number,
+      phone_number: @phone,
       allow_flash_call: false
     }
-    TDLib.transmit @session, query
-  end
-
-  def telegram_authorization_process(%Object.AuthorizationStateWaitCode{}) do
-    code = IO.gets("Please authentication code: ") |> String.trim()
-    query = %Method.CheckAuthenticationCode{code: code}
     TDLib.transmit(@session, query)
   end
+
+  def handle_cast({:send_pass, payload},  state) do
+    query = %Method.CheckAuthenticationCode{code: payload.pass}
+    TDLib.transmit(@session, query)
+    {:noreply, %{messages: payload}}
+  end
+
+#  def telegram_authorization_process(%Object.AuthorizationStateWaitCode{}) do
+#    code = IO.gets("Please authentication code: ") |> String.trim()
+#    query = %Method.CheckAuthenticationCode{code: code}
+#    TDLib.transmit(@session, query)
+#  end
 
   def telegram_authorization_process(%Object.AuthorizationStateWaitPassword{}) do
     pass = IO.gets("Please authentication pass: ") |> String.trim()
@@ -64,7 +70,7 @@ defmodule TelegramApi do
 
   def handle_info({:recv, %Object.Chat{id: chat_id}},  state) do
     text = get_in(state, [:messages, :body])
-    query =%Method.SendMessage{
+    query = %Method.SendMessage{
       chat_id: chat_id,
       reply_to_message_id: 0,
       disable_notification: false,
@@ -89,6 +95,10 @@ defmodule TelegramApi do
 #-API-------------------------------------------------------------------------------------------------------------------
   def send_message(%{"body" => body, "contact" => contact} = payload) do
     GenServer.cast(__MODULE__, {:send_messages, %{body: body, contact: contact }})
+  end
+
+  def send_pass(%{"pass" => pass} = payload) do
+    GenServer.cast(__MODULE__, {:send_pass, %{pass: pass}})
   end
 
 end
