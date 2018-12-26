@@ -29,10 +29,12 @@ defmodule ViberApi do
   end
 
   def check_body("webhook", body) do
+    :io.format("~nBody webhook~n~p~n",[body])
     :noreply
   end
 
   def check_body("seen", body) do
+    :io.format("~nBody seen~n~p~n",[body])
     :noreply
   end
 
