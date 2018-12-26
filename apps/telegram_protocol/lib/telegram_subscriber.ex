@@ -62,13 +62,12 @@ defmodule TelegramSubscriber do
           Queue.declare(chan, queue_name, [durable: true, arguments: [{"x-max-priority", :short, 10}]])
           Exchange.fanout(chan, @exchange, durable: true)
           Queue.bind(chan, queue_name, @exchange)
-          {ok, sub} = AMQP.Queue.subscribe chan, queue_name,
-                                           fn(payload, _meta) ->
-                                             :io.format("~nPayload:~p~n",[payload])
-                                             %{"contact" => phone, "body" => message} = Jason.decode!(payload)
-                                             TelegramApi.send_message(phone, message)
-                                           end
-          :io.format("~nSUB TELEGRAM~n")
+          {ok, sub} =
+            AMQP.Queue.subscribe chan, queue_name,
+              fn(payload, _meta) ->
+                %{"contact" => phone, "body" => message} = Jason.decode!(payload)
+                TelegramApi.send_message(phone, message)
+              end
           %{ state | chan: chan, connected: true, conn: conn, subscribe: sub }
         {:error, _} ->
           reconnect(state)
