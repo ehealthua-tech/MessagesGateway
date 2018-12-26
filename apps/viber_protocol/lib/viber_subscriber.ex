@@ -4,7 +4,6 @@ defmodule ViberSubscriber do
 
   @reconnect_timeout 5000
   @exchange    "message_exchange"
-  @queue       "1"
 
   def start_link do
     GenServer.start_link(__MODULE__, [], name: __MODULE__)
@@ -20,9 +19,18 @@ defmodule ViberSubscriber do
     GenServer.call(__MODULE__, {:publish, message, priority})
   end
 
+  def send_to_operator(message, operator_queue) do
+    GenServer.call(__MODULE__, {:send_to_operator, message, operator_queue})
+  end
+
   def handle_call({:publish, message, priority}, _, %{chan: chan, connected: true, queue_name: queue_name} = state) do
     queue_name = DbAgent.OperatorsRequests.get_by_name("viber")
     result = Basic.publish(chan, "", queue_name.id, message, [persistent: true, priority: priority])
+    {:reply, result, state}
+  end
+
+  def handle_call({:send_to_operator, message, operator_queue}, _, %{chan: chan, connected: true, queue_name: queue_name} = state) do
+    result = Basic.publish(chan, "", operator_queue, message, [persistent: true, priority: 1])
     {:reply, result, state}
   end
 
@@ -64,8 +72,8 @@ defmodule ViberSubscriber do
         Queue.bind(chan, queue_name, @exchange)
         {ok, sub} = AMQP.Queue.subscribe chan, queue_name,
                                          fn(payload, _meta) ->
-                                           %{"contact" => phone, "body" => message} = Jason.decode!(payload)
-                                           ViberApi.send_message(phone, message)
+                                           decoded_payload = Jason.decode!(payload)
+                                           ViberApi.send_message(decoded_payload)
                                          end
         :io.format("~nSUB VIBER~n")
         %{ state | chan: chan, connected: true, conn: conn, subscribe: sub }

@@ -2,7 +2,7 @@ defmodule ViberApi do
 
   alias ViberEndpoint
 
-  def send_message(phone, message) do
+  def send_message(%{"phone" => phone, "message" => message} = payload) do
     conn = DbAgent.ContactsRequests.select_viber_id(phone)
     :io.format("~n~nconn :~p~n", [conn])
     :io.format("~n~nviber_id :~p~n", [conn.viber_id])
