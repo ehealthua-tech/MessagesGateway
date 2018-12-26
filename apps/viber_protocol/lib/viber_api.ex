@@ -4,12 +4,13 @@ defmodule ViberApi do
 
   def send_message(%{"contact" => phone, "body" => message} = payload) do
     conn = DbAgent.ContactsRequests.select_viber_id(phone)
-    :io.format("~n~nconn :~p~n", [conn])
-    :io.format("~n~nviber_id :~p~n", [conn.viber_id])
+    #    :io.format("~n~nconn :~p~n", [conn])
+    #    :io.format("~n~nviber_id :~p~n", [conn.viber_id])
     body = %{receiver: conn.viber_id, min_api_version: 1, sender: %{name: "E-Test", avatar: "http://avatar.example.com"},
       type: "text", text: message}
     :io.format("~nVIBER API~n")
-    if {:ok, %{"status_message" => "ok"}} == ViberEndpoint.request("send_message", body) do
+    {:ok, answer} = ViberEndpoint.request("send_message", body)
+    if "ok" ==  Map.get(answer, :status_message) do
       :ok
     else
       resend(payload)
@@ -28,7 +29,7 @@ defmodule ViberApi do
 
   def set_webhook(url)do
     body = %{url: url, event_types: ["delivered", "seen","failed", "subscribed","unsubscribed", "conversation_started"],
-                                                                                                send_name: true, send_photo: true}
+      send_name: true, send_photo: true}
     ViberEndpoint.request("set_webhook", body)
   end
 
@@ -46,21 +47,21 @@ defmodule ViberApi do
 
   def check_body("subscribed", body) do
     id = get_in(body, ["user", "id"])
-      with {:ok, result} = ViberEndpoint.request("get_user_details", %{id: id}) do
+    with {:ok, result} = ViberEndpoint.request("get_user_details", %{id: id}) do
     end
   end
 
   def check_body("conversation_started", body) do
     id = get_in(body, ["user", "id"])
     body = %{receiver: id, min_api_version: 1, sender: %{name: "E-Test", avatar: "http://avatar.example.com"},
-         tracking_data: "Phone_number", type: "text", text: "Щоб отримувати повідомлення, будь ласка,
+      tracking_data: "Phone_number", type: "text", text: "Щоб отримувати повідомлення, будь ласка,
           увімкніть діалог(в меню інформація) та введіть Ваший номер телефону у форматі +380ххххххххх"}
     {:ok, _} = ViberEndpoint.request("send_message", body)
 
   end
 
   def check_body("message", body) do
-    :io.format("~n~ntext :~p~n", [body])
+    #    :io.format("~n~ntext :~p~n", [body])
 
     message = get_in(body, ["message"])
     tracking_data = get_in(message, ["tracking_data"])
@@ -83,15 +84,14 @@ defmodule ViberApi do
           x ->
             :io.format("~n~nx :~p~n", [x])
             DbAgent.ContactsRequests.add_viber_id(%{phone_number: text, viber_id: user_id})
-                  :noreply
+            :noreply
           _-> :noreply
         end
-        _->  :noreply
+      _->  :noreply
     end
   end
 
   defp resend(%{"priority_list" => priority_list} = payload) do
-    :io.format("~n~nResend VIBER payload :~p~n", [payload])
     if priority_list != [] do
       selected_operator = Enum.min_by(priority_list, fn e -> Map.get(e, "priority") end)
       %{"operator_type_id" => operator_type_id} = selected_operator
