@@ -9,11 +9,12 @@ defmodule ViberApi do
     body = %{receiver: conn.viber_id, min_api_version: 1, sender: %{name: "E-Test", avatar: "http://avatar.example.com"},
       type: "text", text: message}
     :io.format("~nVIBER API~n")
-    if {:ok, 2} = ViberEndpoint.request("send_message", body) do
-      :ok
-    else
-      resend(payload)
-    end
+    {:ok,_} = ViberEndpoint.request("send_message", body)
+#    if {:ok, 2} = ViberEndpoint.request("send_message", body) do
+#      :ok
+#    else
+#      resend(payload)
+#    end
   end
 
   def add_contact(conn) do
