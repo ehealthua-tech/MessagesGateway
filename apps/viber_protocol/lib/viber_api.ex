@@ -9,7 +9,7 @@ defmodule ViberApi do
     body = %{receiver: conn.viber_id, min_api_version: 1, sender: %{name: "E-Test", avatar: "http://avatar.example.com"},
       type: "text", text: message}
     :io.format("~nVIBER API~n")
-    if {:ok, %{"message_status" => "ok2"}} = ViberEndpoint.request("send_message", body) do
+    if {:ok, %{"status_message" => "ok2"}} = ViberEndpoint.request("send_message", body) do
       :ok
     else
       resend(payload)
