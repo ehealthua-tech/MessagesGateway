@@ -1,6 +1,6 @@
 defmodule TelegramApi do
 
-    def send_message(%{"phone" => phone, "message" => message} = payload) do
+    def send_message(%{"contact" => phone, "body" => message} = payload) do
       # TELEGRAM.API
       #    priority_list = Map.get(payload, :priority_list)
       #    if priority_list != [] do
