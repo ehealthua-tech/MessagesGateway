@@ -9,12 +9,11 @@ defmodule ViberApi do
     body = %{receiver: conn.viber_id, min_api_version: 1, sender: %{name: "E-Test", avatar: "http://avatar.example.com"},
       type: "text", text: message}
     :io.format("~nVIBER API~n")
-    {:ok,_} = ViberEndpoint.request("send_message", body)
-#    if {:ok, 2} = ViberEndpoint.request("send_message", body) do
-#      :ok
-#    else
-#      resend(payload)
-#    end
+    if {:ok, %{"message_status" => "ok2"}} = ViberEndpoint.request("send_message", body) do
+      :ok
+    else
+      resend(payload)
+    end
   end
 
   def add_contact(conn) do
@@ -95,6 +94,7 @@ defmodule ViberApi do
   end
 
   defp resend(%{"priority_list" => priority_list} = payload) do
+    :io.format("~n~nResend VIBER payload :~p~n", [payload])
     if priority_list != [] do
       selected_operator = Enum.min_by(priority_list, fn e -> Map.get(e, "priority") end)
       %{"operator_type_id" => operator_type_id} = selected_operator
