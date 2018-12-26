@@ -87,8 +87,20 @@ defmodule TelegramApi do
   end
 
 #-API-------------------------------------------------------------------------------------------------------------------
-  def send_message(%{"body" => body, "contact" => contact} = payload) do
+  def send_message(%{"contact" => phone, "body" => message} = payload) do
+    :io.format("~nTELEGRAM API~n")
     GenServer.cast(__MODULE__, {:send_messages, %{body: body, contact: contact }})
+  end
+
+  defp resend(%{"priority_list" => priority_list} = payload) do
+    if priority_list != [] do
+      selected_operator = Enum.min_by(priority_list, fn e -> Map.get(e, "priority") end)
+      %{"operator_type_id" => operator_type_id} = selected_operator
+      new_priority_list = List.delete(priority_list, selected_operator)
+      TelegramSubscriber.send_to_operator(Jason.encode!(Map.put(payload, :priority_list, new_priority_list)), operator_type_id)
+    else
+      :callback_failed
+    end
   end
 
 end

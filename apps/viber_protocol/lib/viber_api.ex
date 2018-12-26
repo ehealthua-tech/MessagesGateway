@@ -2,13 +2,18 @@ defmodule ViberApi do
 
   alias ViberEndpoint
 
-  def send_message(phone, message) do
+  def send_message(%{"contact" => phone, "body" => message} = payload) do
     conn = DbAgent.ContactsRequests.select_viber_id(phone)
     :io.format("~n~nconn :~p~n", [conn])
     :io.format("~n~nviber_id :~p~n", [conn.viber_id])
     body = %{receiver: conn.viber_id, min_api_version: 1, sender: %{name: "E-Test", avatar: "http://avatar.example.com"},
       type: "text", text: message}
-    {:ok, _} = ViberEndpoint.request("send_message", body)
+    :io.format("~nVIBER API~n")
+    if {:ok, %{"status_message" => "ok2"}} = ViberEndpoint.request("send_message", body) do
+      :ok
+    else
+      resend(payload)
+    end
   end
 
   def add_contact(conn) do
@@ -28,14 +33,17 @@ defmodule ViberApi do
   end
 
   def check_body("webhook", body) do
+    :io.format("~nBody webhook~n~p~n",[body])
     :noreply
   end
 
   def check_body("seen", body) do
+    :io.format("~nBody seen~n~p~n",[body])
     :noreply
   end
 
   def check_body("delivered", body) do
+    :io.format("~nBody delivired~n~p~n",[body])
     :noreply
   end
 
@@ -83,19 +91,18 @@ defmodule ViberApi do
         end
         _->  :noreply
     end
+  end
 
-    # VIBER.API
-#    priority_list = Map.get(payload, :priority_list)
-#    if priority_list != [] do
-#      selected_operator = Enum.min_by(priority_list, fn e -> Map.get(e, "priority") end)
-#      %{"operator_type_id" => operator_type_id} = selected_operator
-#      new_priority_list = List.delete(priority_list, selected_operator)
-#      send_to_operator(Map.put(payload, :priority_list, new_priority_list), operator_type_id)
-#    else
-#      :no_operators_remaining
-#    end
-
-
+  defp resend(%{"priority_list" => priority_list} = payload) do
+    :io.format("~n~nResend VIBER payload :~p~n", [payload])
+    if priority_list != [] do
+      selected_operator = Enum.min_by(priority_list, fn e -> Map.get(e, "priority") end)
+      %{"operator_type_id" => operator_type_id} = selected_operator
+      new_priority_list = List.delete(priority_list, selected_operator)
+      TelegramSubscriber.send_to_operator(Jason.encode!(Map.put(payload, :priority_list, new_priority_list)), operator_type_id)
+    else
+      :callback_failed
+    end
   end
 
 end
