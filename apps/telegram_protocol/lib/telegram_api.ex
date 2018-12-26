@@ -79,6 +79,7 @@ defmodule TelegramApi do
   end
 
   def handle_info({:recv, %Object.Message{}},  state) do
+    :io.format("~nTelegram answer:~p~n",[state])
     {:noreply, state}
   end
 
