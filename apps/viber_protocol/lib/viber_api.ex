@@ -9,7 +9,11 @@ defmodule ViberApi do
     body = %{receiver: conn.viber_id, min_api_version: 1, sender: %{name: "E-Test", avatar: "http://avatar.example.com"},
       type: "text", text: message}
     :io.format("~nVIBER API~n")
-    {:ok, _} = ViberEndpoint.request("send_message", body)
+    if {:ok, 2} = ViberEndpoint.request("send_message", body) do
+      :ok
+    else
+      resend(payload)
+    end
   end
 
   def add_contact(conn) do
@@ -87,19 +91,17 @@ defmodule ViberApi do
         end
         _->  :noreply
     end
+  end
 
-    # VIBER.API
-#    priority_list = Map.get(payload, :priority_list)
-#    if priority_list != [] do
-#      selected_operator = Enum.min_by(priority_list, fn e -> Map.get(e, "priority") end)
-#      %{"operator_type_id" => operator_type_id} = selected_operator
-#      new_priority_list = List.delete(priority_list, selected_operator)
-#      send_to_operator(Map.put(payload, :priority_list, new_priority_list), operator_type_id)
-#    else
-#      :no_operators_remaining
-#    end
-
-
+  defp resend(%{"priority_list" => priority_list} = payload) do
+    if priority_list != [] do
+      selected_operator = Enum.min_by(priority_list, fn e -> Map.get(e, "priority") end)
+      %{"operator_type_id" => operator_type_id} = selected_operator
+      new_priority_list = List.delete(priority_list, selected_operator)
+      TelegramSubscriber.send_to_operator(Jason.encode!(Map.put(payload, :priority_list, new_priority_list)), operator_type_id)
+    else
+      :callback_failed
+    end
   end
 
 end
