@@ -20,29 +20,29 @@ defmodule DbAgent.ContactsRequests do
   end
 
 #  @spec change_phone_number(contact :: ContactsSchema.t(), %{}) :: {:ok, ContactsSchema.t()} | {:error, Ecto.Changeset.t()}
-  def change_phone_number(params) do
+  def change_contact(params) do
     ContactsSchema
     |> where([ot], ot.phone_number == ^params.phone_number)
-    |> Repo.update_all( set: [viber_id: params.viber_id])
+    |> Repo.update_all( set: [viber_id: params.viber_id, operator_id: params.operator_id])
   end
 
-  def get_by_id!(phone_number) do
-    ContactsSchema
-    |> where([con], con.phone_number == ^phone_number)
-    |> Repo.one!()
-  end
-
-  def select_viber_id(phone_number) do
+  def get_by_phone_number!(phone_number) do
     ContactsSchema
     |> where([con], con.phone_number == ^phone_number)
     |> Repo.one()
   end
 
   def add_viber_id(params) do
-    select_viber_id(params.phone_number)
-    |> insert_viber_id(params)
+    get_by_phone_number!(params.phone_number)
+    |> insert_or_update(params)
   end
 
-  def insert_viber_id(nil, params), do: add_contact(params)
-  def insert_viber_id(present_contact, params), do: change_phone_number(params )
+  def add_operator_id(params) do
+    get_by_phone_number!(params.phone_number)
+    |> insert_or_update(params)
+  end
+
+  def insert_or_update(nil, params), do: add_contact(params)
+  def insert_or_update(present_contact, params), do: change_contact(params)
+
 end
