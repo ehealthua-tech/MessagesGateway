@@ -35,6 +35,12 @@ defmodule DbAgent.OperatorsRequests do
     |> Repo.one!()
   end
 
+  def operator_by_id(id) do
+    OperatorsSchema
+    |> where([op], op.id == ^id)
+    |> Repo.one!()
+  end
+
 
   def delete(id) do
     from(p in Post, where: p.id == ^id)
