@@ -73,7 +73,7 @@ defmodule TelegramSubscriber do
           {ok, sub} = AMQP.Queue.subscribe chan, queue_name,
                                            fn(payload, _meta) ->
                                              :io.format("~nPayload:~p~n",[payload])
-                                             decoded_payload = Jason.decode!(payload)
+                                             decoded_payload = Jason.decode!(payload, keys: :atoms)
                                              TelegramApi.send_message(decoded_payload)
                                            end
           :io.format("~nSUB TELEGRAM~n")
