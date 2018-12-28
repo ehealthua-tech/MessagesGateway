@@ -39,6 +39,13 @@ defmodule MessagesGatewayWeb.OperatorsController do
     end
   end
 
+  def show(conn, %{"id" => id}) do
+    with result <- OperatorsRequests.operator_by_id(id)
+      do
+      render(conn, "show.json", %{operator: result})
+    end
+  end
+
   defp convert(map) when is_map(map), do: Enum.map(map, fn {k,v} ->{String.to_atom(k),convert(v)}  end)
   defp convert(v), do: v
 
