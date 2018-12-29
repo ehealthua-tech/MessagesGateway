@@ -63,8 +63,9 @@ defmodule TelegramApi do
   end
 
   def handle_info({:recv, %Object.ImportedContacts{user_ids: [user_ids], importer_count: importer_count}},  %{messages: payload} = state) do
-    query =%Method.CreatePrivateChat{user_id: user_ids, force: false}
-    if Map.get(query, :user_id) == 0 do
+    query = %Method.CreatePrivateChat{user_id: user_ids, force: false}
+    if query.user_id == 0 do
+      MessagesGateway.RedisManager.del(payload.message_id)
       :io.format("User not found")
       resend(payload)
     else
@@ -73,19 +74,22 @@ defmodule TelegramApi do
     {:noreply, state}
   end
 
-  def handle_info({:recv, %Object.UpdateMessageSendSucceeded{message: message}},  %{messages: payload} = state) do
-    redis_command(["SETEX", message.id, 20, "delivered"])
-    :io.format("~nMessage id ~p send~n",[message.id])
-    {:noreply, state}
-  end
+#  def handle_info({:recv, %Object.UpdateMessageSendSucceeded{message: message}},  %{messages: payload} = state) do
+#    :io.format("~nMessage id ~p send~n",[message.id])
+#    :timer.sleep(10000)
+#   query =  %Method.GetMessages{chat_id: message.chat_id, message_ids: [message.id]}
+#    x = TDLib.transmit @session, query
+#   :io.format("~nGet:~n~p~n",[x])
+#    {:noreply, state}
+#  end
 
   def handle_info({:recv, %Object.UpdateChatReadOutbox{chat_id: chat_id, last_read_outbox_message_id: last_read_outbox_message_id}},  %{messages: payload} = state) do
-    :io.format("~nMessage ~p was read~n",[ 	last_read_outbox_message_id])
-    redis_command(["SETEX", last_read_outbox_message_id, 30,"read"])
+    {:ok, message_info} = MessagesGateway.RedisManager.get(payload.message_id)
+    MessagesGateway.RedisManager.set(payload.message_id, Jason.encode!(Map.put(Jason.decode!(message_info), "telegram_sending_status", true)))
     {:noreply, state}
   end
 
-  def handle_info({:recv, %Object.Chat{id: chat_id}},  state) do
+  def handle_info({:recv, %Object.Chat{id: chat_id}},  %{messages: payload} = state) do
     text = get_in(state, [:messages, :body])
     query = %Method.SendMessage{
       chat_id: chat_id,
@@ -100,7 +104,7 @@ defmodule TelegramApi do
     {:noreply, state}
   end
 
-  def handle_info({:recv, %Object.Message{}},  state) do
+  def handle_info({:recv, %Object.Message{} = info},  state) do
     {:noreply, state}
   end
 
@@ -112,6 +116,16 @@ defmodule TelegramApi do
   def send_message(payload) do
     :io.format("~nTELEGRAM API~n")
     GenServer.cast(__MODULE__, {:send_messages, payload})
+    :timer.sleep(15000)
+    {:ok, message_info} = MessagesGateway.RedisManager.get(payload.message_id)
+    if Map.get(Jason.decode!(message_info), "telegram_sending_status", :nil) == true do
+      :io.format("~nTelegram delivered~n")
+      :ok
+    else
+      MessagesGateway.RedisManager.del(payload.message_id)
+      :io.format("Telegram not delivered")
+      resend(payload)
+    end
   end
 
 
@@ -131,11 +145,5 @@ defmodule TelegramApi do
     end
 
   end
-
-  defp redis_command(command) do
-    pool_size = Application.get_env(:messages_gateway,  MessagesGateway.RedisManager)[:pool_size]
-    connection_index = rem(System.unique_integer([:positive]), pool_size)
-    Redix.command(:"redis_#{connection_index}", command)
-end
 
 end
