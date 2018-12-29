@@ -25,4 +25,16 @@ defmodule DbAgent.OperatorTypesRequests do
     |> Repo.update_all( set: [active: params.active])
   end
 
+  @spec list_operator_types :: [OperatorTypesSchema.t()] | [] | {:error, Ecto.Changeset.t()}
+  def list_operator_types() do
+    Repo.all(OperatorTypesSchema)
+  end
+
+  @spec get_by_name(name :: String.t()) :: {:ok, OperatorTypesSchema.t()} | {:error, Ecto.Changeset.t()}
+  def get_by_name(name) do
+    OperatorTypesSchema
+    |> where([op], op.name == ^name)
+    |> Repo.one!()
+  end
+
 end
