@@ -9,7 +9,7 @@ defmodule SmsRouter do
   @operation_info "operators_info"
 
   def check_and_send(message) do
-    operator_id = search_contact_in_db(message)
+    {operator_id, operator_config} = search_contact_in_db(message)
     MqSubscriber.send_to_operator(message, operator_id)
   end
 
@@ -44,7 +44,7 @@ defmodule SmsRouter do
   end
 
   defp check_phone_belong_operator(operator_info, phone_code, other_operators) do
-    case Enum.member?(operator_info.operator_codes, phone_code) do
+    case Enum.member?(String.split(operator_info.operator_codes), phone_code) do
        true -> operator_info
        _-> select_operators(other_operators, phone_code)
     end

@@ -6,7 +6,6 @@ defmodule ViberEndpoint do
 
   def request(method, body \\ []) do
     newbody = Jason.encode!(body)
-    :io.format("~nnewbody: ~p~n", [newbody])
     method
     |> build_url()
     |> HTTPoison.post(newbody, headers())
@@ -27,7 +26,6 @@ defmodule ViberEndpoint do
     with {:ok, %HTTPoison.Response{body: body}} <- response,
          {:ok, %{result: result}} <- Jason.decode(body, [{:keys, :atoms}] )
          do
-      :io.format("~n~nresponse result:~p~n", [result])
       {:ok, result}
     end
   end
