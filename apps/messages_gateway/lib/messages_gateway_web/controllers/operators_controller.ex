@@ -9,6 +9,7 @@ defmodule MessagesGatewayWeb.OperatorsController do
 
   @operator_active true
   @operator_inactive false
+  @operation_info "operators_info"
 
   def index(conn, _params) do
     with operators <- OperatorsRequests.list_operators()
@@ -28,8 +29,24 @@ defmodule MessagesGatewayWeb.OperatorsController do
     {_, operator_info_r} = Map.split(operator_info, ["id", "operator_type", "config"])
     with {1, _} <- OperatorsRequests.change_operator(id, [{:config, config} | convert(operator_info_r)])
       do
+        OperatorsRequests.list_operators()
+        |> select_operator([])
+        |> add_operators_info_to_redis()
         render(conn, "create.json", %{status: "success"})
     end
+  end
+
+  def select_operator([], acc), do: acc
+  def select_operator([%{operator: operator_struct}| t], acc) do
+    operator = Map.from_struct(operator_struct)
+     %{id: operator.id, active: operator.active, name: operator.name,priority: operator.priority, limit: operator.limit}
+    select_operator(t, [Map.merge(%{id: operator.id, active: operator.active, name: operator.name,
+      priority: operator.priority, limit: operator.limit}, operator.config) | acc])
+  end
+
+  def add_operators_info_to_redis(list_operators) do
+    json = Jason.encode!(list_operators)
+    MessagesGateway.RedisManager.set(@operation_info, json)
   end
 
   def delete(conn, %{"id" => id}) do
@@ -56,7 +73,6 @@ defmodule MessagesGatewayWeb.OperatorsController do
           {:ok, json} <- Jason.encode(priority),
           :ok <- MessagesGateway.RedisManager.set("operators_config", json)
       do
-        :io.format("~nnew_priority: ~p~n~n", [priority])
       render(conn, "create.json", %{status: "success"})
     end
   end

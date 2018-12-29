@@ -24,6 +24,7 @@ defmodule MessagesGateway.Application do
     # Define workers and child supervisors to be supervised
     children = [
       # Start the endpoint when the application starts
+#      worker(MessagesGateway.OperatorsToCash, []),
       supervisor(MessagesGatewayWeb.Endpoint, []),
       worker(MessagesGateway.MqPublisher, []) |  redis_workers
       # mq = MessagesGatewayWeb.MqPublisher
