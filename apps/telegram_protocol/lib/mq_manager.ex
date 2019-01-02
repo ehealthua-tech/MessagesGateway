@@ -1,4 +1,4 @@
-defmodule TelegramSubscriber do
+defmodule TelegramProtocol.MqManager do
     use GenServer
     use AMQP
 

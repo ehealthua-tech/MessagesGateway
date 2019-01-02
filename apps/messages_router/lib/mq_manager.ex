@@ -1,4 +1,4 @@
-defmodule MqSubscriber do
+defmodule MessagesRouter.MqManager do
     use GenServer
     use AMQP
 

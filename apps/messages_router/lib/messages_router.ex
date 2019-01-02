@@ -20,7 +20,7 @@ defmodule MessagesRouter do
 #    end
 
     children = [
-      worker(MqSubscriber, []) #|  redis_workers
+      worker(MessagesRouter.MqManager, []) #|  redis_workers
     ]
 
     opts = [strategy: :one_for_one, name: MessagesRouter.Supervisor]

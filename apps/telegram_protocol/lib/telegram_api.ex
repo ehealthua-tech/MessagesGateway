@@ -116,7 +116,8 @@ defmodule TelegramApi do
   def send_message(payload) do
     :io.format("~nTELEGRAM API~n")
     GenServer.cast(__MODULE__, {:send_messages, payload})
-    :timer.sleep(15000)
+    resend_timeout = Application.get_env(:telegram_protocol, :resend_timeout, 30)
+    :timer.sleep(resend_timeout*1000)
     {:ok, message_info} = MessagesGateway.RedisManager.get(payload.message_id)
     if Map.get(Jason.decode!(message_info), "telegram_sending_status", :nil) == true do
       :io.format("~nTelegram delivered~n")
@@ -139,7 +140,7 @@ defmodule TelegramApi do
       selected_operator = Enum.min_by(priority_list, fn e -> e.priority end)
       operator_type_id = selected_operator.operator_type_id
       new_priority_list = List.delete(priority_list, operator_type_id)
-      TelegramSubscriber.send_to_operator(Jason.encode!(Map.put(payload, :priority_list, new_priority_list)), operator_type_id)
+      TelegramProtocol.MqManager.send_to_operator(Jason.encode!(Map.put(payload, :priority_list, new_priority_list)), operator_type_id)
     else
       :callback_failed
     end

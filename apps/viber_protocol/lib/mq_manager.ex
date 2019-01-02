@@ -1,4 +1,4 @@
-defmodule ViberSubscriber do
+defmodule ViberProtocol.MqManager do
   use GenServer
   use AMQP
 

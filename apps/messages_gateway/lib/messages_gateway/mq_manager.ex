@@ -1,4 +1,4 @@
-defmodule MessagesGateway.MqPublisher do
+defmodule MessagesGateway.MqManager do
   use GenServer
   use AMQP
 

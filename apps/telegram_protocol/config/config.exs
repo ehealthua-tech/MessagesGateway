@@ -32,7 +32,8 @@ use Mix.Config
 config :telegram_protocol,
        namespace: MessagesRouter,
        mq_host: "localhost",
-       mq_port: 5672
+       mq_port: 5672,
+       resend_timeout: 30
 
 config :telegram_protocol, api_id: 539444
 config :telegram_protocol, api_hash: "1a6a0ad0726805c353f26b5f859ea279"

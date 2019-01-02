@@ -96,7 +96,7 @@ defmodule ViberApi do
       selected_operator = Enum.min_by(priority_list, fn e -> Map.get(e, "priority") end)
       %{"operator_type_id" => operator_type_id} = selected_operator
       new_priority_list = List.delete(priority_list, selected_operator)
-      ViberSubscriber.send_to_operator(Jason.encode!(Map.put(payload, :priority_list, new_priority_list)), operator_type_id)
+      ViberProtocol.MqManager.send_to_operator(Jason.encode!(Map.put(payload, :priority_list, new_priority_list)), operator_type_id)
     else
       :callback_failed
     end
