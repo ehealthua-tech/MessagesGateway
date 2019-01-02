@@ -17,6 +17,13 @@ defmodule MessagesGatewayWeb.OperatorsController do
     end
   end
 
+  def all_protocols(conn, _params) do
+    with protocols <- Application.get_env(:messages_gateway, :operators_protocol)
+      do
+      render(conn, "protocols.json", %{protocols: protocols})
+    end
+  end
+
   def create(conn, %{"resource" => operator_info}) do
     status = OperatorsRequests.add_operator(operator_info)
     with {:ok, _} <- status do
