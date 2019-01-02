@@ -19,8 +19,8 @@ defmodule MessagesGatewayWeb.SystemConfigController do
 
   #  ---- send a message to the client any available way ------------------------
 
-  def add(conn, %{"resource" => %{"priority_model" => priority_model}}) do
-    with :ok <- MessagesGateway.RedisManager.set(@messages_gateway_conf, Jason.encode!(%{"priority_model" => priority_model}))
+  def add(conn, %{"resource" => config}) do
+    with :ok <- MessagesGateway.RedisManager.set(@messages_gateway_conf, Jason.encode!(config))
       do
       render(conn, "index.json", %{status: :ok})
     end

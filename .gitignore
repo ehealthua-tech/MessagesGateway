@@ -25,3 +25,4 @@ messages_gateway.iml
 log/
 
 dump.rdb
+dev.secret.exs
