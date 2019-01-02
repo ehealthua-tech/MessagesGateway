@@ -30,6 +30,7 @@ defmodule TelegramProtocol.MixProject do
       {:httpoison, "~> 1.4"},
       {:jason, "~> 1.1"},
       {:plug_cowboy, "~> 1.0"},
+      {:tdlib, "~> 0.0.2"},
       {:ex_doc, "~> 0.19", only: :dev, runtime: false}
     ]
   end

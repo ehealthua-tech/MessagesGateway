@@ -5,7 +5,8 @@ defmodule TelegramProtocol do
       import Supervisor.Spec
 
       children = [
-        worker(TelegramSubscriber, [])
+        worker(TelegramProtocol.MqManager, []),
+        worker(TelegramApi, [])
       ]
 
       opts = [strategy: :one_for_one, name: TelegramProtocol.Supervisor]
