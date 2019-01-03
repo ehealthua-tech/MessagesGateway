@@ -85,7 +85,7 @@ defmodule TelegramApi do
 #    {:noreply, state}
 #  end
 
-  def handle_info({:recv, %Object.UpdateChatReadOutbox{chat_id: chat_id, last_read_outbox_message_id: last_read_outbox_message_id}},  %{messages: %{message_id: message_id}} = state) do
+  def handle_info({:recv, %Object.UpdateChatReadOutbox{chat_id: chat_id, last_read_outbox_message_id: last_read_outbox_message_id}},  %{messages: %{message_id: message_id} = payload} = state) do
     {:ok, message_info} = MessagesGateway.RedisManager.get(payload.message_id)
     MessagesGateway.RedisManager.set(payload.message_id, Jason.encode!(Map.put(Jason.decode!(message_info), "telegram_sending_status", true)))
     {:noreply, state}
