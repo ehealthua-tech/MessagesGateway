@@ -35,6 +35,4 @@ config :telegram_protocol,
        mq_port: 5672,
        resend_timeout: 30
 
-config :telegram_protocol, api_id: 539444
-config :telegram_protocol, api_hash: "1a6a0ad0726805c353f26b5f859ea279"
-config :telegram_protocol, phone: "+380000000"
+import_config "dev.secret.exs"
