@@ -39,11 +39,11 @@ defmodule TelegramApi do
     {:noreply, %{messages: payload}}
   end
 
-#  def telegram_authorization_process(%Object.AuthorizationStateWaitCode{}) do
-#    code = IO.gets("Please authentication code: ") |> String.trim()
-#    query = %Method.CheckAuthenticationCode{code: code}
-#    TDLib.transmit(@session, query)
-#  end
+  def telegram_authorization_process(%Object.AuthorizationStateWaitCode{}) do
+    code = IO.gets("Please authentication code: ") |> String.trim()
+    query = %Method.CheckAuthenticationCode{code: code}
+    TDLib.transmit(@session, query)
+  end
 
   def telegram_authorization_process(%Object.AuthorizationStateWaitPassword{}) do
     pass = IO.gets("Please authentication pass: ") |> String.trim()
