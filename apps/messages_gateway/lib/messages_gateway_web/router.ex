@@ -6,7 +6,7 @@ defmodule MessagesGatewayWeb.Router do
 
   end
 
-  scope "/", MessagesGatewayWeb do
+  scope "/api", MessagesGatewayWeb do
     pipe_through :api
 
     scope "/operator_type"  do
@@ -15,8 +15,11 @@ defmodule MessagesGatewayWeb.Router do
 
     end
 
+    scope "/get_protocol" do
+      resources "/", ProtocolsController, except: [:new, :edit, :update, :create, :delete]
+    end
+
     scope "/operators" do
-      get "/all_protocols", OperatorsController, :all_protocols
       post "/change", OperatorsController, :change_info
       post "/update_priority", OperatorsController, :update_priority
       resources "/", OperatorsController, except: [:new, :edit, :update]

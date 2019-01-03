@@ -5,4 +5,5 @@ defmodule MessagesGatewayWeb.SystemConfigView do
   def render("index.json", %{}) do
     %{status: :ok}
   end
+
 end
