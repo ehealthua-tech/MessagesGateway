@@ -33,22 +33,24 @@ defmodule TelegramApi do
     TDLib.transmit(@session, query)
   end
 
+  def handle_cast({:send_code, payload},  state) do
+    query = %Method.CheckAuthenticationCode{code: payload.code}
+    TDLib.transmit(@session, query)
+    {:noreply, %{messages: payload}}
+  end
+
   def handle_cast({:send_pass, payload},  state) do
-    query = %Method.CheckAuthenticationCode{code: payload.pass}
+    query = %Method.CheckAuthenticationPassword{password: payload.pass}
     TDLib.transmit(@session, query)
     {:noreply, %{messages: payload}}
   end
 
   def telegram_authorization_process(%Object.AuthorizationStateWaitCode{}) do
-    code = IO.gets("Please authentication code: ") |> String.trim()
-    query = %Method.CheckAuthenticationCode{code: code}
-    TDLib.transmit(@session, query)
+    :io.format("~n~nPlease authentication code~n~n")
   end
 
   def telegram_authorization_process(%Object.AuthorizationStateWaitPassword{}) do
-    pass = IO.gets("Please authentication pass: ") |> String.trim()
-    query = %Method.CheckAuthenticationPassword{password: pass}
-    TDLib.transmit(@session, query)
+    :io.format("~n~nPlease authentication Password~n~n")
   end
   def telegram_authorization_process(%Object.AuthorizationStateReady{}) do
     {:ok, :auth}
@@ -130,9 +132,13 @@ defmodule TelegramApi do
   end
 
 
+  def send_code(%{"code" => code} = payload) do
+    GenServer.cast(__MODULE__, {:send_code, %{code: code}})
+   end
+
   def send_pass(%{"pass" => pass} = payload) do
     GenServer.cast(__MODULE__, {:send_pass, %{pass: pass}})
-   end
+  end
 
   defp resend(payload) do
     priority_list = payload.priority_list
