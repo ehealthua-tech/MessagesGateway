@@ -39,6 +39,15 @@ defmodule MessagesGateway.RedisManager do
     end
   end
 
+  def keys(key) when is_binary(key) do
+    case command(["KEYS", key]) do
+      {"ok", values} ->
+        {:ok, values}
+      error ->
+        error
+    end
+  end
+
   @spec command(list) :: {:ok, term} | {:error, term}
   defp command(command) when is_list(command) do
     pool_size = Application.get_env(:messages_gateway,  MessagesGateway.RedisManager)[:pool_size]
