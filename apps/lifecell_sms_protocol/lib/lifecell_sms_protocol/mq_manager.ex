@@ -11,8 +11,9 @@ defmodule LifecellSms.MqManager do
     end
 
     def init(_opts) do
-      queue_name = DbAgent.OperatorTypesRequests.get_by_name(@queue_name)
-      state = %{connected: false, chan: nil, queue_name: queue_name.id, conn: nil, subscribe: nil}
+      {:ok, app_name} = :application.get_application(__MODULE__)
+      :io.format("~napp_name: ~p~n", [app_name])
+      state = %{connected: false, chan: nil, queue_name: to_string(app_name), conn: nil, subscribe: nil}
       {:ok, connect(state)}
     end
 

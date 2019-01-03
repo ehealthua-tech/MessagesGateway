@@ -11,6 +11,7 @@ defmodule DbAgent.Operators do
     field(:priority, :integer)
     field(:price, :integer,  default: 0, null: 0)
     field(:limit, :integer)
+    field(:protocol_name, :string, null: false)
     field(:active, :boolean, default: false)
 
     belongs_to(:operator_types, OperatorTypes, foreign_key: :operator_type_id, type: :binary_id)
@@ -21,8 +22,8 @@ defmodule DbAgent.Operators do
   @spec changeset(operators :: Operators.t(), %{}) :: Ecto.Changeset.t()
   def changeset(operators, attrs) do
     operators
-    |> cast(attrs, [:name, :operator_type_id, :config, :priority, :price, :limit, :active])
-    |> validate_required([:name, :operator_type_id, :config, :priority, :price, :limit, :active])
+    |> cast(attrs, [:name, :operator_type_id, :config, :priority, :price, :limit, :protocol_name, :active])
+    |> validate_required([:name, :operator_type_id, :config, :priority, :price, :limit, :protocol_name, :active])
     |> unique_constraint(:name)
     |> foreign_key_constraint(:operator_type_id)
   end

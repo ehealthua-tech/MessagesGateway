@@ -1,4 +1,4 @@
-defmodule MqSubscriber do
+defmodule MessagesRouter.MqManager do
     use GenServer
     use AMQP
 
@@ -67,7 +67,6 @@ defmodule MqSubscriber do
           Process.monitor(conn.pid)
           {:ok, chan} = Channel.open(conn)
           Queue.declare(chan, queue_name, [durable: true, arguments: [{"x-max-priority", :short, 10}]])
-          Queue.declare(chan, "1", [durable: true, arguments: [{"x-max-priority", :short, 10}]])
           Exchange.fanout(chan, @exchange, durable: true)
           Queue.bind(chan, queue_name, @exchange)
           {ok, sub} = AMQP.Queue.subscribe chan, queue_name,

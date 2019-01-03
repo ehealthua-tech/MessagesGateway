@@ -6,7 +6,7 @@ defmodule ViberProtocol do
 
     children = [
       Plug.Cowboy.child_spec(scheme: :http, plug: ViberCallback, options: [port: 6012]),
-      worker(ViberSubscriber, [])
+      worker(ViberProtocol.MqManager, [])
     ]
 
     opts = [strategy: :one_for_one, name: ViberProtocol.Supervisor]

@@ -30,7 +30,7 @@ defmodule LifecellSms.RedisManager do
   defp check_del(err), do: err
 
   @spec command(list) :: {:ok, term} | {:error, term}
-  defp command(command) when is_list(command) do
+  def command(command) when is_list(command) do
     pool_size = Application.get_env(:messages_gateway, SmsRouter.RedisManager)[:pool_size]
     connection_index = rem(System.unique_integer([:positive]), pool_size)
     Redix.command(:"redis_#{connection_index}", command)

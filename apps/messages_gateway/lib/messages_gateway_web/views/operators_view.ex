@@ -13,6 +13,10 @@ defmodule MessagesGatewayWeb.OperatorsView do
     %{status: delete_status}
   end
 
+  def render("protocols.json", %{protocols: protocols}) do
+    %{protocols: protocols}
+  end
+
   def render("operator.json", %{operators: %{operator: operator, operator_type: operator_type}}) do
     %{
       id: operator.id,

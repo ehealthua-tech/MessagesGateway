@@ -10,6 +10,7 @@ defmodule DbAgent.Repo.Migrations.CreateOperators do
       add(:priority, :integer)
       add(:price, :integer,  default: 0, null: 0)
       add(:limit, :integer)
+      add(:protocol_name, :string, null: false )
       add(:active, :boolean)
 
       timestamps()

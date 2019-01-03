@@ -26,8 +26,8 @@ defmodule MessagesGateway.Application do
       # Start the endpoint when the application starts
 #      worker(MessagesGateway.OperatorsToCash, []),
       supervisor(MessagesGatewayWeb.Endpoint, []),
-      worker(MessagesGateway.MqPublisher, []) |  redis_workers
-      # mq = MessagesGatewayWeb.MqPublisher
+      worker(MessagesGateway.MqManager, []) |  redis_workers
+      # mq = MessagesGatewayWeb.MqManager
       # Start your own worker by calling: MessagesGateway.Worker.start_link(arg1, arg2, arg3)
       # worker(MessagesGateway.Worker, [arg1, arg2, arg3]),
     ]
