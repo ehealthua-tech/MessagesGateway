@@ -228,6 +228,7 @@ body:
             },
             "id": "4e250374-0cb5-46fe-acf8-fcd07b1d9105",
             "limit": 1000,
+            "protocol_name": "viber_protocol",
             "name": "viber",
             "price": 18,
             "priority": 1
