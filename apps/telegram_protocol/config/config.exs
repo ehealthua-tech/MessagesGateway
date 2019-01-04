@@ -35,4 +35,4 @@ config :telegram_protocol,
        mq_port: 5672,
        resend_timeout: 30
 
-import_config "dev.secret.exs"
+import_config "~/configs/dev.secret.exs"

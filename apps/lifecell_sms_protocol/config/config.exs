@@ -32,4 +32,4 @@ config :lifecell_sms_protocol,
        sms_send_url: "http://bulk.bs-group.com.ua/clients.php"
 
 
-import_config "dev.secret.exs"
+import_config "~/configs/dev.secret.exs"

@@ -5,6 +5,7 @@ defmodule LifecellSmsProtocol do
   import SweetXml
   alias LifecellSms.EndpointManager
   alias LifecellSms.RedisManager
+  alias LifecellSms.CronManager
   @messages_unknown_status ['Accepted', 'Enroute', 'Unknown']
   @messages_error_status   ['Expired', 'Deleted', 'Undeliverable', 'Rejected']
   @messages_success_status ['Delivered']
@@ -21,24 +22,33 @@ defmodule LifecellSmsProtocol do
       else
         error -> end_sending_messages(error)
     end
-
   end
 
-  def cgeck_message_status(lifecell_message_id)
+  def check_message_status(payload) do
+    with {:ok, request_body} <- check_status_body(payload.lifecell_sms_id),
+         {:ok, response_body} <- EndpointManager.prepare_and_send_sms_request(request_body),
+         {:ok, pars_body} <- xmap(response_body, @send_sms_response_parse_schema)
+    do
+      check_sending_status(pars_body, payload)
+    else
+      error -> end_sending_messages(error)
+    end
+  end
 
   def check_sending_status(%{status: status} = pars_body, payload)
       when status in @messages_unknown_status do
-    send_sms_body(payload.lifecell_sms_id)
+
+    CronManager.schedule_work()
   end
 
   def check_sending_status(%{status: status} = pars_body, payload)
       when status in @messages_error_status do
-    send_sms_body(payload.lifecell_sms_id)
+    end_sending_messages(error)
   end
 
   def check_sending_status(%{status: status} = pars_body, payload)
       when status in @messages_success_status do
-    send_sms_body(payload.lifecell_sms_id)
+    end_sending_messages(error)
   end
 
   defp end_sending_messages(payload)do
@@ -61,8 +71,8 @@ defmodule LifecellSmsProtocol do
      <message>"
   end
 
-  defp check_status_body(message_id)do
-    "<request id="<>message_id<>">status</request>"
+  defp check_status_body(lifecell_sms_id)do
+    "<request id="<>lifecell_sms_id<>">status</request>"
   end
 
 end
