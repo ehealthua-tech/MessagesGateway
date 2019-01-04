@@ -179,7 +179,7 @@ body:
     }
 }
 ```
-**operator_edit**
+**update priority**
 *request:*
 ```
 Method: POST 
@@ -208,6 +208,30 @@ body:
                 "priority": 2
             }
     ]}
+
+```
+
+**change operator**
+*request:*
+```
+Method: POST
+
+url: HOST:PORT/operators/change
+```
+body:
+```json
+
+{"resource": {
+            "active": true,
+            "config": {
+                "host": "blabal"
+            },
+            "id": "4e250374-0cb5-46fe-acf8-fcd07b1d9105",
+            "limit": 1000,
+            "name": "viber",
+            "price": 18,
+            "priority": 1
+        }}
 
 ```
 
