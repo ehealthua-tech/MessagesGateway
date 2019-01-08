@@ -18,6 +18,7 @@ defmodule MessagesGatewayWeb.OperatorTypeView do
       id: operator_type.id,
       name: operator_type.name,
       active: operator_type.active,
+      priority: operator_type.priority,
       last_update: operator_type.updated_at
     }
   end

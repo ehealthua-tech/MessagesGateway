@@ -40,8 +40,7 @@ defmodule MessagesGatewayWeb.MessageController do
 #  ---- send only e-mail ------------------------------------------------------
 
   def new_email(conn, %{"resource" => %{"request_id" => request_id, "email" => email, "body" => body, "subject" => subject} = resource}) do
-   # with {:ok, message_id}
-    with ok <- SmtpProtocol.send_email(email, subject, body) # add_email_to_db_and_queue(request_id, email, body, subject)
+    with {:ok, message_id} <- add_email_to_db_and_queue(request_id, email, body, subject)
       do
         :io.format("~nSMTP:~p~n",[ok])
       render(conn, "index.json", request_id: request_id, message_id: 111)
@@ -94,15 +93,15 @@ defmodule MessagesGatewayWeb.MessageController do
     end
   end
 
-#  def add_email_to_db_and_queue(request_id, contact, body, subject) do
-#    with {:ok, message_id} <- UUID.generate_uuid(),
-#         :ok <- add_to_redis(message_id, %{active: @sending_start_status, sending_status: @status_not_send}),
-#         :ok <- add_to_message_queue(message_id, %{message_id: message_id, contact: contact, body: body,
-#           subject: subject})
-#      do
-#      {:ok, message_id}
-#    end
-#  end
+  def add_email_to_db_and_queue(request_id, contact, body, subject) do
+    with {:ok, message_id} <- UUID.generate_uuid(),
+         :ok <- add_to_redis(message_id, %{active: @sending_start_status, sending_status: @status_not_send}),
+         :ok <- add_to_message_queue(message_id, %{message_id: message_id, contact: contact, body: body,
+           subject: subject})
+      do
+      {:ok, message_id}
+    end
+  end
 
   def add_to_redis(message_id, body) do
     redis_body = Jason.encode!(body)
