@@ -16,12 +16,29 @@ defmodule MessagesGatewayWeb.OperatorTypeController do
     end
   end
 
-  def create(conn, %{"resource" => %{"operator_type_name" => operator_type_name}}) do
-    with {:ok,_} <- OperatorTypesRequests.add_operator_type(%{name: operator_type_name, active: @operator_active})
+  def create(conn, %{"resource" => %{"operator_type_name" => operator_type_name, "priority" => priority}}) do
+    with {:ok,_} <- OperatorTypesRequests.add_operator_type(%{name: operator_type_name, priority: priority, active: @operator_active})
       do
         render(conn, "create.json", %{status: "success"})
     end
 
+  end
+
+  def update_priority(conn, %{"resource" => operator_info}) do
+    with {n, new_priority} <- OperatorTypesRequests.update_priority(operator_info)
+#         operator_types <- OperatorTypesRequests.list_operator_types(),
+#         priority <- select_operator_types__id(operator_types, []),
+#         {:ok, json} <- Jason.encode(priority),
+#         :ok <- MessagesGateway.RedisManager.set("operators_config", json)
+      do
+      render(conn, "create.json", %{status: "success"})
+    end
+  end
+
+  def select_operator_types__id([], acc), do: acc
+  def select_operator_types__id([%{operator_types: operator_struct}| t], acc) do
+    operator = Map.from_struct(operator_struct)
+    select_operator_types__id(t, [%{operator.id => %{operator_configs: operator.config, priority_on_price: operator.priority}} | acc])
   end
 
   def deactivate(conn, %{"resource" => %{"operator_type_id" => operator_type_id, "active" => active}}) do

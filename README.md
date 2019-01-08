@@ -51,6 +51,7 @@ url: HOST:PORT/operator_type
 |fields|types|required|
 |-----|----|--------|
 | operator_type_name|String|required|
+| priority|Integer|required|
 
 *request:*
 ```
@@ -60,7 +61,53 @@ url: HOST:PORT/operator_type
 ```
 body:
 ```json
-    {"resource": {"operator_type_name":"viber1"}}
+    {"resource": {"operator_type_name":"viber1", "priority":  1}}
+
+```
+
+*response:*
+```json
+{
+    "data": {
+        "status": "success"
+    },
+    "meta": {
+        "code": 200,
+        "request_id": "2loi661afgnl4uf0hs000121",
+        "type": "object",
+        "url": "http://192.168.100.165:4011/operator_type"
+    }
+}
+```
+
+**update priority**
+
+|fields|types|required|
+|-----|----|--------|
+|id|String|required|
+|name|String|required|
+|priority|Integer|required|
+|active|Bool|required|
+
+
+*request:*
+
+```
+Method: POST 
+
+url: HOST:PORT/api/operator_type/update_priority
+```
+body:
+```json
+
+    {"resource": [
+            {
+                "active": true,
+                "id": "0825f627-9772-4107-aa99-11d6c18249b8",
+                "name": "viber",
+                "priority": 2
+            }
+        ]}
 
 ```
 
@@ -159,6 +206,7 @@ url: HOST:PORT//operators
 |-----|----|--------|
 |name|String|required|
 |operator_type_id|String|required|
+|protocol_name|String|required|
 |config|Json|required|
 |priority|Integer|required|
 |price|Integer|required|

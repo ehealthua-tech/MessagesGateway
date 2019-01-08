@@ -17,8 +17,8 @@ defmodule DbAgent.OperatorTypes do
   @spec changeset(operator_types :: OperatorTypes.t(), %{}) :: Ecto.Changeset.t()
   def changeset(operator_types, attrs) do
     operator_types
-    |> cast(attrs, [:name, :active])
-    |> validate_required([:name, :active])
+    |> cast(attrs, [:name, :active, :priority])
+    |> validate_required([:name, :active, :priority])
     |> unique_constraint(:name)
   end
 

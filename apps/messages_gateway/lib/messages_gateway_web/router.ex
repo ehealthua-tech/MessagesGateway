@@ -12,6 +12,7 @@ defmodule MessagesGatewayWeb.Router do
     scope "/operator_type"  do
       post "/deactivate", OperatorTypeController, :deactivate
       resources "/", OperatorTypeController, except: [:new, :delete, :show, :edit, :update]
+      post "/update_priority", OperatorTypeController, :update_priority
 
     end
 
