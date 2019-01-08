@@ -9,6 +9,7 @@ defmodule DbAgent.OperatorTypes do
   schema "operator_types" do
     field(:active, :boolean, default: false)
     field(:name, :string, null: false)
+    field(:priority, :integer)
 
     timestamps()
   end
