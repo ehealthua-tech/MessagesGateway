@@ -28,12 +28,14 @@ url: HOST:PORT/operator_type
             "active": true,
             "id": "d9ca99a2-f5a9-4c9b-aa70-133fa9b9a9b1",
             "last_update": "2018-12-14T13:51:31.181995",
+            "priority": 1,
             "name": "sms"
         },
         {
             "active": true,
             "id": "616c7928-f9d7-472c-b994-87a0e3bc36b3",
             "last_update": "2018-12-14T13:51:38.685603",
+            "priority": 1,
             "name": "viber"
         }
     ],
