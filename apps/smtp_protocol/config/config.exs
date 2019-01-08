@@ -34,8 +34,8 @@ config :smtp_protocol, SmtpProtocol.Mailer,
        server: "smtp.office365.com",
        hostname: "skywell.software",
        port: 587,
-       username: "r.moroz@skywell.software", # or {:system, "SMTP_USERNAME"}
-       password: "Gembird1nser%", # or {:system, "SMTP_PASSWORD"}
+       username: "test@skywell.software", # or {:system, "SMTP_USERNAME"}
+       password: "test", # or {:system, "SMTP_PASSWORD"}
        tls: :if_available, # can be `:always` or `:never`
        allowed_tls_versions: [:"tlsv1", :"tlsv1.1", :"tlsv1.2"], # or {:system, "ALLOWED_TLS_VERSIONS"} w/ comma seprated values (e.g. "tlsv1.1,tlsv1.2")
        ssl: false, # can be `true`

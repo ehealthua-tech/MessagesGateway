@@ -42,7 +42,6 @@ defmodule MessagesGatewayWeb.MessageController do
   def new_email(conn, %{"resource" => %{"request_id" => request_id, "email" => email, "body" => body, "subject" => subject} = resource}) do
     with {:ok, message_id} <- add_email_to_db_and_queue(request_id, email, body, subject)
       do
-        :io.format("~nSMTP:~p~n",[ok])
       render(conn, "index.json", request_id: request_id, message_id: 111)
     end
 
