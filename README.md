@@ -48,6 +48,10 @@ url: HOST:PORT/operator_type
 
 **add_operator_type**
 
+|fields|types|required|
+|-----|----|--------|
+| operator_type_name|String|required|
+
 *request:*
 ```
 Method: POST 
@@ -76,6 +80,11 @@ body:
 ```
 
 **delete_operator_type**
+
+|fields|types|required|
+|-----|----|--------|
+|operator_type_id|String|required|
+|active|Bool|required|
 
 *request:*
 ```
@@ -145,6 +154,17 @@ url: HOST:PORT//operators
 ```
 
 **add_operator**
+
+|fields|types|required|
+|-----|----|--------|
+|name|String|required|
+|operator_type_id|String|required|
+|config|Json|required|
+|priority|Integer|required|
+|price|Integer|required|
+|limit|Integer|required|
+|active|Bool|required|
+
 *request:*
 ```
 Method: POST 
@@ -180,7 +200,28 @@ body:
 }
 ```
 **update priority**
+
+|fields|types|required|
+|-----|----|--------|
+|id|String|required|
+|name|String|required|
+|operator_type|OperatorType obj|required|
+|config|Json|required|
+|priority|Integer|required|
+|price|Integer|required|
+|limit|Integer|required|
+|active|Bool|required|
+
+*OperatorType obj:*
+
+|fields|types|required|
+|-----|----|--------|
+|id|String|required|
+|name|String|required|
+|active|Bool|required|
+
 *request:*
+
 ```
 Method: POST 
 
@@ -196,7 +237,6 @@ body:
                     "host": "blabal"
                 },
                 "id": "421f2284-2a8b-466e-8530-410ade1b14b4",
-                "last_update": "2018-12-17T13:59:48.016885",
                 "limit": 1000,
                 "name": "sms4",
                 "operator_type": {
@@ -212,6 +252,17 @@ body:
 ```
 
 **change operator**
+
+|fields|types|required|
+|-----|----|--------|
+|id|String|required|
+|name|String|required|
+|config|Json|required|
+|priority|Integer|required|
+|price|Integer|required|
+|limit|Integer|required|
+|active|Bool|required|
+
 *request:*
 ```
 Method: POST
