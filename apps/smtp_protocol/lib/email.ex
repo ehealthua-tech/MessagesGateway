@@ -1,21 +1,14 @@
 defmodule SmtpProtocol.Email do
   import Bamboo.Email
 
-  def welcome_email do
+  def email(recipient, subject, body) do
     new_email(
-      to: "john@gmail.com",
-      from: "support@myapp.com",
-      subject: "Welcome to the app.",
-      html_body: "<strong>Thanks for joining!</strong>",
-      text_body: "Thanks for joining!"
+      to: recipient,
+      from: "",
+      subject: subject,
+      html_body: Enum.join(["<strong>",body, "</strong>"]),
+      text_body: body
     )
 
-    # or pipe using Bamboo.Email functions
-    new_email
-    |> to("itilmand@gmail.com")
-    |> from("me@example.com")
-    |> subject("Welcome!!!")
-    |> html_body("<strong>Welcome</strong>")
-    |> text_body("welcome")
   end
 end

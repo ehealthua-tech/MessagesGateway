@@ -1,5 +1,5 @@
 defmodule SmtpProtocol do
-  def hello do
-    SmtpProtocol.Email.welcome_email |> SmtpProtocol.Mailer.deliver_now
+  def send_email(recipient, subject, body) do
+    SmtpProtocol.Email.email(recipient, subject, body) |> SmtpProtocol.Mailer.deliver_now
   end
 end
