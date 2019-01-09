@@ -7,24 +7,16 @@ defmodule LifecellSms.CronManager do
   end
 
   def init(state) do
-    schedule_work()
     {:ok, state}
   end
 
-  def handle_info(:resend_message, state) do
-    # do important stuff
-    IO.puts "Important stuff in progress..."
-    schedule_work()
+  def handle_info({:check_status, message_info}, state) do
+    LifecellSmsProtocol.check_message_status(message_info)
     {:noreply, state}
   end
 
   defp schedule_work(message_info) do
-
-    Process.send_after(self(), :resend_message, 1_000)
-  end
-
-  defp resend_message() do
-
+    Process.send_after(self(), {:check_status, message_info}, to_int(message_info.check_sms_status_time))
   end
 
 end

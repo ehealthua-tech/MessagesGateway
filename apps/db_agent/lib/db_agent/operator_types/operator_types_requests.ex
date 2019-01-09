@@ -37,4 +37,9 @@ defmodule DbAgent.OperatorTypesRequests do
     |> Repo.one!()
   end
 
+  def delete(id) do
+    from(p in OperatorTypesSchema, where: p.id == ^id)
+    |> Repo.delete()
+  end
+
 end

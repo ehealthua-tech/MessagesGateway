@@ -6,11 +6,22 @@ defmodule LifecellSmsProtocol do
   alias LifecellSms.EndpointManager
   alias LifecellSms.RedisManager
   alias LifecellSms.CronManager
+  alias LifecellSms.MqManager
+
   @messages_unknown_status ['Accepted', 'Enroute', 'Unknown']
   @messages_error_status   ['Expired', 'Deleted', 'Undeliverable', 'Rejected']
   @messages_success_status ['Delivered']
   @messages_gateway_conf "messages_gateway_conf"
-  @send_sms_response_parse_schema [status: ~x"//state/text()", lifecell_sms_id: ~x"./@id", date:  ~x"./@date", id: ~x"./@ext_id", error: ~x"//status/state/@error" ]
+  @send_sms_response_parse_schema [status: ~x"//state/text()", lifecell_sms_id: ~x"./@id", date:  ~x"./@date",
+    id: ~x"./@ext_id", error: ~x"//status/state/@error" ]
+
+  def start_link() do
+
+  end
+
+  def init() do
+
+  end
 
   def send_message(%{phone: phone, message: message} = payload) do
 
@@ -25,34 +36,31 @@ defmodule LifecellSmsProtocol do
   end
 
   def check_message_status(payload) do
-    with {:ok, request_body} <- check_status_body(payload.lifecell_sms_id),
+    lifacell_sms_info = payload.lifecell_sms_info
+    with {:ok, request_body} <- check_status_body(lifacell_sms_info.lifecell_sms_id),
          {:ok, response_body} <- EndpointManager.prepare_and_send_sms_request(request_body),
          {:ok, pars_body} <- xmap(response_body, @send_sms_response_parse_schema)
     do
       check_sending_status(pars_body, payload)
     else
-      error -> end_sending_messages(error)
+      error -> end_sending_messages(payload)
     end
   end
 
   def check_sending_status(%{status: status} = pars_body, payload)
       when status in @messages_unknown_status do
-
-    CronManager.schedule_work()
+    put_in(payload, :lifecell_sms_info, pars_body)
+    |> CronManager.schedule_work()
   end
 
   def check_sending_status(%{status: status} = pars_body, payload)
       when status in @messages_error_status do
-    end_sending_messages(error)
+    end_sending_messages(payload)
   end
 
   def check_sending_status(%{status: status} = pars_body, payload)
       when status in @messages_success_status do
-    end_sending_messages(error)
-  end
-
-  defp end_sending_messages(payload)do
-    payload
+    end_sending_messages(payload)
   end
 
   defp prepare_request_body(payload) do
@@ -73,6 +81,17 @@ defmodule LifecellSmsProtocol do
 
   defp check_status_body(lifecell_sms_id)do
     "<request id="<>lifecell_sms_id<>">status</request>"
+  end
+
+  defp end_sending_messages(%{"priority_list" => priority_list} = payload) do
+    if priority_list != [] do
+      selected_operator = Enum.min_by(priority_list, fn e -> Map.get(e, "priority") end)
+      %{"operator_type_id" => operator_type_id} = selected_operator
+      new_priority_list = List.delete(priority_list, selected_operator)
+      MqManager.send_to_operator(Jason.encode!(Map.put(payload, :priority_list, new_priority_list)), operator_type_id)
+    else
+      :callback_failed
+    end
   end
 
 end
