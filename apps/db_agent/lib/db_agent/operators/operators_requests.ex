@@ -49,7 +49,7 @@ defmodule DbAgent.OperatorsRequests do
 
   def delete(id) do
     from(p in OperatorsSchema, where: p.id == ^id)
-    |> Repo.delete()
+    |> Repo.delete_all()
   end
 
   def update_priority(operators_info) do

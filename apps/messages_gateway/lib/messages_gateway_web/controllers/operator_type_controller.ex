@@ -55,10 +55,13 @@ defmodule MessagesGatewayWeb.OperatorTypeController do
   end
 
   defp delete_operator_type([], operator_type_id, conn) do
-    with {:ok, _} <- OperatorTypesRequests.delete(operator_type_id)
+    with {_, nil} <- OperatorTypesRequests.delete(operator_type_id)
       do
         render(conn, "delete.json", %{status: "success"})
     end
   end
+
+  defp delete_operator_type(_, _, _), do: {:error, :operators_present}
+
 
 end
