@@ -42,10 +42,15 @@ defmodule DbAgent.OperatorsRequests do
     |> Repo.one!()
   end
 
+  def operator_by_operator_type_id(operator_type_id) do
+    OperatorsSchema
+    |> where([op], op.operator_type_id == ^operator_type_id)
+    |> Repo.all()
+  end
 
   def delete(id) do
-    from(p in Post, where: p.id == ^id)
-    |> Repo.delete()
+    from(p in OperatorsSchema, where: p.id == ^id)
+    |> Repo.delete_all()
   end
 
   def update_priority(operators_info) do

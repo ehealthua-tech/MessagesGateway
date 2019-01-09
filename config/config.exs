@@ -9,6 +9,7 @@ use Mix.Config
 # back to each application for organization purposes.
 import_config "../apps/*/config/config.exs"
 
+import_config "~/configs/dev.secret.exs"
 # Sample configuration (overrides the imported configuration above):
 #
 #     config :logger, :console,

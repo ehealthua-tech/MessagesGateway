@@ -27,6 +27,11 @@ defmodule LifecellSms.MqManager do
       {:reply, result, state}
     end
 
+    def handle_call({:send_to_operator, message, operator_queue}, _, %{chan: chan, connected: true, queue_name: queue_name} = state) do
+      result = Basic.publish(chan, "", operator_queue, message, [persistent: true, priority: 1])
+      {:reply, result, state}
+    end
+
     def handle_info(:message, state) do
       new_state = connect(state)
       {:noreply, state}
@@ -74,6 +79,10 @@ defmodule LifecellSms.MqManager do
 
     defp reconnect(state) do
       Process.send_after(self(), :connect, @reconnect_timeout)
+    end
+
+    def send_to_operator(message, operator_queue) do
+      GenServer.call(__MODULE__, {:send_to_operator, message, operator_queue})
     end
 
   end

@@ -3,6 +3,7 @@ defmodule MessagesGatewayWeb.OperatorTypeController do
   @moduledoc false
   use MessagesGatewayWeb, :controller
   alias DbAgent.OperatorTypesRequests
+  alias DbAgent.OperatorsRequests
 
   action_fallback(MessagesGatewayWeb.FallbackController)
 
@@ -47,5 +48,20 @@ defmodule MessagesGatewayWeb.OperatorTypeController do
         render(conn, "delete.json", %{status: "success"})
     end
   end
+
+  def delete(conn, %{"id" => id}) do
+    OperatorsRequests.operator_by_operator_type_id(id)
+    |> delete_operator_type(id, conn)
+  end
+
+  defp delete_operator_type([], operator_type_id, conn) do
+    with {_, nil} <- OperatorTypesRequests.delete(operator_type_id)
+      do
+        render(conn, "delete.json", %{status: "success"})
+    end
+  end
+
+  defp delete_operator_type(_, _, _), do: {:error, :operators_present}
+
 
 end

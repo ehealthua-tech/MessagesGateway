@@ -34,6 +34,11 @@ defmodule DbAgent.OperatorTypesRequests do
     |> Repo.one!()
   end
 
+  def delete(id) do
+    from(p in OperatorTypesSchema, where: p.id == ^id)
+    |> Repo.delete_all()
+  end
+
   def update_priority(operators_info) do
     values = create_query_values(operators_info, "")
     query  = "UPDATE operator_types as opt

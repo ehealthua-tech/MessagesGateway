@@ -114,6 +114,12 @@ defmodule MessagesGatewayWeb.FallbackController do
     |> render(Error, :"503", %{message: reason})
   end
 
+  def call(conn, {:error, :operators_present}) do
+    conn
+    |> put_status(:conflict)
+    |> render(Error, :"400", %{message: "Before deleting an operator type - delete the operators attached to it"})
+  end
+
   @doc """
   Proxy response from APIs
   """

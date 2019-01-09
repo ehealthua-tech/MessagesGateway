@@ -17,7 +17,7 @@ PORT: 4011
 *request:*
 ```
 Method: GET 
-url: HOST:PORT/operator_type
+url: HOST:PORT/api/operator_type
 ```
 
 *response:*
@@ -28,12 +28,14 @@ url: HOST:PORT/operator_type
             "active": true,
             "id": "d9ca99a2-f5a9-4c9b-aa70-133fa9b9a9b1",
             "last_update": "2018-12-14T13:51:31.181995",
+            "priority": 1,
             "name": "sms"
         },
         {
             "active": true,
             "id": "616c7928-f9d7-472c-b994-87a0e3bc36b3",
             "last_update": "2018-12-14T13:51:38.685603",
+            "priority": 1,
             "name": "viber"
         }
     ],
@@ -41,7 +43,7 @@ url: HOST:PORT/operator_type
         "code": 200,
         "request_id": "2loi61rj3955jeltk800011h",
         "type": "list",
-        "url": "http://192.168.100.165:4011/operator_type"
+        "url": "http://192.168.100.165:4011/api/operator_type"
     }
 }
 ```
@@ -57,7 +59,7 @@ url: HOST:PORT/operator_type
 ```
 Method: POST 
 
-url: HOST:PORT/operator_type
+url: HOST:PORT/api/operator_type
 ```
 body:
 ```json
@@ -75,7 +77,7 @@ body:
         "code": 200,
         "request_id": "2loi661afgnl4uf0hs000121",
         "type": "object",
-        "url": "http://192.168.100.165:4011/operator_type"
+        "url": "http://192.168.100.165:4011/api/operator_type"
     }
 }
 ```
@@ -121,12 +123,12 @@ body:
         "code": 200,
         "request_id": "2loi661afgnl4uf0hs000121",
         "type": "object",
-        "url": "http://192.168.100.165:4011/operator_type"
+        "url": "http://192.168.100.165:4011/api/operator_type"
     }
 }
 ```
 
-**delete_operator_type**
+**deactivate_operator_type**
 
 |fields|types|required|
 |-----|----|--------|
@@ -137,7 +139,7 @@ body:
 ```
 Method: POST 
 
-url: HOST:PORT/operator_type/deactivate
+url: HOST:PORT/api/operator_type/deactivate
 ```
 body:
 ```json
@@ -155,7 +157,31 @@ body:
         "code": 200,
         "request_id": "2loi6j7jt06quj6vqc000131",
         "type": "object",
-        "url": "http://192.168.100.165:4011/operator_type/deactivate"
+        "url": "http://192.168.100.165:4011/api/operator_type/deactivate"
+    }
+}
+```
+
+**delete operator type **
+
+*request:*
+```
+Method: DELETE 
+
+url: HOST:PORT/api/operator_type/id
+```
+
+*response:*
+```json
+{
+    "data": {
+        "status": "success"
+    },
+    "meta": {
+        "code": 200,
+        "request_id": "2loi7fu73i0d62nobc000191",
+        "type": "object",
+        "url": "http://192.168.100.165:4011/api/operators/update_priority"
     }
 }
 ```
@@ -166,7 +192,7 @@ body:
 ```
 Method: GET 
 
-url: HOST:PORT//operators
+url: HOST:PORT/api/operators
 ```
 
 *response:*
@@ -195,7 +221,7 @@ url: HOST:PORT//operators
         "code": 200,
         "request_id": "2loi72amu293c364i400017h",
         "type": "list",
-        "url": "http://192.168.100.165:4011/operators"
+        "url": "http://192.168.100.165:4011/api/operators"
     }
 }
 ```
@@ -217,7 +243,7 @@ url: HOST:PORT//operators
 ```
 Method: POST 
 
-url: HOST:PORT/operators
+url: HOST:PORT/api/operators
 ```
 body:
 ```json
@@ -243,7 +269,7 @@ body:
         "code": 200,
         "request_id": "2loi70f8251gep7a5k000171",
         "type": "object",
-        "url": "http://192.168.100.165:4011/operators"
+        "url": "http://192.168.100.165:4011/api/operators"
     }
 }
 ```
@@ -273,7 +299,7 @@ body:
 ```
 Method: POST 
 
-url: HOST:PORT/operators/update_priority
+url: HOST:PORT/api/operators/update_priority
 ```
 body:
 ```json
@@ -315,7 +341,7 @@ body:
 ```
 Method: POST
 
-url: HOST:PORT/operators/change
+url: HOST:PORT/api/operators/change
 ```
 body:
 ```json
@@ -345,7 +371,7 @@ body:
         "code": 200,
         "request_id": "2loi78dhm9vvlvceoc000181",
         "type": "object",
-        "url": "http://192.168.100.165:4011/operators/update_priority"
+        "url": "http://192.168.100.165:4011/api/operators/update_priority"
     }
 }
 ```
@@ -355,7 +381,7 @@ body:
 ```
 Method: DELETE 
 
-url: HOST:PORT/operator_type/id
+url: HOST:PORT/api/operators/id
 ```
 
 *response:*
@@ -368,7 +394,7 @@ url: HOST:PORT/operator_type/id
         "code": 200,
         "request_id": "2loi7fu73i0d62nobc000191",
         "type": "object",
-        "url": "http://192.168.100.165:4011/operators/update_priority"
+        "url": "http://192.168.100.165:4011/api/operators/update_priority"
     }
 }
 ```
