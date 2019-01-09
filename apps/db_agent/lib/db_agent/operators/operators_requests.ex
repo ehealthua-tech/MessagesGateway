@@ -8,6 +8,7 @@ defmodule DbAgent.OperatorsRequests do
   import Ecto.Query
   import Ecto.Changeset
 
+
   @spec list_operators :: [OperatorsSchema.t()] | [] | {:error, Ecto.Changeset.t()}
   def list_operators() do
     OperatorsSchema
@@ -16,7 +17,7 @@ defmodule DbAgent.OperatorsRequests do
     |> Repo.all()
   end
 
-  @spec add_operator(params :: Keyword.t()) :: OperatorsSchema.t() | [] | {:error, Ecto.Changeset.t()}
+#  @spec add_operator(params :: OperatorsSchema.t()) :: OperatorsSchema.t() | [] | {:error, Ecto.Changeset.t()}
   def add_operator(params) do
     %OperatorsSchema{}
     |> OperatorsSchema.changeset(params)

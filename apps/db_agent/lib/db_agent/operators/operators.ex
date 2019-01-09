@@ -5,6 +5,21 @@ defmodule DbAgent.Operators do
 
   @primary_key {:id, :binary_id, autogenerate: true}
 
+  @type t :: %__MODULE__{
+               id: String.t(),
+               name: String.t(),
+               config:  map,
+               priority: integer,
+               price: integer,
+               limit:  integer,
+               protocol_name: String.t(),
+               active: boolean,
+
+               inserted_at: NaiveDateTime.t(),
+               updated_at: NaiveDateTime.t()
+             }
+
+
   schema "operators" do
     field(:name, :string, null: false)
     field(:config, :map)
@@ -19,7 +34,7 @@ defmodule DbAgent.Operators do
     timestamps()
   end
 
-  @spec changeset(operators :: Operators.t(), %{}) :: Ecto.Changeset.t()
+ # @spec changeset(operators :: Operators.t(), %{}) :: Ecto.Changeset.t()
   def changeset(operators, attrs) do
     operators
     |> cast(attrs, [:name, :operator_type_id, :config, :priority, :price, :limit, :protocol_name, :active])

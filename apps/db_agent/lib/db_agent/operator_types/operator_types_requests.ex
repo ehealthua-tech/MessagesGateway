@@ -1,7 +1,8 @@
 defmodule DbAgent.OperatorTypesRequests do
   @moduledoc false
   alias DbAgent.OperatorTypes, as: OperatorTypesSchema
-  alias DbAgent.Repo
+  alias DbAgent.Operators, as: Operators
+    alias DbAgent.Repo
   alias Ecto.Adapters.SQL
 
   import Ecto.Query
@@ -12,14 +13,14 @@ defmodule DbAgent.OperatorTypesRequests do
     Repo.all(OperatorTypesSchema)
   end
 
-  @spec add_operator_type(params :: Keyword.t()) :: OperatorTypesSchema.t() | [] | {:error, Ecto.Changeset.t()}
+ # @spec add_operator_type(params :: map()) :: OperatorTypesSchema.t() | [] | {:error, Ecto.Changeset.t()}
   def add_operator_type(params) do
     %OperatorTypesSchema{}
     |> OperatorTypesSchema.changeset(params)
     |> Repo.insert()
   end
 
-  @spec change_status(params :: Keyword.t()) :: {:ok, OperatorTypesSchema.t()} | {:error, Ecto.Changeset.t()}
+  @spec change_status(params :: Operators.t()) :: {:ok, OperatorTypesSchema.t()} | {:error, Ecto.Changeset.t()}
   def change_status(params) do
     OperatorTypesSchema
     |> where([ot], ot.id == ^params.id)

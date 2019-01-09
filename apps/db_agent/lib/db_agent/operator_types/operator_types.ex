@@ -6,6 +6,17 @@ defmodule DbAgent.OperatorTypes do
 
   @primary_key {:id, :binary_id, autogenerate: true}
 
+  @type t :: %__MODULE__{
+               id: String.t(),
+               active: boolean,
+               name:  String.t(),
+               priority: integer,
+
+               inserted_at: NaiveDateTime.t(),
+               updated_at: NaiveDateTime.t()
+             }
+
+
   schema "operator_types" do
     field(:active, :boolean, default: false)
     field(:name, :string, null: false)
@@ -14,7 +25,7 @@ defmodule DbAgent.OperatorTypes do
     timestamps()
   end
 
-  @spec changeset(operator_types :: OperatorTypes.t(), %{}) :: Ecto.Changeset.t()
+  @spec changeset(operator_types :: map(), %{}) :: Ecto.Changeset.t()
   def changeset(operator_types, attrs) do
     operator_types
     |> cast(attrs, [:name, :active, :priority])

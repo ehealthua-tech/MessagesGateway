@@ -37,6 +37,7 @@ defmodule DbAgent.Mixfile do
   defp deps do
     [
       {:postgrex, ">= 0.0.0"},
+      {:dialyxir, "~> 1.0.0-rc.3", only: [:dev, :test], runtime: false},
       {:ecto, "~> 2.1"},
       {:phoenix_ecto, "~> 3.2"},
       {:scrivener_ecto, "~> 1.2"},
