@@ -28,12 +28,14 @@ url: HOST:PORT/operator_type
             "active": true,
             "id": "d9ca99a2-f5a9-4c9b-aa70-133fa9b9a9b1",
             "last_update": "2018-12-14T13:51:31.181995",
+            "priority": 1,
             "name": "sms"
         },
         {
             "active": true,
             "id": "616c7928-f9d7-472c-b994-87a0e3bc36b3",
             "last_update": "2018-12-14T13:51:38.685603",
+            "priority": 1,
             "name": "viber"
         }
     ],
@@ -48,6 +50,11 @@ url: HOST:PORT/operator_type
 
 **add_operator_type**
 
+|fields|types|required|
+|-----|----|--------|
+| operator_type_name|String|required|
+| priority|Integer|required|
+
 *request:*
 ```
 Method: POST 
@@ -56,7 +63,53 @@ url: HOST:PORT/operator_type
 ```
 body:
 ```json
-    {"resource": {"operator_type_name":"viber1"}}
+    {"resource": {"operator_type_name":"viber1", "priority":  1}}
+
+```
+
+*response:*
+```json
+{
+    "data": {
+        "status": "success"
+    },
+    "meta": {
+        "code": 200,
+        "request_id": "2loi661afgnl4uf0hs000121",
+        "type": "object",
+        "url": "http://192.168.100.165:4011/operator_type"
+    }
+}
+```
+
+**update priority**
+
+|fields|types|required|
+|-----|----|--------|
+|id|String|required|
+|name|String|required|
+|priority|Integer|required|
+|active|Bool|required|
+
+
+*request:*
+
+```
+Method: POST 
+
+url: HOST:PORT/api/operator_type/update_priority
+```
+body:
+```json
+
+    {"resource": [
+            {
+                "active": true,
+                "id": "0825f627-9772-4107-aa99-11d6c18249b8",
+                "name": "viber",
+                "priority": 2
+            }
+        ]}
 
 ```
 
@@ -76,6 +129,11 @@ body:
 ```
 
 **delete_operator_type**
+
+|fields|types|required|
+|-----|----|--------|
+|operator_type_id|String|required|
+|active|Bool|required|
 
 *request:*
 ```
@@ -145,6 +203,18 @@ url: HOST:PORT//operators
 ```
 
 **add_operator**
+
+|fields|types|required|
+|-----|----|--------|
+|name|String|required|
+|operator_type_id|String|required|
+|protocol_name|String|required|
+|config|Json|required|
+|priority|Integer|required|
+|price|Integer|required|
+|limit|Integer|required|
+|active|Bool|required|
+
 *request:*
 ```
 Method: POST 
@@ -179,8 +249,29 @@ body:
     }
 }
 ```
-**operator_edit**
+**update priority**
+
+|fields|types|required|
+|-----|----|--------|
+|id|String|required|
+|name|String|required|
+|operator_type|OperatorType obj|required|
+|config|Json|required|
+|priority|Integer|required|
+|price|Integer|required|
+|limit|Integer|required|
+|active|Bool|required|
+
+*OperatorType obj:*
+
+|fields|types|required|
+|-----|----|--------|
+|id|String|required|
+|name|String|required|
+|active|Bool|required|
+
 *request:*
+
 ```
 Method: POST 
 
@@ -196,7 +287,6 @@ body:
                     "host": "blabal"
                 },
                 "id": "421f2284-2a8b-466e-8530-410ade1b14b4",
-                "last_update": "2018-12-17T13:59:48.016885",
                 "limit": 1000,
                 "name": "sms4",
                 "operator_type": {
@@ -208,6 +298,42 @@ body:
                 "priority": 2
             }
     ]}
+
+```
+
+**change operator**
+
+|fields|types|required|
+|-----|----|--------|
+|id|String|required|
+|name|String|required|
+|config|Json|required|
+|priority|Integer|required|
+|price|Integer|required|
+|limit|Integer|required|
+|active|Bool|required|
+
+*request:*
+```
+Method: POST
+
+url: HOST:PORT/operators/change
+```
+body:
+```json
+
+{"resource": {
+            "active": true,
+            "config": {
+                "host": "blabal"
+            },
+            "id": "4e250374-0cb5-46fe-acf8-fcd07b1d9105",
+            "limit": 1000,
+            "protocol_name": "viber_protocol",
+            "name": "viber",
+            "price": 18,
+            "priority": 1
+        }}
 
 ```
 

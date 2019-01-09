@@ -2,6 +2,7 @@ defmodule DbAgent.OperatorTypesRequests do
   @moduledoc false
   alias DbAgent.OperatorTypes, as: OperatorTypesSchema
   alias DbAgent.Repo
+  alias Ecto.Adapters.SQL
 
   import Ecto.Query
   import Ecto.Changeset
@@ -25,11 +26,6 @@ defmodule DbAgent.OperatorTypesRequests do
     |> Repo.update_all( set: [active: params.active])
   end
 
-  @spec list_operator_types :: [OperatorTypesSchema.t()] | [] | {:error, Ecto.Changeset.t()}
-  def list_operator_types() do
-    Repo.all(OperatorTypesSchema)
-  end
-
   @spec get_by_name(name :: String.t()) :: {:ok, OperatorTypesSchema.t()} | {:error, Ecto.Changeset.t()}
   def get_by_name(name) do
     OperatorTypesSchema
@@ -40,6 +36,23 @@ defmodule DbAgent.OperatorTypesRequests do
   def delete(id) do
     from(p in OperatorTypesSchema, where: p.id == ^id)
     |> Repo.delete()
+  end
+
+  def update_priority(operators_info) do
+    values = create_query_values(operators_info, "")
+    query  = "UPDATE operator_types as opt
+      set priority = update.priority, active = update.active
+      from ( values "
+    <> values <>
+       ") update(id, priority, active)
+      where update.id = opt.id"
+    SQL.query(Repo, query)
+  end
+
+  defp create_query_values([], acc), do:  binary_part(acc, 1, byte_size(acc) - 1)
+  defp create_query_values([%{"id" => id, "priority" => priority, "active" => active}|t], acc) do
+    new_acc = Enum.join([acc, ",(uuid('" , id, "'), ", Integer.to_string(priority), ", ", Atom.to_string(active), ")"])
+    create_query_values(t, new_acc)
   end
 
 end

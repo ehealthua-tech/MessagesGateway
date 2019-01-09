@@ -39,11 +39,10 @@ defmodule MessagesGatewayWeb.MessageController do
 
 #  ---- send only e-mail ------------------------------------------------------
 
-  def new_email(conn, %{"resource" => %{"request_id" => request_id, "email" => email, "body" => body} = resource}) do
-    with {:ok, priority_list} <- Prioritization.get_priority_list(),
-         {:ok, message_id} <- add_to_db_and_queue(request_id, email, body, priority_list)
+  def new_email(conn, %{"resource" => %{"request_id" => request_id, "email" => email, "body" => body, "subject" => subject} = resource}) do
+    with {:ok, message_id} <- add_email_to_db_and_queue(request_id, email, body, subject)
       do
-      render(conn, "index.json", request_id: request_id, message_id: message_id)
+      render(conn, "index.json", request_id: request_id, message_id: 111)
     end
 
   end
@@ -90,6 +89,16 @@ defmodule MessagesGatewayWeb.MessageController do
            priority_list: priority_list})
       do
         {:ok, message_id}
+    end
+  end
+
+  def add_email_to_db_and_queue(request_id, contact, body, subject) do
+    with {:ok, message_id} <- UUID.generate_uuid(),
+         :ok <- add_to_redis(message_id, %{active: @sending_start_status, sending_status: @status_not_send}),
+         :ok <- add_to_message_queue(message_id, %{message_id: message_id, contact: contact, body: body,
+           subject: subject})
+      do
+      {:ok, message_id}
     end
   end
 

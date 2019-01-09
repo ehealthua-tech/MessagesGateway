@@ -33,22 +33,24 @@ defmodule TelegramApi do
     TDLib.transmit(@session, query)
   end
 
-  def handle_cast({:send_pass, payload},  state) do
-    query = %Method.CheckAuthenticationCode{code: payload.pass}
+  def handle_cast({:send_code, payload},  state) do
+    query = %Method.CheckAuthenticationCode{code: payload.code}
     TDLib.transmit(@session, query)
     {:noreply, %{messages: payload}}
   end
 
-#  def telegram_authorization_process(%Object.AuthorizationStateWaitCode{}) do
-#    code = IO.gets("Please authentication code: ") |> String.trim()
-#    query = %Method.CheckAuthenticationCode{code: code}
-#    TDLib.transmit(@session, query)
-#  end
+  def handle_cast({:send_pass, payload},  state) do
+    query = %Method.CheckAuthenticationPassword{password: payload.pass}
+    TDLib.transmit(@session, query)
+    {:noreply, %{messages: payload}}
+  end
+
+  def telegram_authorization_process(%Object.AuthorizationStateWaitCode{}) do
+    :io.format("~n~nPlease authentication code~n~n")
+  end
 
   def telegram_authorization_process(%Object.AuthorizationStateWaitPassword{}) do
-    pass = IO.gets("Please authentication pass: ") |> String.trim()
-    query = %Method.CheckAuthenticationPassword{password: pass}
-    TDLib.transmit(@session, query)
+    :io.format("~n~nPlease authentication Password~n~n")
   end
   def telegram_authorization_process(%Object.AuthorizationStateReady{}) do
     {:ok, :auth}
@@ -83,11 +85,13 @@ defmodule TelegramApi do
 #    {:noreply, state}
 #  end
 
-  def handle_info({:recv, %Object.UpdateChatReadOutbox{chat_id: chat_id, last_read_outbox_message_id: last_read_outbox_message_id}},  %{messages: payload} = state) do
+  def handle_info({:recv, %Object.UpdateChatReadOutbox{chat_id: chat_id, last_read_outbox_message_id: last_read_outbox_message_id}},  %{messages: %{message_id: message_id} = payload} = state) do
     {:ok, message_info} = MessagesGateway.RedisManager.get(payload.message_id)
     MessagesGateway.RedisManager.set(payload.message_id, Jason.encode!(Map.put(Jason.decode!(message_info), "telegram_sending_status", true)))
     {:noreply, state}
   end
+
+  def handle_info({:recv, %Object.UpdateChatReadOutbox{}}, state), do: {:noreply, state}
 
   def handle_info({:recv, %Object.Chat{id: chat_id}},  %{messages: payload} = state) do
     text = get_in(state, [:messages, :body])
@@ -130,9 +134,13 @@ defmodule TelegramApi do
   end
 
 
+  def send_code(%{"code" => code} = payload) do
+    GenServer.cast(__MODULE__, {:send_code, %{code: code}})
+   end
+
   def send_pass(%{"pass" => pass} = payload) do
     GenServer.cast(__MODULE__, {:send_pass, %{pass: pass}})
-   end
+  end
 
   defp resend(payload) do
     priority_list = payload.priority_list

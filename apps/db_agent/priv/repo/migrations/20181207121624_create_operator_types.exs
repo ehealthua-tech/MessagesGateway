@@ -6,6 +6,7 @@ defmodule DbAgent.Repo.Migrations.CreateOperatorTypes do
       add(:id, :uuid, primary_key: true)
       add(:name, :string, null: false)
       add(:active, :boolean, default: false, null: false)
+      add(:priority, :integer)
 
       timestamps()
     end
