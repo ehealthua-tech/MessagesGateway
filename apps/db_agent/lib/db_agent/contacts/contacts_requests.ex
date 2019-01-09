@@ -5,7 +5,6 @@ defmodule DbAgent.ContactsRequests do
   alias DbAgent.Repo
 
   import Ecto.Query
-  import Ecto.Changeset
 
   @spec list_contacts :: [ContactsSchema.t()] | [] | {:error, Ecto.Changeset.t()}
   def list_contacts() do
@@ -19,7 +18,7 @@ defmodule DbAgent.ContactsRequests do
     |> Repo.insert()
   end
 
-  @spec change_contact(params ::  ContactsSchema.contacts_map()) :: {integer(), nil | [term()]}
+  @spec change_contact(params :: ContactsSchema.contacts_map()) :: {integer(), nil | [term()]}
   def change_contact(params) do
     ContactsSchema
     |> where([ot], ot.phone_number == ^params.phone_number)

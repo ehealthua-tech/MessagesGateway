@@ -6,18 +6,28 @@ defmodule DbAgent.Operators do
   @primary_key {:id, :binary_id, autogenerate: true}
 
   @type t :: %__MODULE__{
-               id: String.t(),
-               name: String.t(),
-               config:  map,
-               priority: integer,
-               price: integer,
-               limit:  integer,
-               protocol_name: String.t(),
-               active: boolean,
-
-               inserted_at: NaiveDateTime.t(),
-               updated_at: NaiveDateTime.t()
+               id: String.t() | nil,
+               name: String.t() | nil,
+               config:  map | nil,
+               priority: integer | nil,
+               price: integer | nil,
+               limit:  integer | nil,
+               protocol_name: String.t() | nil,
+               active: boolean | nil,
+               inserted_at: NaiveDateTime.t()| nil,
+               updated_at: NaiveDateTime.t() | nil
              }
+
+  @type operators_map :: %{
+                                id: String.t(),
+                                name: String.t(),
+                                config:  map,
+                                priority: integer,
+                                price: integer,
+                                limit:  integer,
+                                protocol_name: String.t(),
+                                active: boolean
+                              }
 
 
   schema "operators" do
@@ -34,7 +44,7 @@ defmodule DbAgent.Operators do
     timestamps()
   end
 
- # @spec changeset(operators :: Operators.t(), %{}) :: Ecto.Changeset.t()
+  @spec changeset(operators :: t(), any()) :: Ecto.Changeset.t()
   def changeset(operators, attrs) do
     operators
     |> cast(attrs, [:name, :operator_type_id, :config, :priority, :price, :limit, :protocol_name, :active])

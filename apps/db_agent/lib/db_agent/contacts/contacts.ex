@@ -6,20 +6,18 @@ defmodule DbAgent.Contacts do
   @primary_key {:id, :binary_id, autogenerate: true}
 
   @type t :: %__MODULE__{
-               id: String.t(),
-               phone_number: String.t(),
-               viber_id:  String.t(),
-               operator: String.t(),
-
-               inserted_at: NaiveDateTime.t(),
-               updated_at: NaiveDateTime.t()
+               id: String.t() | nil,
+               phone_number: String.t()| nil,
+               viber_id:  String.t()   | nil,
+               inserted_at: NaiveDateTime.t()| nil,
+               updated_at: NaiveDateTime.t() | nil
              }
 
   @type contacts_map :: %{
                           id: String.t(),
                           phone_number: String.t(),
                           viber_id:  String.t(),
-                          operator: String.t()
+                          operator_id: String.t()
                         }
 
   schema "contacts" do
@@ -29,7 +27,7 @@ defmodule DbAgent.Contacts do
     timestamps()
   end
 
-  @spec changeset(contacts :: t, any()) :: Ecto.Changeset.t()
+  @spec changeset(contacts :: t(), any()) :: Ecto.Changeset.t()
   def changeset(contacts, attrs) do
     contacts
     |> cast(attrs, [:phone_number, :viber_id, :operator_id])

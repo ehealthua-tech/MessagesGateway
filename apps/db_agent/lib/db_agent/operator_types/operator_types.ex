@@ -2,30 +2,34 @@ defmodule DbAgent.OperatorTypes do
   use Ecto.Schema
 
   import Ecto.Changeset
-  import Ecto.Query
 
   @primary_key {:id, :binary_id, autogenerate: true}
 
   @type t :: %__MODULE__{
-               id: String.t(),
-               active: boolean,
-               name:  String.t(),
-               priority: integer,
-
-               inserted_at: NaiveDateTime.t(),
-               updated_at: NaiveDateTime.t()
+               id: String.t() | nil,
+               active: boolean | nil,
+               name:  String.t() | nil,
+               priority: integer | nil,
+               inserted_at: NaiveDateTime.t()| nil,
+               updated_at: NaiveDateTime.t() | nil
              }
+
+  @type operator_types_map :: %{
+                          id: String.t(),
+                          active: boolean,
+                          name:  String.t(),
+                          priority: integer
+                        }
 
 
   schema "operator_types" do
     field(:active, :boolean, default: false)
     field(:name, :string, null: false)
     field(:priority, :integer)
-
     timestamps()
   end
 
-  @spec changeset(operator_types :: map(), %{}) :: Ecto.Changeset.t()
+  @spec changeset(operator_types :: t(), any()) :: Ecto.Changeset.t()
   def changeset(operator_types, attrs) do
     operator_types
     |> cast(attrs, [:name, :active, :priority])

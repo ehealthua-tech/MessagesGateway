@@ -37,7 +37,6 @@ defmodule DbAgent.Mixfile do
   defp deps do
     [
       {:postgrex, ">= 0.0.0"},
-      {:dialyxir, "~> 1.0.0-rc.3", only: [:dev, :test], runtime: false},
       {:ecto, "~> 2.1"},
       {:phoenix_ecto, "~> 3.2"},
       {:scrivener_ecto, "~> 1.2"},
@@ -61,7 +60,7 @@ defmodule DbAgent.Mixfile do
     [
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
-      "test": ["ecto.create --quiet", "ecto.migrate", "test"]
+      test: ["ecto.create --quiet", "ecto.migrate", "test"]
     ]
   end
 end
