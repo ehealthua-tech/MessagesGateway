@@ -9,6 +9,7 @@ defmodule DbAgent.Application do
   """
   use Application
 
+  @spec start(atom(), :permanent | :transient | :temporary) :: {:ok, pid()} | {:ok, pid(), any()} | {:error, term()}
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
 
