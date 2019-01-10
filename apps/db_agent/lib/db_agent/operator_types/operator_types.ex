@@ -29,7 +29,7 @@ defmodule DbAgent.OperatorTypes do
     timestamps()
   end
 
-  @spec changeset(operator_types :: t(), any()) :: Ecto.Changeset.t()
+  @spec changeset(operator_types :: t(), map()) :: Ecto.Changeset.t()
   def changeset(operator_types, attrs) do
     operator_types
     |> cast(attrs, [:name, :active, :priority])

@@ -27,7 +27,7 @@ defmodule DbAgent.Contacts do
     timestamps()
   end
 
-  @spec changeset(contacts :: t(), any()) :: Ecto.Changeset.t()
+  @spec changeset(contacts :: t(), map()) :: Ecto.Changeset.t()
   def changeset(contacts, attrs) do
     contacts
     |> cast(attrs, [:phone_number, :viber_id, :operator_id])

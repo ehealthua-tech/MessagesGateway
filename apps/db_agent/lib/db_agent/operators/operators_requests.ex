@@ -8,6 +8,16 @@ defmodule DbAgent.OperatorsRequests do
   import Ecto.Query
   import Ecto.Changeset
 
+  @type operator_info_map :: %{
+                               id: String.t(),
+                               active: boolean,
+                               config: map,
+                               limit: integer,
+                               name:  String.t(),
+                               operator_type: map(),
+                               price: integer,
+                               priority: integer
+                             }
 
   @spec list_operators :: [OperatorsSchema.t()] | [] | {:error, Ecto.Changeset.t()}
   def list_operators() do
@@ -24,7 +34,7 @@ defmodule DbAgent.OperatorsRequests do
     |> Repo.insert()
   end
 
-  @spec change_operator(id :: String.t(), operator_info :: list()) :: {integer(), nil | [term()]}
+  @spec change_operator(id :: String.t(), operator_info :: operator_info_map()) :: {integer(), nil | [term()]}
   def change_operator(id, operator_info) do
     OperatorsSchema
     |> where([ot], ot.id == ^id)
@@ -58,7 +68,7 @@ defmodule DbAgent.OperatorsRequests do
     |> Repo.delete_all()
   end
 
-  @spec update_priority(operators_info :: [map()]) :: {:ok, %{:rows => nil | [[term] | binary], :num_rows => non_neg_integer, optional(atom) => any}} | {:error, Exception.t}
+  @spec update_priority(operators_info :: [operator_info_map()]) :: {:ok, %{:rows => nil | [[term] | binary], :num_rows => non_neg_integer, optional(atom) => any}} | {:error, Exception.t}
   def update_priority(operators_info) do
     values = create_query_values(operators_info, "")
     query  = "UPDATE operators as op
@@ -70,7 +80,7 @@ defmodule DbAgent.OperatorsRequests do
     SQL.query(Repo, query)
   end
 
-  @spec create_query_values([map()], any()) :: binary()
+  @spec create_query_values([operator_info_map()], String.t()) :: binary()
   defp create_query_values([], acc), do:  binary_part(acc, 1, byte_size(acc) - 1)
   defp create_query_values([%{"id" => id, "priority" => priority, "active" => active}|t], acc) do
     new_acc = Enum.join([acc, ",(uuid('" , id, "'), ", Integer.to_string(priority), ", ", Atom.to_string(active), ")"])

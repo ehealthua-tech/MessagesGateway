@@ -2,11 +2,22 @@ defmodule DbAgent.OperatorTypesRequests do
   @moduledoc false
   alias DbAgent.OperatorTypes, as: OperatorTypesSchema
   alias DbAgent.Operators, as: Operators
-    alias DbAgent.Repo
+  alias DbAgent.Repo
   alias Ecto.Adapters.SQL
 
   import Ecto.Query
   import Ecto.Changeset
+
+  @type operator_info_map :: %{
+                               id: String.t(),
+                               active: boolean,
+                               config: map,
+                               limit: integer,
+                               name:  String.t(),
+                               operator_type: map(),
+                               price: integer,
+                               priority: integer
+                             }
 
   @spec list_operator_types :: [OperatorTypesSchema.t()] | [] | {:error, Ecto.Changeset.t()}
   def list_operator_types() do
@@ -40,7 +51,7 @@ defmodule DbAgent.OperatorTypesRequests do
     |> Repo.delete_all()
   end
 
-  @spec update_priority(operators_info :: [map()]) :: {:ok, %{:rows => nil | [[term] | binary], :num_rows => non_neg_integer, optional(atom) => any}} | {:error, Exception.t}
+  @spec update_priority(operators_info :: [operator_info_map()]) :: {:ok, %{:rows => nil | [[term] | binary], :num_rows => non_neg_integer, optional(atom) => any}} | {:error, Exception.t}
   def update_priority(operators_info) do
     values = create_query_values(operators_info, "")
     query  = "UPDATE operator_types as opt
@@ -52,7 +63,7 @@ defmodule DbAgent.OperatorTypesRequests do
     SQL.query(Repo, query)
   end
 
-  @spec create_query_values([map()], any()) :: binary()
+  @spec create_query_values([operator_info_map()], String.t()) :: binary()
   defp create_query_values([], acc), do:  binary_part(acc, 1, byte_size(acc) - 1)
   defp create_query_values([%{"id" => id, "priority" => priority, "active" => active}|t], acc) do
     new_acc = Enum.join([acc, ",(uuid('" , id, "'), ", Integer.to_string(priority), ", ", Atom.to_string(active), ")"])
