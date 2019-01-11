@@ -50,7 +50,7 @@ defmodule MessagesGatewayWeb.OperatorsController do
   end
 
   def delete(conn, %{"id" => id}) do
-    with {:ok, _} <- OperatorsRequests.delete(id)
+    with {_, nil} <- OperatorsRequests.delete(id)
       do
         render(conn, "delete.json", %{status: "success"})
     end
