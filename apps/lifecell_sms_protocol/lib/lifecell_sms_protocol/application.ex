@@ -8,6 +8,7 @@ defmodule LifecellSmsProtocol.Application do
   def start(_type, _args) do
     # List all child processes to be supervised
     children = [
+      Plug.Cowboy.child_spec(scheme: :http, plug: LifecellSmsProtocol.LifecellSmsCallback, options: [port: 6014]),
       # Starts a worker by calling: LifecellSmsProtocol.Worker.start_link(arg)
       # {LifecellSmsProtocol.Worker, arg},
     ]
