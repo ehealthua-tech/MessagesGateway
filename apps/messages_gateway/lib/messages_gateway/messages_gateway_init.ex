@@ -2,8 +2,10 @@ defmodule MessagesGatewayInit do
   @moduledoc false
   use GenServer
   alias MessagesGateway.RedisManager
+  alias DbAgent.OperatorsRequests
 
   @messages_gateway_conf "system_config"
+  @operators_config "operators_config"
   @sys_config %{"default_sms_operator" => "" }
 
   def start_link do
@@ -12,6 +14,7 @@ defmodule MessagesGatewayInit do
 
   def init(_opts) do
     RedisManager.set(@messages_gateway_conf, @sys_config)
+    RedisManager.set(@operators_config,  create_operators_list_to_redis())
     {:ok, []}
   end
 
@@ -23,5 +26,23 @@ defmodule MessagesGatewayInit do
     Connection.close(conn)
     :ok
   end
+
+  defp create_operators_list_to_redis() do
+    OperatorsRequests.list_operators()
+    |> create_priority_list([])
+  end
+
+  defp create_priority_list([], acc), do: acc
+  defp create_priority_list([operator_config_map | tail], acc) do
+    priority = %{
+      protocol_name: operator_config_map.operator.protocol_name,
+      priority: operator_config_map.operator_type.priority,
+      operator_priority: operator_config_map.operator.priority,
+      configs: operator_config_map.operator.config,
+      limit: operator_config_map.operator.limit,
+      active: operator_config_map.operator.active}
+    create_priority_list(tail, [priority | acc])
+  end
+
 
 end
