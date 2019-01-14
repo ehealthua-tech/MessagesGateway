@@ -19,8 +19,8 @@ defmodule MessagesGatewayWeb.SystemConfigController do
 
   #  ---- send a message to the client any available way ------------------------
 
-  def edit(conn, %{"resource" => %{"auth" => auth, "password" => password}}) do
-    with {:ok, system_config} <- RedisManager.set(@messages_gateway_conf)
+  def add(conn, %{"resource" => [sys_config]}) do
+    with :ok <- RedisManager.set(@messages_gateway_conf, sys_config)
       do
         render(conn, "change_system_config.json", %{status: :ok})
     end

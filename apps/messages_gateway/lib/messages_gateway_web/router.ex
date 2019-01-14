@@ -27,11 +27,11 @@ defmodule MessagesGatewayWeb.Router do
 
     end
 
+    post "/system_config", SystemConfigController, :add
     scope "/system_config" do
-      resources "/", SystemConfigController, except: [:new, :edit, :update, :create, :delete]
+      resources "/", SystemConfigController, except: [:new, :edit, :update, :create, :delete, :show]
     end
 
-    post "/system_config", SystemConfigController, :add
     post "/send_message", MessageController, :new_message
     post "/send_sms", MessageController, :new_sms
     post "/send_email", MessageController, :new_email
