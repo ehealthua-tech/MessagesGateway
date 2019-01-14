@@ -1,15 +1,17 @@
 defmodule MessagesGatewayInit do
   @moduledoc false
   use GenServer
+  alias MessagesGateway.RedisManager
+
+  @messages_gateway_conf "system_config"
+  @sys_config %{"default_sms_operator" => "" }
 
   def start_link do
     GenServer.start_link(__MODULE__, [], name: __MODULE__)
   end
 
   def init(_opts) do
-    pool_size = Application.get_env(:messages_gateway,  MessagesGateway.RedisManager)[:pool_size]
-    connection_index = rem(System.unique_integer([:positive]), pool_size)
-    Redix.command(:"redis_#{connection_index}", ["SET", "sys_config", ""])
+    RedisManager.set(@messages_gateway_conf, @sys_config)
     {:ok, []}
   end
 
