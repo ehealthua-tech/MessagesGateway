@@ -26,7 +26,7 @@ defmodule MessagesGatewayWeb.MessageController do
 
   def new_sms(conn, %{"resource" => %{"request_id" => request_id, "phone" => phone, "body" => body} = resource}) do
     with {:ok, priority_list} <- Prioritization.get_priority_list(),
-         {:ok, message_id} <- add_to_db_and_queue(request_id, phone, body, priority_list)
+         {:ok, message_id} <- add_to_db_and_queue(resource, priority_list)
       do
       render(conn, "index.json", request_id: request_id, message_id: message_id)
     end
@@ -82,11 +82,11 @@ defmodule MessagesGatewayWeb.MessageController do
 
 # ---- Help functions ---------------------------------------------------------
 
-  def add_to_db_and_queue(request_id, contact, body, priority_list) do
+  def add_to_db_and_queue( %{"request_id" => request_id, "phone" => phone, "body" => body} = resource, priority_list) do
     with {:ok, message_id} <- UUID.generate_uuid(),
          :ok <- add_to_redis(message_id, %{active: @sending_start_status, sending_status: @status_not_send}),
-         :ok <- add_to_message_queue(message_id, %{message_id: message_id, contact: contact, body: body,
-           priority_list: priority_list})
+         :ok <- add_to_message_queue(message_id, %{message_id: message_id, contact: phone, body: body,
+           callback_url: Map.get(resource, "callback_url", ""), priority_list: priority_list})
       do
         {:ok, message_id}
     end
@@ -95,7 +95,7 @@ defmodule MessagesGatewayWeb.MessageController do
   def add_email_to_db_and_queue(request_id, contact, body, subject) do
     with {:ok, message_id} <- UUID.generate_uuid(),
          :ok <- add_to_redis(message_id, %{active: @sending_start_status, sending_status: @status_not_send}),
-         :ok <- add_to_message_queue(message_id, %{message_id: message_id, contact: contact, body: body,
+         :ok <- add_to_message_queue(message_id, %{message_id: message_id, contact: contact, body: body, callback_url: "",
            subject: subject})
       do
       {:ok, message_id}

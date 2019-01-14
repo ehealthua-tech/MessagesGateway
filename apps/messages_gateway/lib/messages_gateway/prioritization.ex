@@ -16,7 +16,7 @@ defmodule MessagesGateway.Prioritization do
 
   def get_priority_list(protocol_name) do
     with {:ok, operators_type_config} <- RedisManager.get(@operators_config) do
-      {:ok, Enum.find(operators_type_config, fn x -> x.protocol_name == protocol_name end)}
+      {:ok, [Enum.find(operators_type_config, fn x -> x.protocol_name == protocol_name end)]}
     end
   end
 end

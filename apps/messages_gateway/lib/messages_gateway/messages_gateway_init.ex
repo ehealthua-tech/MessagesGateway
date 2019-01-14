@@ -40,6 +40,7 @@ defmodule MessagesGatewayInit do
       operator_priority: operator_config_map.operator.priority,
       configs: operator_config_map.operator.config,
       limit: operator_config_map.operator.limit,
+      active_protocol_type: operator_config_map.operator_type.active,
       active: operator_config_map.operator.active}
     create_priority_list(tail, [priority | acc])
   end
