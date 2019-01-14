@@ -1,4 +1,4 @@
-defmodule LifecellSmsProtocol.Application do
+defmodule LifecellIpTelephonyProtocol.Application do
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications
   @moduledoc false
@@ -8,14 +8,13 @@ defmodule LifecellSmsProtocol.Application do
   def start(_type, _args) do
     # List all child processes to be supervised
     children = [
-      Plug.Cowboy.child_spec(scheme: :http, plug: LifecellSmsProtocol.LifecellSmsCallback, options: [port: 6014]),
-      # Starts a worker by calling: LifecellSmsProtocol.Worker.start_link(arg)
-      # {LifecellSmsProtocol.Worker, arg},
+      # Starts a worker by calling: LifecellIpTelephonyProtocol.Worker.start_link(arg)
+      # {LifecellIpTelephonyProtocol.Worker, arg},
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
-    opts = [strategy: :one_for_one, name: LifecellSmsProtocol.Supervisor]
+    opts = [strategy: :one_for_one, name: LifecellIpTelephonyProtocol.Supervisor]
     Supervisor.start_link(children, opts)
   end
 end

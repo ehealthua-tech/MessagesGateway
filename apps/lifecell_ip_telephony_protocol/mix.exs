@@ -1,0 +1,29 @@
+defmodule LifecellIpTelephonyProtocol.MixProject do
+  use Mix.Project
+
+  def project do
+    [
+      app: :lifecell_ip_telephony_protocol,
+      version: "0.1.0",
+      elixir: "~> 1.7",
+      start_permanent: Mix.env() == :prod,
+      deps: deps()
+    ]
+  end
+
+  # Run "mix help compile.app" to learn about applications.
+  def application do
+    [
+      extra_applications: [:logger],
+      mod: {LifecellIpTelephonyProtocol.Application, []},
+      applications: [:ex_ami]
+    ]
+  end
+
+  # Run "mix help deps" to learn about dependencies.
+  defp deps do
+    [
+      {:speak_ex, "~> 0.3"}
+    ]
+  end
+end

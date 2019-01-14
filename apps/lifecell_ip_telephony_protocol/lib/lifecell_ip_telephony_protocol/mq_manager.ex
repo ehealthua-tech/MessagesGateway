@@ -1,9 +1,10 @@
-defmodule TelegramProtocol.MqManager do
+defmodule LifecellIpTelephonyProtocol.MqManager do
     use GenServer
     use AMQP
 
     @reconnect_timeout 5000
     @exchange    "message_exchange"
+    @queue_name  "sms"
 
     def start_link do
       GenServer.start_link(__MODULE__, [], name: __MODULE__)
@@ -20,12 +21,8 @@ defmodule TelegramProtocol.MqManager do
       GenServer.call(__MODULE__, {:publish, message, priority})
     end
 
-    def send_to_operator(message, operator_queue) do
-      GenServer.call(__MODULE__, {:send_to_operator, message, operator_queue})
-    end
-
     def handle_call({:publish, message, priority}, _, %{chan: chan, connected: true, queue_name: queue_name} = state) do
-      queue_name = DbAgent.OperatorsRequests.get_by_name("telegram")
+      queue_name = DbAgent.OperatorTypesRequests.get_by_name(@queue_name)
       result = Basic.publish(chan, "", queue_name.id, message, [persistent: true, priority: priority])
       {:reply, result, state}
     end
@@ -61,8 +58,8 @@ defmodule TelegramProtocol.MqManager do
     end
 
     def connect(%{queue_name: queue_name} = state) do
-      host = Application.get_env(:telegram_protocol, :mq_host, "localhost")
-      port = Application.get_env(:telegram_protocol, :mq_port, 5672)
+      host = Application.get_env(:sms_router, :mq_host, "localhost")
+      port = Application.get_env(:sms_router, :mq_port, 5672)
 
       case Connection.open([host: host, port: port]) do
         {:ok, conn} ->
@@ -72,12 +69,7 @@ defmodule TelegramProtocol.MqManager do
           Exchange.fanout(chan, @exchange, durable: true)
           Queue.bind(chan, queue_name, @exchange)
           {ok, sub} = AMQP.Queue.subscribe chan, queue_name,
-                                           fn(payload, _meta) ->
-                                             :io.format("~nPayload:~p~n",[payload])
-                                             decoded_payload = Jason.decode!(payload, keys: :atoms)
-                                             TelegramApi.send_message(decoded_payload)
-                                           end
-          :io.format("~nSUB TELEGRAM~n")
+            fn(payload, _meta) -> Jason.decode!(payload, :atoms) |> SmsRouter.check_and_send() end
           %{ state | chan: chan, connected: true, conn: conn, subscribe: sub }
         {:error, _} ->
           reconnect(state)
@@ -87,6 +79,10 @@ defmodule TelegramProtocol.MqManager do
 
     defp reconnect(state) do
       Process.send_after(self(), :connect, @reconnect_timeout)
+    end
+
+    def send_to_operator(message, operator_queue) do
+      GenServer.call(__MODULE__, {:send_to_operator, message, operator_queue})
     end
 
   end

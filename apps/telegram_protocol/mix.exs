@@ -18,7 +18,7 @@ defmodule TelegramProtocol.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      mod: {TelegramProtocol, []},
+      mod: {TelegramProtocol.Application, []},
       extra_applications: [:logger]
     ]
   end
@@ -31,6 +31,7 @@ defmodule TelegramProtocol.MixProject do
       {:jason, "~> 1.1"},
       {:plug_cowboy, "~> 1.0"},
       {:tdlib, "~> 0.0.2"},
+      {:redix, ">= 0.0.0"},
       {:ex_doc, "~> 0.19", only: :dev, runtime: false}
     ]
   end

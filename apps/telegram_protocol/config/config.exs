@@ -34,3 +34,12 @@ config :telegram_protocol,
        mq_host: "localhost",
        mq_port: 5672,
        resend_timeout: 30
+
+
+config :telegram_protocol,  TelegramProtocol.RedisManager,
+       host: "127.0.0.1",
+       database: "1",
+       password: nil,
+       port: 6379,
+       pool_size: 5
+

@@ -2,7 +2,6 @@ defmodule ViberPlug do
   @moduledoc false
   @behaviour Plug
   import Plug.Conn
-  require Logger
 
   def init(options), do: options
 
@@ -31,11 +30,8 @@ defmodule ViberPlug do
 
   defp decode_body({:ok, body, _conn}) do
     case Poison.decode(body) do
-      {:ok, _params} = ok ->
-        ok
-      _error ->
-        Logger.error("Invalid message came: #{body}")
-        :noreply
+      {:ok, _params} = ok -> ok
+      _error -> :noreply
     end
   end
 
