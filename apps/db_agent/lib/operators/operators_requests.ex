@@ -1,5 +1,8 @@
 defmodule DbAgent.OperatorsRequests do
-  @moduledoc false
+  @moduledoc """
+    Database requests for contacts
+  """
+
   alias DbAgent.Operators, as: OperatorsSchema
   alias DbAgent.OperatorTypes, as: OperatorTypesSchema
   alias DbAgent.Repo
@@ -19,6 +22,20 @@ defmodule DbAgent.OperatorsRequests do
                                priority: integer
                              }
 
+  @type operator_info_list :: [
+                               id: String.t(),
+                               active: boolean,
+                               config: map,
+                               limit: integer,
+                               name:  String.t(),
+                               operator_type: map(),
+                               price: integer,
+                               priority: integer
+                             ]
+
+  @doc """
+    Get all operators from database
+  """
   @spec list_operators :: [OperatorsSchema.t()] | [] | {:error, Ecto.Changeset.t()}
   def list_operators() do
     OperatorsSchema
@@ -27,6 +44,9 @@ defmodule DbAgent.OperatorsRequests do
     |> Repo.all()
   end
 
+  @doc """
+    Add operator to database
+  """
   @spec add_operator(params :: OperatorsSchema.operators_map()) :: {:ok, OperatorsSchema.t()} | {:error, Ecto.Changeset.t()}
   def add_operator(params) do
     %OperatorsSchema{}
@@ -34,13 +54,19 @@ defmodule DbAgent.OperatorsRequests do
     |> Repo.insert()
   end
 
-  @spec change_operator(id :: String.t(), operator_info :: operator_info_map()) :: {integer(), nil | [term()]}
+  @doc """
+    Change operator data
+  """
+  @spec change_operator(id :: String.t(), operator_info :: [operator_info_list()]) :: {integer(), nil | [term()]}
   def change_operator(id, operator_info) do
     OperatorsSchema
     |> where([ot], ot.id == ^id)
     |> Repo.update_all( set: operator_info)
   end
 
+  @doc """
+    Get operator by name
+  """
   @spec get_by_name(name :: String.t()) :: Ecto.Schema.t() | nil
   def get_by_name(name) do
     OperatorsSchema
@@ -48,6 +74,9 @@ defmodule DbAgent.OperatorsRequests do
     |> Repo.one!()
   end
 
+  @doc """
+    Get operator by id
+  """
   @spec operator_by_id(id :: String.t()) :: Ecto.Schema.t() | nil
   def operator_by_id(id) do
     OperatorsSchema
@@ -55,6 +84,9 @@ defmodule DbAgent.OperatorsRequests do
     |> Repo.one!()
   end
 
+  @doc """
+    Get operator by operator type id
+  """
   @spec operator_by_operator_type_id(operator_type_id :: String.t()) :: [Ecto.Schema.t()]
   def operator_by_operator_type_id(operator_type_id) do
     OperatorsSchema
@@ -62,12 +94,18 @@ defmodule DbAgent.OperatorsRequests do
     |> Repo.all()
   end
 
+  @doc """
+    Delete operator by id
+  """
   @spec delete(id :: String.t()) :: {integer(), nil | [term()]}
   def delete(id) do
     from(p in OperatorsSchema, where: p.id == ^id)
     |> Repo.delete_all()
   end
 
+  @doc """
+    Change operator priority
+  """
   @spec update_priority(operators_info :: [operator_info_map()]) :: {:ok, %{:rows => nil | [[term] | binary], :num_rows => non_neg_integer, optional(atom) => any}} | {:error, Exception.t}
   def update_priority(operators_info) do
     values = create_query_values(operators_info, "")
@@ -80,6 +118,9 @@ defmodule DbAgent.OperatorsRequests do
     SQL.query(Repo, query)
   end
 
+  @doc """
+    Create database query
+  """
   @spec create_query_values([operator_info_map()], String.t()) :: binary()
   defp create_query_values([], acc), do:  binary_part(acc, 1, byte_size(acc) - 1)
   defp create_query_values([%{"id" => id, "priority" => priority, "active" => active}|t], acc) do

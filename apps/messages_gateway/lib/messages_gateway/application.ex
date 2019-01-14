@@ -12,21 +12,23 @@ defmodule MessagesGateway.Application do
     password = config[:password]
     database = config[:database]
     port = config[:port]
+    {:ok, app_name} = :application.get_application(__MODULE__)
 
     redis_workers = for i <- 0..(config[:pool_size] - 1) do
       worker(Redix,
         ["redis://#{password}@#{hostname}:#{port}/#{database}",
-          [name: :"redis_#{i}"]
+          [name: :"redis_#{Atom.to_string(app_name)}_#{i}"]
         ],
         id: {Redix, i}
       )
     end
     # Define workers and child supervisors to be supervised
-    children = [
+    children = redis_workers ++ [
       # Start the endpoint when the application starts
 #      worker(MessagesGateway.OperatorsToCash, []),
       supervisor(MessagesGatewayWeb.Endpoint, []),
-      worker(MessagesGateway.MqManager, []) |  redis_workers
+      worker(MessagesGateway.MqManager, []),
+      worker(MessagesGatewayInit, [])
       # mq = MessagesGatewayWeb.MqManager
       # Start your own worker by calling: MessagesGateway.Worker.start_link(arg1, arg2, arg3)
       # worker(MessagesGateway.Worker, [arg1, arg2, arg3]),

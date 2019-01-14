@@ -13,6 +13,8 @@ defmodule DbAgent.Mixfile do
       elixirc_paths: elixirc_paths(Mix.env),
       start_permanent: Mix.env == :prod,
       aliases: aliases(),
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: ["coveralls": :test, "coveralls.detail": :test, "coveralls.post": :test, "coveralls.html": :test],
       deps: deps()
     ]
   end
@@ -38,10 +40,12 @@ defmodule DbAgent.Mixfile do
     [
       {:postgrex, ">= 0.0.0"},
       {:ecto, "~> 2.1"},
+      {:excoveralls, "~> 0.10", only: :test},
       {:phoenix_ecto, "~> 3.2"},
       {:scrivener_ecto, "~> 1.2"},
       {:jason, "~> 1.0"},
       {:httpoison, "~> 1.4"},
+      {:poison, "~> 3.1"},
       {:timex, "~> 3.2"},
       {:plug, "~> 1.4"},
       {:ecto_logger_json, git: "https://github.com/edenlabllc/ecto_logger_json.git", branch: "query_params"},

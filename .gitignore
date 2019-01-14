@@ -21,6 +21,7 @@ erl_crash.dump
 
 .idea/
 messages_gateway.iml
+MessagesGateway.API.iml
 
 log/
 
