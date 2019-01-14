@@ -2,7 +2,7 @@ defmodule OperatorSelector do
   @moduledoc false
 
   def send_message(%{"message_id" => message_id, "priority_list" => priority_list} = payload) do
-    {:ok, message_info} = MessagesGateway.RedisManager.get(message_id)
+    message_info = MessagesGateway.RedisManager.get(message_id)
     %{"active" => active, "sending_status" => sending_status} = Jason.decode!(message_info)
     if active do
       if sending_status == false do
