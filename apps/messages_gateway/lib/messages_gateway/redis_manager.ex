@@ -23,6 +23,15 @@ defmodule MessagesGateway.RedisManager do
     err
   end
 
+  def keys(key) when is_binary(key) do
+    case command(["KEYS", key]) do
+      {"ok", values} ->
+        {:ok, values}
+      error ->
+        error
+    end
+  end
+
   @spec del(binary) :: {:ok, non_neg_integer} | {:error, binary}
   def del(key) when is_binary(key), do:  command(["DEL", key]) |> check_del()
 
