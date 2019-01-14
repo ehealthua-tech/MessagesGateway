@@ -11,7 +11,7 @@ defmodule MessagesGatewayWeb.SystemConfigController do
   #  ---- send a message to the client any available way ------------------------
 
   def index(conn, _params) do
-    with {:ok, system_config} <- RedisManager.get(@messages_gateway_conf)
+    with system_config <- RedisManager.get(@messages_gateway_conf)
       do
       render(conn, "index.json",  %{:config => system_config})
     end

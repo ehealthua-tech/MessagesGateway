@@ -12,11 +12,12 @@ defmodule MessagesGateway.Application do
     password = config[:password]
     database = config[:database]
     port = config[:port]
+    {:ok, app_name} = :application.get_application(__MODULE__)
 
     redis_workers = for i <- 0..(config[:pool_size] - 1) do
       worker(Redix,
         ["redis://#{password}@#{hostname}:#{port}/#{database}",
-          [name: :"redis_#{i}"]
+          [name: :"redis_#{Atom.to_string(app_name)}_#{i}"]
         ],
         id: {Redix, i}
       )
