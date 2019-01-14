@@ -54,10 +54,9 @@ defmodule MessagesGatewayWeb.MessageController do
 # ---- Check message status ---------------------------------------------------------
 
   def message_status(conn, %{"resource" => %{"request_id" => request_id, "message_id" => message_id}}) do
-    with message_info <- MessagesGateway.RedisManager.get(message_id),
-         message_info_map <- Jason.decode!(message_info)
+    with message_info <- MessagesGateway.RedisManager.get(message_id)
       do
-      render(conn, "message_status.json", request_id: request_id, message_id: message_id, message_status: message_info_map.sending_status)
+      render(conn, "message_status.json", request_id: request_id, message_id: message_id, message_status: message_info.sending_status)
     end
   end
 

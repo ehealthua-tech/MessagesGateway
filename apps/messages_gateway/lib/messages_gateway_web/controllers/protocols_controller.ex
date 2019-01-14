@@ -14,7 +14,7 @@ defmodule MessagesGatewayWeb.ProtocolsController do
   def show(conn, %{"id" => name}) do
     with fields <- MessagesGateway.RedisManager.get(name)
       do
-      render(conn, "protocols.json", %{fields: Jason.decode!(fields)})
+      render(conn, "protocols.json", %{fields: fields})
     end
   end
 

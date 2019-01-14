@@ -109,7 +109,7 @@ defmodule TelegramProtocol do
 
   def handle_info({:recv, %Object.UpdateChatReadOutbox{chat_id: chat_id, last_read_outbox_message_id: last_read_outbox_message_id}},  %{messages: %{message_id: message_id} = payload} = state) do
     message_info = MessagesGateway.RedisManager.get(payload.message_id)
-    MessagesGateway.RedisManager.set(payload.message_id, Jason.encode!(Map.put(Jason.decode!(message_info), "telegram_sending_status", true)))
+    MessagesGateway.RedisManager.set(payload.message_id, Jason.encode!(Map.put(message_info, "telegram_sending_status", true)))
     {:noreply, state}
   end
 
@@ -144,7 +144,7 @@ defmodule TelegramProtocol do
     resend_timeout = Application.get_env(:telegram_protocol, :resend_timeout, 30)
     :timer.sleep(resend_timeout*1000)
     message_info = MessagesGateway.RedisManager.get(payload.message_id)
-    if Map.get(Jason.decode!(message_info), "telegram_sending_status", :nil) == true do
+    if Map.get(message_info, "telegram_sending_status", :nil) == true do
       :ok
     else
       MessagesGateway.RedisManager.del(payload.message_id)
