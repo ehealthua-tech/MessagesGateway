@@ -48,4 +48,10 @@ defmodule DbAgent.ContactsRequests do
   def insert_or_update(nil, params), do: add_contact(params)
   def insert_or_update(present_contact, params), do: change_contact(params)
 
+  @spec delete(id :: String.t()) :: {integer(), nil | [term()]}
+  def delete(id) do
+    from(p in ContactsSchema, where: p.id == ^id)
+    |> Repo.delete_all()
+  end
+
 end

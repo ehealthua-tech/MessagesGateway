@@ -19,6 +19,17 @@ defmodule DbAgent.OperatorsRequests do
                                priority: integer
                              }
 
+  @type operator_info_list :: [
+                               id: String.t(),
+                               active: boolean,
+                               config: map,
+                               limit: integer,
+                               name:  String.t(),
+                               operator_type: map(),
+                               price: integer,
+                               priority: integer
+                             ]
+
   @spec list_operators :: [OperatorsSchema.t()] | [] | {:error, Ecto.Changeset.t()}
   def list_operators() do
     OperatorsSchema
@@ -34,7 +45,7 @@ defmodule DbAgent.OperatorsRequests do
     |> Repo.insert()
   end
 
-  @spec change_operator(id :: String.t(), operator_info :: operator_info_map()) :: {integer(), nil | [term()]}
+  @spec change_operator(id :: String.t(), operator_info :: [operator_info_list()]) :: {integer(), nil | [term()]}
   def change_operator(id, operator_info) do
     OperatorsSchema
     |> where([ot], ot.id == ^id)
