@@ -14,7 +14,7 @@ defmodule ViberCallback do
   # Handle incoming events, if the payload is the right shape, process the
   # events, otherwise return an error.
   post "/viber" do
-    ViberApi.add_contact(conn)
+    ViberProtocol.add_contact(conn)
     |> response(conn)
   end
 

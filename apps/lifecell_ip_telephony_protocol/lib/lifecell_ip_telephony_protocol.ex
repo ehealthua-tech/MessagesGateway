@@ -8,7 +8,7 @@ defmodule LifecellIpTelephonyProtocol do
   def send_message(%{phone: phone} = payload) do
     try do
       run(phone)
-      change_status(payload)
+#      change_status(payload)
     catch
       _ -> resend(payload)
     end

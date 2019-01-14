@@ -20,7 +20,7 @@ defmodule LifecellSmsProtocol.LifecellSmsCallback do
         |> fetch_query_params()
         |> get_params()
         #@todo add select messages from redis
-      spawn(LifecellSmsProtocol, check_sending_status, resp_body)
+#      spawn(LifecellSmsProtocol, check_sending_status, resp_body)
       response(conn)
     catch
       _-> send_resp(conn, 500, "")
@@ -34,9 +34,9 @@ defmodule LifecellSmsProtocol.LifecellSmsCallback do
     |> decode_body
   end
 
-  defp decode_body({:ok, body, _conn}), do: xmap(response_body, @sms_status_request_parse_schema)
+  defp decode_body({:ok, response_body, _conn}), do: xmap(response_body, @sms_status_request_parse_schema)
 
-  defp response(:noreply, conn) do
+  defp response(conn) do
     conn
     |> send_resp(200, "<status>accepted</status>")
   end

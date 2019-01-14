@@ -11,7 +11,6 @@ defmodule ViberProtocol.MqManager do
 
   def init(_opts) do
     {:ok, app_name} = :application.get_application(__MODULE__)
-    :io.format("~napp_name: ~p~n", [app_name])
     state = %{connected: false, chan: nil, queue_name: to_string(app_name), conn: nil, subscribe: nil}
     {:ok, connect(state)}
   end
@@ -76,7 +75,6 @@ defmodule ViberProtocol.MqManager do
                                            decoded_payload = Jason.decode!(payload)
                                            ViberApi.send_message(decoded_payload)
                                          end
-        :io.format("~nSUB VIBER~n")
         %{ state | chan: chan, connected: true, conn: conn, subscribe: sub }
       {:error, _} ->
         reconnect(state)

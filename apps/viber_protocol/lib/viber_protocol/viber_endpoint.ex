@@ -31,10 +31,7 @@ defmodule ViberEndpoint do
   end
 
   defp build_url(method) do
-    url = @viber_url <> "/" <> method
-
-    :io.format("~nurl:~p~n", [url])
-    url
+    @viber_url <> "/" <> method
   end
 
   defp headers() do
@@ -44,8 +41,6 @@ defmodule ViberEndpoint do
         "Content-Type": "application/json",
         "X-Viber-Auth-Token": auth_token
       ]
-
-    :io.format("~nheader: ~p~n", [header])
     header
   end
 end

@@ -18,7 +18,7 @@ defmodule ViberProtocol.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      mod: {ViberProtocol, []},
+      mod: {ViberProtocol.Application, []},
       extra_applications: [:logger,  :plug_cowboy]
     ]
   end
@@ -30,6 +30,7 @@ defmodule ViberProtocol.MixProject do
       {:httpoison, "~> 1.4"},
       {:jason, "~> 1.1"},
       {:plug_cowboy, "~> 1.0"},
+      {:redix, ">= 0.0.0"},
       {:ex_doc, "~> 0.19", only: :dev, runtime: false}
     ]
   end

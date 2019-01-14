@@ -36,3 +36,10 @@ config :viber_protocol,
 
 config :viber_protocol,
        auth_token: "48f01d9268e7d064-5c8b70def6243721-a025fd7b15cb0902"
+
+config :viber_protocol,  ViberProtocol.RedisManager,
+       host: "127.0.0.1",
+       database: "1",
+       password: nil,
+       port: 6379,
+       pool_size: 5
