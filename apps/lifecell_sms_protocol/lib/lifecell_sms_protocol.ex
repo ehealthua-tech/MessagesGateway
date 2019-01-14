@@ -3,10 +3,10 @@ defmodule LifecellSmsProtocol do
   Documentation for LifecellSmsProtocol.
   """
   import SweetXml
-  alias LifecellSms.EndpointManager
-  alias LifecellSms.RedisManager
-  alias LifecellSms.CronManager
-  alias LifecellSms.MqManager
+  alias LifecellSmsProtocol.EndpointManager
+  alias LifecellSmsProtocol.RedisManager
+  alias LifecellSmsProtocol.CronManager
+  alias LifecellSmsProtocol.MqManager
 
   @messages_unknown_status ['Accepted', 'Enroute', 'Unknown']
   @messages_error_status   ['Expired', 'Deleted', 'Undeliverable', 'Rejected']
@@ -15,12 +15,16 @@ defmodule LifecellSmsProtocol do
   @send_sms_response_parse_schema [status: ~x"//state/text()", lifecell_sms_id: ~x"./@id", date:  ~x"./@date",
     id: ~x"./@ext_id", error: ~x"//status/state/@error" ]
 
-  def start_link() do
+  @protocol_config %{login: "", password: ""}
 
+  def start_link do
+    GenServer.start_link(__MODULE__, [], name: __MODULE__)
   end
 
-  def init() do
-
+  def init(_opts) do
+    {:ok, app_name} = :application.get_application(__MODULE__)
+    RedisManager.set(Atom.to_string(app_name), @protocol_config)
+    {:ok, []}
   end
 
   def send_message(%{phone: phone, message: message} = payload) do

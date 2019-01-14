@@ -1,4 +1,4 @@
-defmodule LifecellSms.EndpointManager do
+defmodule LifecellSmsProtocol.EndpointManager do
   @moduledoc false
 
   @send_sms :send_sms

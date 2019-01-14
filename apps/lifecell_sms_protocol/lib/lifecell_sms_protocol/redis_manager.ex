@@ -1,4 +1,4 @@
-defmodule LifecellSms.RedisManager do
+defmodule LifecellSmsProtocol.RedisManager do
   @moduledoc false
 
   @spec get(binary) :: {:ok, term} | {:error, binary}
@@ -31,9 +31,10 @@ defmodule LifecellSms.RedisManager do
 
   @spec command(list) :: {:ok, term} | {:error, term}
   def command(command) when is_list(command) do
-    pool_size = Application.get_env(:messages_gateway, SmsRouter.RedisManager)[:pool_size]
+    pool_size = Application.get_env(:lifecell_sms_protocol, LifecellSmsProtocol.RedisManager)[:pool_size]
     connection_index = rem(System.unique_integer([:positive]), pool_size)
-    Redix.command(:"redis_#{connection_index}", command)
+    {:ok, app_name} = :application.get_application(__MODULE__)
+    Redix.command(:"redis_#{Atom.to_string(app_name)}_#{connection_index}", command)
   end
 
 end

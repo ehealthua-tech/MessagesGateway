@@ -1,4 +1,4 @@
-defmodule LifecellSms.CronManager do
+defmodule LifecellSmsProtocol.CronManager do
   @moduledoc false
   use GenServer
 

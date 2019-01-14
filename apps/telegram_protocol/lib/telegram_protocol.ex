@@ -70,11 +70,42 @@ defmodule TelegramProtocol do
 
   def telegram_authorization_process(%Object.AuthorizationStateWaitCode{}) do
     :io.format("~n~nPlease authentication code~n~n")
+    check_authentication_code()
+  end
+
+  defp check_authentication_code() do
+    Process.send_after(self(), :check_authentication_code , 5000)
+  end
+
+  def handle_info(:check_authentication_code,  state) do
+    {:ok, app_name} = :application.get_application(__MODULE__)
+    protocol_config = RedisManager.get(Atom.to_string(app_name))
+    case String.length(protocol_config.code) > 0 do
+      true -> GenServer.cast(__MODULE__, {:send_code, %{code: protocol_config.code}})
+      _-> check_authentication_code()
+    end
+    {:noreply, state}
   end
 
   def telegram_authorization_process(%Object.AuthorizationStateWaitPassword{}) do
     :io.format("~n~nPlease authentication Password~n~n")
+    check_authentication_password()
   end
+
+  defp check_authentication_password() do
+    Process.send_after(self(), :check_authentication_password , 5000)
+  end
+
+  def handle_info(:check_authentication_password,  state) do
+    {:ok, app_name} = :application.get_application(__MODULE__)
+    protocol_config = RedisManager.get(Atom.to_string(app_name))
+    case String.length(protocol_config.password) > 0 do
+      true ->  GenServer.cast(__MODULE__, {:send_pass, %{pass: protocol_config.password}})
+      _-> check_authentication_password()
+    end
+    {:noreply, state}
+  end
+
   def telegram_authorization_process(%Object.AuthorizationStateReady{}) do
     {:ok, :auth}
   end
