@@ -1,4 +1,4 @@
-defmodule LifecellSms.MqManager do
+defmodule LifecellSmsProtocol.MqManager do
     use GenServer
     use AMQP
 

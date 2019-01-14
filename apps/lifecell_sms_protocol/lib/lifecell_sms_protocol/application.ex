@@ -6,8 +6,24 @@ defmodule LifecellSmsProtocol.Application do
   use Application
 
   def start(_type, _args) do
-    # List all child processes to be supervised
-    children = [
+    import Supervisor.Spec
+    config = Application.get_env(:telegram_protocol, TelegramProtocol.RedisManager)
+    hostname = config[:host]
+    password = config[:password]
+    database = config[:database]
+    port = config[:port]
+    {:ok, app_name} = :application.get_application(__MODULE__)
+    redis_workers = for i <- 0..(config[:pool_size] - 1) do
+      worker(Redix,
+        ["redis://#{password}@#{hostname}:#{port}/#{database}",
+          [name: :"redis_#{Atom.to_string(app_name)}_#{i}"]
+        ],
+        id: {Redix, i}
+      )
+    end
+    children = redis_workers ++ [
+      worker(LifecellSmsProtocol, []),
+      worker(LifecellSmsProtocol.MqManager, []),
       Plug.Cowboy.child_spec(scheme: :http, plug: LifecellSmsProtocol.LifecellSmsCallback, options: [port: 6014]),
       # Starts a worker by calling: LifecellSmsProtocol.Worker.start_link(arg)
       # {LifecellSmsProtocol.Worker, arg},
