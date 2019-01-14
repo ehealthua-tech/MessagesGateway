@@ -22,11 +22,12 @@ defmodule MessagesGateway.Application do
       )
     end
     # Define workers and child supervisors to be supervised
-    children = [
+    children = redis_workers ++ [
       # Start the endpoint when the application starts
 #      worker(MessagesGateway.OperatorsToCash, []),
       supervisor(MessagesGatewayWeb.Endpoint, []),
-      worker(MessagesGateway.MqManager, []) |  redis_workers
+      worker(MessagesGateway.MqManager, []),
+      worker(MessagesGatewayInit, [])
       # mq = MessagesGatewayWeb.MqManager
       # Start your own worker by calling: MessagesGateway.Worker.start_link(arg1, arg2, arg3)
       # worker(MessagesGateway.Worker, [arg1, arg2, arg3]),

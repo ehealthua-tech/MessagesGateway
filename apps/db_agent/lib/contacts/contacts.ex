@@ -1,4 +1,8 @@
 defmodule DbAgent.Contacts do
+  @moduledoc """
+    Contacts schema description
+  """
+
   use Ecto.Schema
   import Ecto.Changeset
   alias DbAgent.Operators

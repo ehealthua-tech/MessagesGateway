@@ -1,4 +1,8 @@
 defmodule DbAgent.OperatorTypes do
+  @moduledoc """
+    Operator_types schema description
+  """
+
   use Ecto.Schema
 
   import Ecto.Changeset

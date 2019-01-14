@@ -1,12 +1,18 @@
 defmodule DbAgent.DbAgentTest do
+  @moduledoc """
+    Module for db_agent tests
+  """
+
   alias ContactsRequests
   alias OperatorsRequests
   alias OperatorTypesRequests
   use ExUnit.Case
   use DbAgent.DataCase
 
+  @doc """
+    Run tests for operator_types, operators and contacts
+  """
   test "database_test" do
-
     assert [] == DbAgent.OperatorTypesRequests.list_operator_types()
     new_operator_type = %{"active" => :true, "name" => "type_name", "priority" => 7}
     {:ok, created_operator_type} = DbAgent.OperatorTypesRequests.add_operator_type(new_operator_type)
