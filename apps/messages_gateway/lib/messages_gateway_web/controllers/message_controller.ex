@@ -2,7 +2,6 @@ defmodule MessagesGatewayWeb.MessageController do
   use MessagesGatewayWeb, :controller
   alias MessagesGateway.UUID
   alias MessagesGateway.Prioritization
-  alias SmtpProtocol
 
   @sending_start_status true
   @status_not_send false

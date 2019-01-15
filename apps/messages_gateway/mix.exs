@@ -37,6 +37,7 @@ defmodule MessagesGateway.Mixfile do
   defp deps do
     [
       {:db_agent, in_umbrella: true},
+      {:smtp_protocol, in_umbrella: true},
       {:phoenix, "~> 1.3.4"},
       {:phoenix_pubsub, "~> 1.0"},
       {:phoenix_html, "~> 2.10"},
