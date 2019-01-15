@@ -7,4 +7,5 @@ config :db_agent, DbAgent.Repo,
        password: "postgres",
        database: "messages_gateway_test",
        hostname: "localhost",
-       pool_size: 10
+       pool_size: 10,
+       pool: Ecto.Adapters.SQL.Sandbox
