@@ -14,10 +14,14 @@ defmodule TelegramProtocol do
   end
 
   def init(_opts) do
-    {:ok, app_name} = :application.get_application(__MODULE__)
-    RedisManager.set(Atom.to_string(app_name), @protocol_config)
-    TelegramProtocol.start_telegram_lib
-    {:ok, []}
+#    {:ok, app_name} = :application.get_application(__MODULE__)
+#    RedisManager.set(Atom.to_string(app_name), @protocol_config)
+#    TelegramProtocol.start_telegram_lib
+#    {:ok, []}
+    config = struct(TDLib.default_config(), %{api_id: @api_id, api_hash: @api_hash})
+    {:ok, _pid} = TDLib.open(@session, self(), config)
+    {:ok, TDLib.transmit(@session, "verbose 0")}
+
   end
 
   def start_telegram_lib() do
@@ -147,6 +151,7 @@ defmodule TelegramProtocol do
   def handle_info({:recv, %Object.UpdateChatReadOutbox{}}, state), do: {:noreply, state}
 
   def handle_info({:recv, %Object.Chat{id: chat_id}},  %{messages: payload} = state) do
+    :io.format("~npayload: ~p~n", [payload])
     text = get_in(state, [:messages, :body])
     query = %Method.SendMessage{
       chat_id: chat_id,
