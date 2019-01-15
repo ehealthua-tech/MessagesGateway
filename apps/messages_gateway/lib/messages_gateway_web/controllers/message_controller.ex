@@ -2,6 +2,7 @@ defmodule MessagesGatewayWeb.MessageController do
   use MessagesGatewayWeb, :controller
   alias MessagesGateway.UUID
   alias MessagesGateway.Prioritization
+  alias SmtpProtocol
 
   @sending_start_status true
   @status_not_send false
@@ -32,9 +33,10 @@ defmodule MessagesGatewayWeb.MessageController do
 
 #  ---- send only e-mail ------------------------------------------------------
 
-  def new_email(conn, %{"resource" => %{"email" => email, "body" => body, "subject" => subject} = resource}) do
-    with {:ok, priority_list} <- Prioritization.get_priority_list(),
-         {:ok, message_id} <- add_email_to_db_and_queue(email, body, priority_list)
+  def new_email(conn, %{"resource" => %{"request_id" => message_id, "email" => email, "body" => body, "subject" => subject} = resource}) do
+    # with {:ok, priority_list} <- Prioritization.get_priority_list(),
+    #      {:ok, message_id} <- add_email_to_db_and_queue(email, body, priority_list)
+    SmtpProtocol.send_email(email, subject, body)
       do
       render(conn, "index.json", message_id: message_id)
     end

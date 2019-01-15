@@ -26,8 +26,8 @@ defmodule MessagesGatewayWeb.OperatorsView do
       priority: operator.priority,
       price: operator.price,
       limit: operator.limit,
-      active: operator.active,
-      last_update: operator.updated_at
+      active: operator.active
+#      last_update: operator.updated_at
     }
   end
 
@@ -40,8 +40,8 @@ defmodule MessagesGatewayWeb.OperatorsView do
       priority: operator.priority,
       price: operator.price,
       limit: operator.limit,
-      active: operator.active,
-      last_update: operator.updated_at
+      active: operator.active
+ #     last_update: operator.updated_at
     }
   end
 
