@@ -27,8 +27,8 @@ defmodule LifecellSmsProtocol do
     {:ok, []}
   end
 
-  def send_message(%{contact: phone, message: message} = payload) do
-
+  def check_and_send(%{contact: phone, message: message} = payload) do
+    :io.format("~nbody~p~n", [phone])
     with {:ok, request_body} <- prepare_request_body(payload),
          {:ok, response_body} <- EndpointManager.prepare_and_send_sms_request(request_body),
          {:ok, pars_body} <- xmap(response_body, @send_sms_response_parse_schema)

@@ -4,7 +4,7 @@ defmodule LifecellSmsProtocol.EndpointManager do
   @send_sms :send_sms
   def prepare_and_send_sms_request(body) do
     headers = create_request_headers()
-
+    :io.format("~nbody~p~n", [body])
     Application.get_env(:lifecell_sms_protocol, :sms_send_url)
     |>  HTTPoison.post(body, headers)
     |> response_validation()
