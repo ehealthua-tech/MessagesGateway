@@ -21,8 +21,8 @@ defmodule LifecellSmsProtocol.MqManager do
     end
 
     def handle_call({:publish, message, priority}, _, %{chan: chan, connected: true, queue_name: queue_name} = state) do
-      queue_name = DbAgent.OperatorTypesRequests.get_by_name(@queue_name)
-      result = Basic.publish(chan, "", queue_name.id, message, [persistent: true, priority: priority])
+      {:ok, app_name} = :application.get_application(__MODULE__)
+      result = Basic.publish(chan, "", to_string(app_name), message, [persistent: true, priority: priority])
       {:reply, result, state}
     end
 
