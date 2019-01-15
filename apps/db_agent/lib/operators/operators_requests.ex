@@ -38,10 +38,13 @@ defmodule DbAgent.OperatorsRequests do
   """
   @spec list_operators :: [OperatorsSchema.t()] | [] | {:error, Ecto.Changeset.t()}
   def list_operators() do
+    x =
     OperatorsSchema
     |> join(:inner, [op], opt in OperatorTypesSchema, opt.id == op.operator_type_id)
     |> select([op, opt],%{operator: op, operator_type: opt})
     |> Repo.all()
+    :io.format("~nx ~p~n", [x])
+    x
   end
 
   @doc """

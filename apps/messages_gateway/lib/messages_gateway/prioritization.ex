@@ -2,38 +2,22 @@ defmodule MessagesGateway.Prioritization do
   @moduledoc false
   alias MessagesGateway.RedisManager
 
-  @messages_gateway_conf "messages_gateway_conf"
+  @messages_gateway_conf "system_config"
   @operators_config "operators_config"
   @first_priority 1
 
   def get_priority_list() do
-    with {:ok, messages_gateway_conf} <- RedisManager.get(@messages_gateway_conf),
-        {:ok, operators_type_config} <- RedisManager.get(@operators_config),
-        {:ok, priority} <- select_priority(Jason.decode!(operators_type_config), Map.get(Jason.decode!(messages_gateway_conf), "priority_model"), [])
+    with messages_gateway_conf <- RedisManager.get(@messages_gateway_conf),
+        priority_list <- RedisManager.get(@operators_config)
       do
-        {:ok, priority}
+      :io.format("~npriority_list: ~p~n", [priority_list])
+        {:ok, priority_list}
     end
   end
 
-  def get_priority_list(operator_type_id) do
+  def get_priority_list(protocol_name) do
     with {:ok, operators_type_config} <- RedisManager.get(@operators_config) do
-      {operator_type_id, operator_info_map} = List.keyfind(operators_type_config, operator_type_id, 0)
-      {:ok, [%{
-        operator_type_id: operator_type_id,
-        priority: @first_priority,
-        configs: operator_info_map.operator_configs}]}
+      {:ok, [Enum.find(operators_type_config, fn x -> x.protocol_name == protocol_name end)]}
     end
   end
-
-  defp select_priority([], _, acc), do: {:ok, acc}
-  defp select_priority([operator_type_map | tail], priority_key, acc) do
-    [operator_type_id] = Map.keys(operator_type_map)
-    operator_info_map = Map.get(operator_type_map, operator_type_id)
-    priority = %{
-      operator_type_id: operator_type_id,
-      priority: Map.get(operator_info_map, priority_key),
-      configs: Map.get(operator_info_map, @operators_config)}
-    select_priority(tail, priority_key, [priority | acc])
-  end
-
 end

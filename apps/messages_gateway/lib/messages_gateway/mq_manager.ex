@@ -20,7 +20,9 @@ defmodule MessagesGateway.MqManager do
   end
 
   def handle_call({:publish, message}, _, %{chan: chan, connected: true, queue_name: queue_name} = state) do
+    :io.format("~nmessage: ~p~n", [message])
     result = Basic.publish(chan, "", @queue, message, [persistent: true, priority: 0])
+    :io.format("~nresult: ~p~n", [result])
     {:reply, result, state}
   end
 

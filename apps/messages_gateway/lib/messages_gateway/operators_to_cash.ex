@@ -13,7 +13,6 @@ defmodule MessagesGateway.OperatorsToCash do
       OperatorsRequests.list_operators()
       |> select_operator([])
       |> add_operators_info_to_redis()
-    :io.format("~nstate: ~p~n", [state])
     {:ok, state}
   end
 
@@ -26,9 +25,7 @@ defmodule MessagesGateway.OperatorsToCash do
   end
 
   def add_operators_info_to_redis(list_operators) do
-    :io.format("~nlist_operators~p~n", [list_operators])
     json = Jason.encode!(list_operators)
-    :io.format("~nlist_operators2 ~p~n", [json])
     Processes.spawn(MessagesGateway.RedisManager.set("operators_info", json))
     :ok
   end

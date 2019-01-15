@@ -28,8 +28,8 @@ defmodule MessagesRouter.MqManager do
       {:reply, result, state}
     end
 
-    def handle_call({:send_to_operator, message, operator_queue}, _, %{chan: chan, connected: true, queue_name: queue_name} = state) do
-      result = Basic.publish(chan, "", operator_queue, message, [persistent: true, priority: 0])
+    def handle_call({:send_to_operator, message, protocol_queue}, _, %{chan: chan, connected: true, queue_name: queue_name} = state) do
+      result = Basic.publish(chan, "", protocol_queue, message, [persistent: true, priority: 0])
       {:reply, result, state}
     end
 
@@ -70,7 +70,7 @@ defmodule MessagesRouter.MqManager do
           Exchange.fanout(chan, @exchange, durable: true)
           Queue.bind(chan, queue_name, @exchange)
           {ok, sub} = AMQP.Queue.subscribe chan, queue_name,
-            fn(payload, _meta) -> SmsRouter.check_and_send(Jason.decode!(payload)) end
+            fn(payload, _meta) -> OperatorSelector.send_message(Jason.decode!(payload, [keys: :atoms])) end
           %{ state | chan: chan, connected: true, conn: conn, subscribe: sub }
         {:error, _} ->
           reconnect(state)

@@ -34,7 +34,7 @@ config :messages_router,
        mq_host: "localhost",
        mq_port: 5672
 
-config :messages_router, MessagesRouter.Redis,
+config :messages_router, MessagesRouter.RedisManager,
        host: "127.0.0.1",
        database: "1",
        password: nil,

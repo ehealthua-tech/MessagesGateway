@@ -12,7 +12,6 @@ defmodule LifecellSmsProtocol.MqManager do
 
     def init(_opts) do
       {:ok, app_name} = :application.get_application(__MODULE__)
-      :io.format("~napp_name: ~p~n", [app_name])
       state = %{connected: false, chan: nil, queue_name: to_string(app_name), conn: nil, subscribe: nil}
       {:ok, connect(state)}
     end
@@ -69,7 +68,7 @@ defmodule LifecellSmsProtocol.MqManager do
           Exchange.fanout(chan, @exchange, durable: true)
           Queue.bind(chan, queue_name, @exchange)
           {ok, sub} = AMQP.Queue.subscribe chan, queue_name,
-            fn(payload, _meta) -> Jason.decode!(payload, :atoms) |> SmsRouter.check_and_send() end
+            fn(payload, _meta) -> Jason.decode!(payload,[keys: :atoms]) |> LifecellSmsProtocol.check_and_send() end
           %{ state | chan: chan, connected: true, conn: conn, subscribe: sub }
         {:error, _} ->
           reconnect(state)

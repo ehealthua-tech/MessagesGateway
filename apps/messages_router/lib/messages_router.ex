@@ -3,23 +3,21 @@ defmodule MessagesRouter do
 
   def start(_type, _args) do
     import Supervisor.Spec
-
-#    config = Application.get_env(:messages_router,  MessagesRouter.Redis)
-#    hostname = config[:host]
-#    password = config[:password]
-#    database = config[:database]
-#    port = config[:port]
-#
-#    redis_workers = for i <- 0..(config[:pool_size] - 1) do
-#      worker(Redix,
-#        ["redis://#{password}@#{hostname}:#{port}/#{database}",
-#          [name: :"redis_#{i}"]
-#        ],
-#        id: {Redix, i}
-#      )
-#    end
-
-    children = [
+    config = Application.get_env(:telegram_protocol, TelegramProtocol.RedisManager)
+    hostname = config[:host]
+    password = config[:password]
+    database = config[:database]
+    port = config[:port]
+    {:ok, app_name} = :application.get_application(__MODULE__)
+    redis_workers = for i <- 0..(config[:pool_size] - 1) do
+      worker(Redix,
+        ["redis://#{password}@#{hostname}:#{port}/#{database}",
+          [name: :"redis_#{Atom.to_string(app_name)}_#{i}"]
+        ],
+        id: {Redix, i}
+      )
+    end
+    children = redis_workers ++[
       worker(MessagesRouter.MqManager, []) #|  redis_workers
     ]
 
