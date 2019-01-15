@@ -27,7 +27,7 @@ defmodule LifecellSmsProtocol do
     {:ok, []}
   end
 
-  def send_message(%{phone: phone, message: message} = payload) do
+  def send_message(%{contact: phone, message: message} = payload) do
 
     with {:ok, request_body} <- prepare_request_body(payload),
          {:ok, response_body} <- EndpointManager.prepare_and_send_sms_request(request_body),

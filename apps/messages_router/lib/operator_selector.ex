@@ -4,6 +4,7 @@ defmodule OperatorSelector do
   alias MessagesRouter.MqManager
 
   def send_message(payload) do
+    :io.format("~npayload:~p~n", [payload])
     message_status_info = RedisManager.get(payload.message_id)
     case check_message_status(message_status_info) do
       :active -> select_protocol_and_send(message_status_info, payload)
@@ -15,7 +16,7 @@ defmodule OperatorSelector do
   defp check_message_status(_), do: :no_active
 
   defp select_protocol_and_send(message_status_info,
-         %{"priority_list" => priority_list} = payload) when priority_list != [] do
+         %{priority_list: priority_list} = payload) when priority_list != [] do
     select_protocol = Enum.min_by(priority_list, fn x -> x.priority end)
     new_priority_list = List.delete(priority_list, select_protocol)
     new_payload = Map.put(payload, :priority_list, new_priority_list)

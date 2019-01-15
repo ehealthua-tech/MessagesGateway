@@ -90,7 +90,8 @@ defmodule MessagesGatewayWeb.MessageController do
   end
 
   def add_to_message_queue(message_id, body) do
-    MessagesGateway.MqManager.publish(body)
+    Jason.encode!(body)
+    |> MessagesGateway.MqManager.publish()
   end
 
 end

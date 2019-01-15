@@ -14,7 +14,7 @@ defmodule SmsRouter do
   end
 
   defp search_contact_in_db(message) do
-    ContactsRequests.get_by_phone_number!(message.phone)
+    ContactsRequests.get_by_phone_number!(message.contact)
     |> check_operator_id(message)
   end
 
@@ -27,11 +27,11 @@ defmodule SmsRouter do
   end
 
   defp calc_operator_info(message, viber_id \\ nil ) do
-    phone_code = binary_part(message.phone, 0, 6)
+    phone_code = binary_part(message.contact, 0, 6)
     operator =
       RedisManager.get(@operation_info)
       |> select_operators(phone_code)
-    ContactsRequests.add_operator_id(%{phone_number: message.phone, operator_id: operator.id, viber_id: viber_id})
+    ContactsRequests.add_operator_id(%{phone_number: message.contact, operator_id: operator.id, viber_id: viber_id})
     operator.id
   end
 
