@@ -4,34 +4,26 @@ defmodule OperatorSelector do
   alias MessagesRouter.MqManager
 
   def send_message(payload) do
-     with message_status_info <- RedisManager.get(message_id),
-          :active <- check_message_status(message_status_info)
-       do
-          select_protocol_and_send(message_status_info, payload)
-     else
-          end_sending_message(payload, message_status_info)
-     end
-  end
-
-  def select_protocol_and_send(message_status_info, payload) do
-    select_next_protocol(message_status_info, payload)
-    |> send_message_to_protocol(message_status_info)
+    message_status_info = RedisManager.get(payload.message_id)
+    case check_message_status(message_status_info) do
+      :active -> select_protocol_and_send(message_status_info, payload)
+      _->  end_sending_message(payload, message_status_info)
+    end
   end
 
   defp check_message_status(%{active: true, sending_status: false}), do: :active
   defp check_message_status(_), do: :no_active
 
-  defp select_next_protocol(message_status_info,
+  defp select_protocol_and_send(message_status_info,
          %{"priority_list" => priority_list} = payload) when priority_list != [] do
     select_protocol = Enum.min_by(priority_list, fn x -> x.priority end)
     new_priority_list = List.delete(priority_list, select_protocol)
     new_payload = Map.put(payload, :priority_list, new_priority_list)
-    check_next_protocol(message_status_info, new_payload)
+    check_next_protocol(select_protocol, message_status_info, new_payload)
   end
   defp select_next_protocol(message_status_info, payload), do: end_sending_message(payload, message_status_info)
 
-  defp check_next_protocol(selected_protocol, message_status_info, payload) when
-         selected_operator.active_protocol_type == true and selected_protocol.active == true do
+  defp check_next_protocol(%{active_protocol_type: true, active: true} = selected_protocol, message_status_info, payload)  do
     sending_message_to_protocol(payload, selected_protocol.protocol_name)
   end
   defp check_next_protocol(selected_protocol, message_status_info, payload) do
@@ -46,7 +38,8 @@ defmodule OperatorSelector do
     send_status(payload.callback_url, payload.message_id, new_message_status_info.sending_status)
   end
 
-  defp send_status(callback_url, message_id, sending_status) when String.length(callback_url) > 0 do
+  defp send_status("",_,_), do: :ok
+  defp send_status(callback_url, message_id, sending_status) do
     body = Jason.encode!(%{message_id: message_id, sending_status: sending_status})
     HTTPoison.post(callback_url, body)
   end
