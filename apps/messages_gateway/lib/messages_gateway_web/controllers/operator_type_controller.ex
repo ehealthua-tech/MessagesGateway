@@ -27,11 +27,8 @@ defmodule MessagesGatewayWeb.OperatorTypeController do
 
   def update_priority(conn, %{"resource" => operator_info}) do
     with {n, new_priority} <- OperatorTypesRequests.update_priority(operator_info)
-#         operator_types <- OperatorTypesRequests.list_operator_types(),
-#         priority <- select_operator_types__id(operator_types, []),
-#         {:ok, json} <- Jason.encode(priority),
-#         :ok <- MessagesGateway.RedisManager.set("operators_config", json)
       do
+      MessagesGatewayInit.create_operators_list_to_redis()
       render(conn, "create.json", %{status: "success"})
     end
   end

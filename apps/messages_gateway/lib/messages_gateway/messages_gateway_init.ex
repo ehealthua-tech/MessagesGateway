@@ -6,7 +6,7 @@ defmodule MessagesGatewayInit do
 
   @messages_gateway_conf "system_config"
   @operators_config "operators_config"
-  @sys_config %{"default_sms_operator" => "" }
+  @sys_config %{default_sms_operator: "", org_name: "test", sending_time: "60" }
 
   def start_link do
     GenServer.start_link(__MODULE__, [], name: __MODULE__)
@@ -27,7 +27,7 @@ defmodule MessagesGatewayInit do
     :ok
   end
 
-  defp create_operators_list_to_redis() do
+  def create_operators_list_to_redis() do
     OperatorsRequests.list_operators()
     |> create_priority_list([])
   end

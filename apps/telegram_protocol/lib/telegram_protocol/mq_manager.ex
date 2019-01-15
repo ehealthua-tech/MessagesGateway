@@ -24,8 +24,8 @@ defmodule TelegramProtocol.MqManager do
     end
 
     def handle_call({:publish, message, priority}, _, %{chan: chan, connected: true, queue_name: queue_name} = state) do
-      queue_name = DbAgent.OperatorsRequests.get_by_name("telegram")
-      result = Basic.publish(chan, "", queue_name.id, message, [persistent: true, priority: priority])
+      {:ok, app_name} = :application.get_application(__MODULE__)
+      result = Basic.publish(chan, "", to_string(app_name), message, [persistent: true, priority: priority])
       {:reply, result, state}
     end
 
@@ -74,7 +74,7 @@ defmodule TelegramProtocol.MqManager do
             AMQP.Queue.subscribe chan, queue_name,
               fn(payload, _meta) ->
                 decoded_payload = Jason.decode!(payload, keys: :atoms)
-                TelegramApi.send_message(decoded_payload)
+                TelegramProtocol.send_message(decoded_payload)
               end
           %{ state | chan: chan, connected: true, conn: conn, subscribe: sub }
         {:error, _} ->
