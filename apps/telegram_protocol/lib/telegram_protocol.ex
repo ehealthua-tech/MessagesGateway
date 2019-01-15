@@ -171,7 +171,7 @@ defmodule TelegramProtocol do
 
   #-API-------------------------------------------------------------------------------------------------------------------
   def send_message(payload) do
-
+    :io.format("~nsend_message: ~p~n", [payload])
     GenServer.cast(__MODULE__, {:send_messages, payload})
     resend_timeout = Application.get_env(:telegram_protocol, :resend_timeout, 30)
     :timer.sleep(resend_timeout*1000)

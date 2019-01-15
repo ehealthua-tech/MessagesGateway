@@ -36,9 +36,7 @@ defmodule MessagesGatewayWeb.MessageController do
     # with {:ok, priority_list} <- Prioritization.get_priority_list(),
     #      {:ok, message_id} <- add_email_to_db_and_queue(email, body, priority_list)
     SmtpProtocol.send_email(email, subject, body)
-      do
-      render(conn, "index.json", message_id: message_id)
-    end
+    render(conn, "index.json", message_id: message_id)
 
   end
 
