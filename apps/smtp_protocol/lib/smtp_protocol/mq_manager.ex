@@ -11,7 +11,6 @@ defmodule SmtpProtocol.MqManager do
 
   def init(_opts) do
     {:ok, app_name} = :application.get_application(__MODULE__)
-    :io.format("~napp_name: ~p~n", [app_name])
     state = %{connected: false, chan: nil, queue_name: to_string(app_name), conn: nil, subscribe: nil}
     {:ok, connect(state)}
   end
@@ -75,9 +74,8 @@ defmodule SmtpProtocol.MqManager do
                                          fn(payload, _meta) ->
                                            :io.format("~nPayload:~p~n",[payload])
                                            decoded_payload = Jason.decode!(payload, keys: :atoms)
-                                           TelegramApi.send_message(decoded_payload)
+                                           SmtpProtocol.send_email(decoded_payload)
                                          end
-        :io.format("~nSUB TELEGRAM~n")
         %{ state | chan: chan, connected: true, conn: conn, subscribe: sub }
       {:error, _} ->
         reconnect(state)

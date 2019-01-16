@@ -18,6 +18,7 @@ defmodule SmtpProtocol.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
+      mod: {SmtpProtocol.Application, []},
       extra_applications: [:logger, :bamboo, :bamboo_smtp]
     ]
   end

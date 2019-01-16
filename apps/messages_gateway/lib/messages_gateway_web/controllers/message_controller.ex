@@ -11,7 +11,7 @@ defmodule MessagesGatewayWeb.MessageController do
 #  ---- send a message to the client any available way ------------------------
 
   def new_message(conn, %{"resource" => %{"contact" => contact, "body" => body} = resource}) do
-    with {:ok, priority_list} <- Prioritization.get_priority_list(),
+    with {:ok, priority_list} <- Prioritization.get_message_priority_list(),
          {:ok, message_id} <- add_to_db_and_queue(resource, priority_list)
       do
       :io.format("~nmessage_id: ~p~n", [message_id])
@@ -22,7 +22,7 @@ defmodule MessagesGatewayWeb.MessageController do
 #  ---- send a message to the client only by SMS way --------------------------
 
   def new_sms(conn, %{"resource" => %{"contact" => phone, "body" => body} = resource}) do
-    with {:ok, priority_list} <- Prioritization.get_priority_list(),
+    with {:ok, priority_list} <- Prioritization.get_message_priority_list(),
          {:ok, message_id} <- add_to_db_and_queue(resource, priority_list)
       do
       render(conn, "index.json", %{message_id: message_id})
@@ -32,11 +32,13 @@ defmodule MessagesGatewayWeb.MessageController do
 
 #  ---- send only e-mail ------------------------------------------------------
 
-  def new_email(conn, %{"resource" => %{"request_id" => message_id, "email" => email, "body" => body, "subject" => subject} = resource}) do
-    # with {:ok, priority_list} <- Prioritization.get_priority_list(),
-    #      {:ok, message_id} <- add_email_to_db_and_queue(email, body, priority_list)
-    SmtpProtocol.send_email(email, subject, body)
-    render(conn, "index.json", message_id: message_id)
+  def new_email(conn, %{"resource" => %{"email" => email, "body" => body, "subject" => subject} = resource}) do
+    with {:ok, priority_list} <- Prioritization.get_smtp_priority_list(),
+         smtp_priority_list = priority_list,
+         {:ok, message_id} <- add_email_to_db_and_queue(email, body, subject, priority_list)
+      do
+      render(conn, "index.json", %{message_id: message_id})
+    end
 
   end
 
@@ -64,7 +66,6 @@ defmodule MessagesGatewayWeb.MessageController do
 # ---- Help functions ---------------------------------------------------------
 
   def add_to_db_and_queue( %{"contact" => phone, "body" => body} = resource, priority_list) do
-    :io.format("~nbody: ~p~n", [body])
     with {:ok, message_id} <- UUID.generate_uuid(),
          :ok <- add_to_redis(message_id, %{active: @sending_start_status, sending_status: @status_not_send}),
          :ok <- add_to_message_queue(message_id, %{message_id: message_id, contact: phone, body: body,
@@ -74,11 +75,11 @@ defmodule MessagesGatewayWeb.MessageController do
     end
   end
 
-  def add_email_to_db_and_queue(contact, body, subject) do
+  def add_email_to_db_and_queue(contact, body, subject, priority_list) do
     with {:ok, message_id} <- UUID.generate_uuid(),
          :ok <- add_to_redis(message_id, %{active: @sending_start_status, sending_status: @status_not_send}),
          :ok <- add_to_message_queue(message_id, %{message_id: message_id, contact: contact, body: body, callback_url: "",
-           subject: subject})
+           priority_list: priority_list, subject: subject})
       do
       {:ok, message_id}
     end

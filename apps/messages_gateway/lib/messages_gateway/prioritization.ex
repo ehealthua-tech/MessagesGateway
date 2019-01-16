@@ -6,12 +6,21 @@ defmodule MessagesGateway.Prioritization do
   @operators_config "operators_config"
   @first_priority 1
 
-  def get_priority_list() do
+  def get_message_priority_list() do
     with messages_gateway_conf <- RedisManager.get(@messages_gateway_conf),
         priority_list <- RedisManager.get(@operators_config)
       do
       :io.format("~npriority_list: ~p~n", [priority_list])
         {:ok, priority_list}
+    end
+  end
+
+  def get_smtp_priority_list() do
+    with messages_gateway_conf <- RedisManager.get(@messages_gateway_conf),
+         priority_list <- RedisManager.get(@operators_config)
+      do
+      :io.format("~npriority_list: ~p~n", [priority_list])
+      {:ok, priority_list}
     end
   end
 
