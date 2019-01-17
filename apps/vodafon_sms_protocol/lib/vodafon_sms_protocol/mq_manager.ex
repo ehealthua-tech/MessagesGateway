@@ -1,4 +1,4 @@
-defmodule TelegramProtocol.MqManager do
+defmodule VodafonSmsProtocol.MqManager do
     use GenServer
     use AMQP
 
@@ -74,7 +74,7 @@ defmodule TelegramProtocol.MqManager do
             AMQP.Queue.subscribe chan, queue_name,
               fn(payload, _meta) ->
                 decoded_payload = Jason.decode!(payload, keys: :atoms)
-                TelegramProtocol.send_message(decoded_payload)
+                VodafonSmsProtocol.send_message(decoded_payload)
               end
           %{ state | chan: chan, connected: true, conn: conn, subscribe: sub }
         {:error, _} ->
