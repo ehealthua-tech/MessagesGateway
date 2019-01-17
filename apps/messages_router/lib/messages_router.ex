@@ -1,6 +1,8 @@
 defmodule MessagesRouter do
   use Application
 
+  @spec start(:normal | {:takeover, atom()} | {:failover, atom()}, start_args :: term()) ::
+          {:ok, pid()} | {:ok, pid(), term()} | {:error, reason :: term()}
   def start(_type, _args) do
     import Supervisor.Spec
     config = Application.get_env(:telegram_protocol, TelegramProtocol.RedisManager)
