@@ -5,7 +5,7 @@ defmodule MessagesRouter.Application do
           {:ok, pid()} | {:ok, pid(), term()} | {:error, reason :: term()}
   def start(_type, _args) do
     import Supervisor.Spec
-    config = Application.get_env(:messages_router, MeesagesRouter.RedisManager)
+    config = Application.get_env(:messages_router, MessagesRouter.RedisManager)
     hostname = config[:host]
     password = config[:password]
     database = config[:database]
@@ -20,7 +20,7 @@ defmodule MessagesRouter.Application do
       )
     end
     children = redis_workers ++[
-      worker(MessagesRouter.MqManager, []) #|  redis_workers
+      worker(MessagesRouter.MqManager, [])
     ]
 
     opts = [strategy: :one_for_one, name: MessagesRouter.Supervisor]

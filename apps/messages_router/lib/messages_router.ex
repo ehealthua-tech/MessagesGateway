@@ -7,7 +7,7 @@ defmodule MessagesRouter do
     message_status_info = MessagesRouter.RedisManager.get(payload.message_id)
     case check_message_status(message_status_info) do
       :active -> select_protocol_and_send(message_status_info, payload)
-      :no_active ->  end_sending_message(payload, message_status_info)
+      :no_active -> end_sending_message(payload, message_status_info)
     end
   end
 

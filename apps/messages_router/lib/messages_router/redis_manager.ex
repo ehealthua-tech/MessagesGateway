@@ -8,6 +8,7 @@ defmodule MessagesRouter.RedisManager do
   defp check_get({:ok, value}, _) when value == nil, do:  {:error, :not_found}
   defp check_get({:ok, value}, _), do: Jason.decode!(value, [keys: :atoms])
   defp check_get({:error, _reason} = err, _key) do
+    :io.format("~n~nerr:~n~p~n~n",[err])
     err
   end
 
