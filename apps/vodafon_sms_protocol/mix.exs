@@ -26,9 +26,14 @@ defmodule VodafonSmsProtocol.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      # {:dep_from_hexpm, "~> 0.3.0"},
-      # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"},
-      # {:sibling_app_in_umbrella, in_umbrella: true},
+      {:db_agent, in_umbrella: true},
+      {:httpoison, "~> 1.4"},
+      {:jason, "~> 1.1"},
+      {:plug_cowboy, "~> 1.0"},
+      {:smppex, "~> 2.0"},
+      {:redix, ">= 0.0.0"},
+      {:ex_doc, "~> 0.19", only: :dev, runtime: false}
+
     ]
   end
 end
