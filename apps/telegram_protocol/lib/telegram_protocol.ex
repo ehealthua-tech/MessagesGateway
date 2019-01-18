@@ -14,14 +14,10 @@ defmodule TelegramProtocol do
   end
 
   def init(_opts) do
-#    {:ok, app_name} = :application.get_application(__MODULE__)
-#    RedisManager.set(Atom.to_string(app_name), @protocol_config)
-#    TelegramProtocol.start_telegram_lib
-#    {:ok, []}
-    config = struct(TDLib.default_config(), %{api_id: @api_id, api_hash: @api_hash})
-    {:ok, _pid} = TDLib.open(@session, self(), config)
-    {:ok, TDLib.transmit(@session, "verbose 0")}
-
+    {:ok, app_name} = :application.get_application(__MODULE__)
+    RedisManager.set(Atom.to_string(app_name), @protocol_config)
+    TelegramProtocol.start_telegram_lib
+    {:ok, []}
   end
 
   def start_telegram_lib() do
@@ -31,48 +27,55 @@ defmodule TelegramProtocol do
   def handle_info(:start_telegram_lib, state) do
     {:ok, app_name} = :application.get_application(__MODULE__)
     protocol_config = RedisManager.get(Atom.to_string(app_name))
-    case String.length(protocol_config.api_id) > 0 and  String.length(protocol_config.api_hash) > 0 and String.length(protocol_config.phone) > 0 and String.length(protocol_config.session_name)  > 0 do
-      true -> config = struct(TDLib.default_config(), %{api_id: String.to_integer(protocol_config.api_id), api_hash: protocol_config.api_hash})
-        {:ok, _pid} = TDLib.open(String.to_atom(protocol_config.session_name), self(), config)
-        state = TDLib.transmit(String.to_atom(protocol_config.session_name), "verbose 0")
-        {:noreply, state}
-      _->
-        start_telegram_lib()
-        {:noreply, state}
-    end
+    state =
+      case protocol_config.api_id == "" and
+           protocol_config.api_hash == "" and
+           protocol_config.phone == "" and
+           protocol_config.session_name == "" do
+        true->
+          start_telegram_lib()
+          state
+        _ ->
+          config = struct(TDLib.default_config(), %{api_id: String.to_integer(protocol_config.api_id), api_hash: protocol_config.api_hash})
+          {:ok, _pid} = TDLib.open(String.to_atom(protocol_config.session_name), self(), config)
+          {pid, command} = TDLib.transmit(String.to_atom(protocol_config.session_name), "verbose 0")
+          {pid, command, protocol_config}
+      end
+    {:noreply, state}
   end
 
   #-Authorization---------------------------------------------------------------------------------------------------------
   def handle_info({:recv, %Object.UpdateAuthorizationState{authorization_state: auth_state}}, state) do
-    telegram_authorization_process(auth_state)
+    telegram_authorization_process(auth_state, state)
+    :io.format("~nstate: ~p~n", [state])
     {:noreply, state}
   end
 
-  def telegram_authorization_process(%Object.AuthorizationStateWaitTdlibParameters{}), do: :ignore
+  def telegram_authorization_process(%Object.AuthorizationStateWaitTdlibParameters{}, state), do: :ignore
 
-  def telegram_authorization_process(%Object.AuthorizationStateWaitEncryptionKey{}), do: :ignore
+  def telegram_authorization_process(%Object.AuthorizationStateWaitEncryptionKey{}, state), do: :ignore
 
-  def telegram_authorization_process(%Object.AuthorizationStateWaitPhoneNumber{}) do
+  def telegram_authorization_process(%Object.AuthorizationStateWaitPhoneNumber{}, {pid, command, protocol_config} = state) do
     query = %Method.SetAuthenticationPhoneNumber{
       phone_number: @phone,
       allow_flash_call: false
     }
-    TDLib.transmit(@session, query)
+    TDLib.transmit(String.to_atom(protocol_config.session_name), query)
   end
 
-  def handle_cast({:send_code, payload},  state) do
+  def handle_cast({:send_code, payload}, {pid, command, protocol_config} = state) do
     query = %Method.CheckAuthenticationCode{code: payload.code}
-    TDLib.transmit(@session, query)
+    TDLib.transmit(String.to_atom(protocol_config.session_name), query)
     {:noreply, %{messages: payload}}
   end
 
-  def handle_cast({:send_pass, payload},  state) do
+  def handle_cast({:send_pass, payload}, {pid, command, protocol_config} = state) do
     query = %Method.CheckAuthenticationPassword{password: payload.pass}
-    TDLib.transmit(@session, query)
+    TDLib.transmit(String.to_atom(protocol_config.session_name), query)
     {:noreply, %{messages: payload}}
   end
 
-  def telegram_authorization_process(%Object.AuthorizationStateWaitCode{}) do
+  def telegram_authorization_process(%Object.AuthorizationStateWaitCode{}, state) do
     :io.format("~n~nPlease authentication code~n~n")
     check_authentication_code()
   end
@@ -91,7 +94,7 @@ defmodule TelegramProtocol do
     {:noreply, state}
   end
 
-  def telegram_authorization_process(%Object.AuthorizationStateWaitPassword{}) do
+  def telegram_authorization_process(%Object.AuthorizationStateWaitPassword{}, state) do
     :io.format("~n~nPlease authentication Password~n~n")
     check_authentication_password()
   end
@@ -110,16 +113,17 @@ defmodule TelegramProtocol do
     {:noreply, state}
   end
 
-  def telegram_authorization_process(%Object.AuthorizationStateReady{}) do
+  def telegram_authorization_process(%Object.AuthorizationStateReady{}, state) do
     {:ok, :auth}
   end
 
   #-Send message-----------------------------------------------------------------------------------------------------------
 
-  def handle_cast({:send_messages, payload},  state) do
+  def handle_cast({:send_messages, payload, protocol_config},  state) do
+    :io.format("~n handle_castpayload: ~p~n", [payload])
     query = %Method.ImportContacts{contacts: [%{phone_number: payload.contact}]}
-    TDLib.transmit(@session, query)
-    {:noreply, %{messages: payload}}
+    TDLib.transmit(String.to_atom(protocol_config.session_name), query)
+    {:noreply, Map.put(protocol_config, :messages, payload)}
   end
 
   def handle_info({:recv, %Object.ImportedContacts{user_ids: [user_ids], importer_count: importer_count}},  %{messages: payload} = state) do
@@ -128,7 +132,7 @@ defmodule TelegramProtocol do
       MessagesGateway.RedisManager.del(payload.message_id)
       resend(payload)
     else
-      TDLib.transmit @session, query
+      TDLib.transmit(String.to_atom(state.session_name), query)
     end
     {:noreply, state}
   end
@@ -137,8 +141,7 @@ defmodule TelegramProtocol do
   #    :io.format("~nMessage id ~p send~n",[message.id])
   #    :timer.sleep(10000)
   #   query =  %Method.GetMessages{chat_id: message.chat_id, message_ids: [message.id]}
-  #    x = TDLib.transmit @session, query
-  #   :io.format("~nGet:~n~p~n",[x])
+#  TDLib.transmit(state.session_name, query)
   #    {:noreply, state}
   #  end
 
@@ -161,8 +164,8 @@ defmodule TelegramProtocol do
       input_message_content:
       %Object.InputMessageText{
         text: %Object.FormattedText{
-          text: text} }}
-    TDLib.transmit @session, query
+          text: text}, }}
+    TDLib.transmit(String.to_atom(state.session_name), query)
     {:noreply, state}
   end
 
@@ -176,17 +179,18 @@ defmodule TelegramProtocol do
 
   #-API-------------------------------------------------------------------------------------------------------------------
   def send_message(payload) do
-    :io.format("~nsend_message: ~p~n", [payload])
-    GenServer.cast(__MODULE__, {:send_messages, payload})
-    resend_timeout = Application.get_env(:telegram_protocol, :resend_timeout, 30)
-    :timer.sleep(resend_timeout*1000)
-    message_info = MessagesGateway.RedisManager.get(payload.message_id)
-    if Map.get(message_info, "telegram_sending_status", :nil) == true do
-      :ok
-    else
-      MessagesGateway.RedisManager.del(payload.message_id)
-      resend(payload)
-    end
+    {:ok, app_name} = :application.get_application(__MODULE__)
+    protocol_config = RedisManager.get(Atom.to_string(app_name))
+    GenServer.cast(__MODULE__, {:send_messages, payload, protocol_config})
+#    resend_timeout = Application.get_env(:telegram_protocol, :resend_timeout, 30)
+#    :timer.sleep(resend_timeout*1000)
+#    message_info = MessagesGateway.RedisManager.get(payload.message_id)
+#    if Map.get(message_info, "telegram_sending_status", :nil) == true do
+#      :ok
+#    else
+#      MessagesGateway.RedisManager.del(payload.message_id)
+#      resend(payload)
+#    end
   end
 
   def send_code(%{"code" => code} = payload) do
