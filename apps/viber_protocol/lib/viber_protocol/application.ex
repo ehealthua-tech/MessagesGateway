@@ -20,7 +20,7 @@ defmodule ViberProtocol.Application do
     children = redis_workers ++
       [
         worker(ViberProtocol, []),
-        Plug.Cowboy.child_spec(scheme: :http, plug: ViberCallback, options: [port: 6012]),
+        Plug.Cowboy.child_spec(scheme: :http, plug: ViberCallback, options: [port: 6013]),
         worker(ViberProtocol.MqManager, [])
       ]
 

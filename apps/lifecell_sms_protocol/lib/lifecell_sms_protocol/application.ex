@@ -24,7 +24,7 @@ defmodule LifecellSmsProtocol.Application do
     children = redis_workers ++ [
       worker(LifecellSmsProtocol, []),
       worker(LifecellSmsProtocol.MqManager, []),
-      Plug.Cowboy.child_spec(scheme: :http, plug: LifecellSmsProtocol.LifecellSmsCallback, options: [port: 6014]),
+      Plug.Cowboy.child_spec(scheme: :http, plug: LifecellSmsProtocol.LifecellSmsCallback, options: [port: 6015]),
       # Starts a worker by calling: LifecellSmsProtocol.Worker.start_link(arg)
       # {LifecellSmsProtocol.Worker, arg},
     ]

@@ -19,13 +19,6 @@ erl_crash.dump
 # Also ignore archive artifacts (built via "mix archive.build").
 *.ez
 
-.idea/
-messages_gateway.iml
-MessagesGateway.API.iml
+# Ignore package tarball (built via "mix hex.build").
+vodafon_sms_protocol-*.tar
 
-log/
-
-dump.rdb
-dev.secret.exs
-
-*.iml

@@ -1,4 +1,4 @@
-defmodule LifecellIpTelephonyProtocol.Application do
+defmodule VodafonSmsProtocol.Application do
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications
   @moduledoc false
@@ -9,20 +9,20 @@ defmodule LifecellIpTelephonyProtocol.Application do
     redis_connects = create_redis_connects()
     # List all child processes to be supervised
     children = redis_connects ++ [
-      worker(LifecellIpTelephonyProtocol.MqManager, []),
-      worker(LifecellIpTelephonyProtocol, [])
-      # Starts a worker by calling: LifecellIpTelephonyProtocol.Worker.start_link(arg)
-      # {LifecellIpTelephonyProtocol.Worker, arg},
+      worker(VodafonSmsProtocol.MqManager, []),
+      worker(VodafonSmsProtocol, [])
+      # Starts a worker by calling: VodafonSmsProtocol.Worker.start_link(arg)
+      # {VodafonSmsProtocol.Worker, arg},
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
-    opts = [strategy: :one_for_one, name: LifecellIpTelephonyProtocol.Supervisor]
+    opts = [strategy: :one_for_one, name: VodafonSmsProtocol.Supervisor]
     Supervisor.start_link(children, opts)
   end
 
   defp create_redis_connects() do
-    config = Application.get_env(:lifecell_ip_telephony_protocol, LifecellIpTelephonyProtocol.RedisManager)
+    config = Application.get_env(:vodafon_sms_protocol, VodafonSmsProtocol.RedisManager)
     hostname = config[:host]
     password = config[:password]
     database = config[:database]
