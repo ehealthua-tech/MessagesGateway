@@ -1,4 +1,4 @@
-defmodule VodafonSmsProtocol.RedisManager do
+defmodule TelegramProtocol.RedisManager do
   @moduledoc false
 
   @spec get(binary) :: {:ok, term} | {:error, binary}
@@ -31,7 +31,7 @@ defmodule VodafonSmsProtocol.RedisManager do
 
   @spec command(list) :: {:ok, term} | {:error, term}
   def command(command) when is_list(command) do
-    pool_size = Application.get_env(:vodafon_sms_protocol, VodafonSmsProtocol.RedisManager)[:pool_size]
+    pool_size = Application.get_env(:telegram_protocol, TelegramProtocol.RedisManager)[:pool_size]
     connection_index = rem(System.unique_integer([:positive]), pool_size)
     {:ok, app_name} = :application.get_application(__MODULE__)
     Redix.command(:"redis_#{Atom.to_string(app_name)}_#{connection_index}", command)

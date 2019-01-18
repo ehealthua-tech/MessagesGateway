@@ -5,6 +5,7 @@ defmodule VodafonSmsProtocol do
 
   use GenServer
   alias VodafonSmsProtocol.RedisManager
+  alias VodafonSmsProtocol.MqManager
 
   @protocol_config %{host: "", port: "",  phone_for_send: "", time_for_send: "", system_id: "", password: ""}
 
@@ -26,9 +27,9 @@ defmodule VodafonSmsProtocol do
         {:ok, submit_sm_resp} <- SMPPEX.ESME.Sync.request(esme, submit_sm),
         message_id <- SMPPEX.Pdu.field(submit_sm_resp, :message_id),
         delivery_report <- wait_delivery_report(message_id),
-        status <- SMPPEX.ESME.Sync.wait_for_pdus(esme, time_for_send)
+        status <- SMPPEX.ESME.Sync.wait_for_pdus(esme, payload.time_for_send)
       do
-        end_sending_messages(status, delivery_report, esme, bind_resp)
+        end_sending_messages(status, delivery_report, esme, bind_resp, payload)
     end
   end
 
@@ -39,21 +40,19 @@ defmodule VodafonSmsProtocol do
     end
   end
 
-  defp end_sending_messages(:stop, delivery_report, esme, bind_resp) do
-    Logger.info("Ooops, ESME stopped")
+  defp end_sending_messages(:stop, delivery_report, esme, bind_resp, payload) do
     MqManager.send_to_operator(Jason.encode!(payload), "message_queue")
   end
 
-  defp end_sending_messages(:timeout, delivery_report, esme, bind_resp) do
-     Logger.info("No DLR in 60 seconds")
+  defp end_sending_messages(:timeout, delivery_report, esme, bind_resp, payload) do
      MqManager.send_to_operator(Jason.encode!(payload), "message_queue")
   end
 
-  defp end_sending_messages(received_items, delivery_report, esme, bind_resp) do
-    for {:pdu, pdu}  <- received_items, delivery_report?.(pdu), do: pdu
+  defp end_sending_messages(received_items, delivery_report, esme, bind_resp, payload) do
+    pdu =for {:pdu, pdu}  <- received_items, delivery_report.(pdu), do: pdu
     case pdu == bind_resp do
       true->
-        message_status_info = RedisManager.get(message_id)
+        message_status_info = RedisManager.get(payload.message_id)
         new_message_status_info = Map.put(message_status_info, :sending_status, true)
         RedisManager.set(payload.message_id, new_message_status_info)
         MqManager.send_to_operator(Jason.encode!(payload), "message_queue")

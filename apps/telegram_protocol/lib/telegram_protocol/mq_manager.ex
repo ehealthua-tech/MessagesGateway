@@ -1,4 +1,4 @@
-defmodule VodafonSmsProtocol.MqManager do
+defmodule TelegramProtocol.MqManager do
     use GenServer
     use AMQP
 
@@ -60,8 +60,8 @@ defmodule VodafonSmsProtocol.MqManager do
     end
 
     def connect(%{queue_name: queue_name} = state) do
-      host = Application.get_env(:vodafon_sms_protocol, :mq_host, "localhost")
-      port = Application.get_env(:vodafon_sms_protocol, :mq_port, 5672)
+      host = Application.get_env(:telegram_protocol, :mq_host, "localhost")
+      port = Application.get_env(:telegram_protocol, :mq_port, 5672)
 
       case Connection.open([host: host, port: port]) do
         {:ok, conn} ->
@@ -74,7 +74,7 @@ defmodule VodafonSmsProtocol.MqManager do
             AMQP.Queue.subscribe chan, queue_name,
               fn(payload, _meta) ->
                 decoded_payload = Jason.decode!(payload, keys: :atoms)
-                VodafonSmsProtocol.send_message(decoded_payload)
+                TelegramProtocol.send_message(decoded_payload)
               end
           %{ state | chan: chan, connected: true, conn: conn, subscribe: sub }
         {:error, _} ->

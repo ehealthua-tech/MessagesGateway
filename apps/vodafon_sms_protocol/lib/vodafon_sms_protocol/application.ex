@@ -7,7 +7,6 @@ defmodule VodafonSmsProtocol.Application do
 
   def start(_type, _args) do
     redis_connects = create_redis_connects()
-    end
     # List all child processes to be supervised
     children = redis_connects ++ [
       worker(VodafonSmsProtocol.MqManager, []),
@@ -23,7 +22,7 @@ defmodule VodafonSmsProtocol.Application do
   end
 
   defp create_redis_connects() do
-    config = Application.get_env(:telegram_protocol, TelegramProtocol.RedisManager)
+    config = Application.get_env(:vodafon_sms_protocol, VodafonSmsProtocol.RedisManager)
     hostname = config[:host]
     password = config[:password]
     database = config[:database]

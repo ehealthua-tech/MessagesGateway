@@ -2,15 +2,27 @@ defmodule LifecellIpTelephonyProtocol do
   @moduledoc """
   Documentation for LifecellIpTelephonyProtocol.
   """
-
+  @protocol_config %{host: "", port: ""}
   use SpeakEx.CallController
+  alias LifecellIpTelephonyProtocol.MqManager
+  alias LifecellIpTelephonyProtocol.RedisManager
+
+  def start_link do
+    GenServer.start_link(__MODULE__, [], name: __MODULE__)
+  end
+
+  def init(_opts) do
+    {:ok, app_name} = :application.get_application(__MODULE__)
+    RedisManager.set(Atom.to_string(app_name), @protocol_config)
+    {:ok, []}
+  end
 
   def send_message(%{phone: phone} = payload) do
     try do
       run(phone)
-#      change_status(payload)
+      end_sending_messages(:success, payload)
     catch
-      _ -> resend(payload)
+      _ -> end_sending_messages(:error, payload)
     end
   end
 
@@ -21,15 +33,14 @@ defmodule LifecellIpTelephonyProtocol do
     |> terminate!
   end
 
-  defp resend(payload) do
-    if payload.priority_list != [] do
-      selected_operator = Enum.min_by(payload.priority_list, fn e -> e.priority end)
-      operator_type_id = selected_operator.operator_type_id
-      new_priority_list = List.delete(payload.priority_list, operator_type_id)
-      LifecellIpTelephony.MqManager.send_to_operator(Jason.encode!(Map.put(payload, :priority_list, new_priority_list)), operator_type_id)
-    else
-      :callback_failed
-    end
+  defp end_sending_messages(:error, payload) do
+    MqManager.send_to_operator(Jason.encode!(payload), "message_queue")
+  end
 
+  defp end_sending_messages(:success, payload) do
+    message_status_info = RedisManager.get(payload.message_id)
+    new_message_status_info = Map.put(message_status_info, :sending_status, true)
+    RedisManager.set(payload.message_id, new_message_status_info)
+    MqManager.send_to_operator(Jason.encode!(payload), "message_queue")
   end
 end

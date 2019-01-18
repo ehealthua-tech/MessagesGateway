@@ -36,3 +36,8 @@ config :vodafon_sms_protocol,  VodafonSmsProtocol.RedisManager,
        port: 6379,
        pool_size: 5
 
+config :vodafon_sms_protocol,
+       namespace: MessagesRouter,
+       mq_host: "localhost",
+       mq_port: 5672,
+       resend_timeout: 30
