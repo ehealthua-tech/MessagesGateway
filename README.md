@@ -376,25 +376,142 @@ body:
 }
 ```
 **operator_delete**
-
-*request:*
-```
-Method: DELETE 
-
-url: HOST:PORT/api/operators/id
-```
-
-*response:*
-```json
-{
-    "data": {
-        "status": "success"
+         
+ *request:*
+ ```
+ Method: DELETE 
+ 
+ url: HOST:PORT/api/operators/id
+ ```
+ 
+ *response:*
+ ```json
+ {
+     "data": {
+         "status": "success"
+     },
+     "meta": {
+         "code": 200,
+         "request_id": "2loi7fu73i0d62nobc000191",
+         "type": "object",
+         "url": "http://192.168.100.165:4011/api/operators/update_priority"
+     }
+ }
+ ```
+ 
+ **send message**
+ 
+ |fields|types|required|
+ |-----|----|--------|
+ |contact|String|required|
+ |body|String|required|
+ |system_id|String|required|
+ |callback_url|String|not required|
+ 
+ *request:*
+ ```
+ Method: POST 
+ 
+ url: HOST:PORT/sending/message
+ ```
+ body:
+ ```json
+ 
+ {"resource": {
+             "contact": "+380631111111",      
+             "body": "hello",
+             "system_id": "1111111",
+             "callback_url": "https://www.google.com"
+         }}
+ 
+ ```
+ *response:*
+ ```json
+{"data": {
+        "message_id": "ddb576a5-27ca-4502-bdf2-f31f940833de",
+        "system_id": "1111111"
     },
     "meta": {
         "code": 200,
-        "request_id": "2loi7fu73i0d62nobc000191",
+        "request_id": "2lttqf04g643qgp6oc000cm1",
         "type": "object",
-        "url": "http://192.168.100.165:4011/api/operators/update_priority"
+        "url": "http://localhost:4011/sending/messagel"
     }
 }
+ ```
+ **send email**
+ 
+ |fields|types|required|
+ |-----|----|--------|
+ |email|String|required|
+ |body|String|required|
+ |system_id|String|required|
+
+ 
+ *request:*
+ ```
+ Method: POST 
+ 
+ url: HOST:PORT/sending/email
+ ```
+ body:
+ ```json
+ 
+ {"resource": {
+             "email": "u@u.u",      
+             "body": "hello",
+             "system_id": "1111111"
+         }}
+ 
+ ```
+ *response:*
+ ```json
+{"data": {
+        "message_id": "ddb576a5-27ca-4502-bdf2-f31f940833de",
+        "system_id": "1111111"
+    },
+    "meta": {
+        "code": 200,
+        "request_id": "2lttqf04g643qgp6oc000cm1",
+        "type": "object",
+        "url": "http://localhost:4011/sending/email"
+    }
+}
+ ```
+ 
+**check status**
+
+|fields|types|required|
+|-----|----|--------|
+|message_id|String|required|
+
+
+*request:*
 ```
+Method: POST 
+
+url: HOST:PORT/sending/status
+```
+body:
+  ```json
+  
+  {"resource": {
+              "message_id": "ddb576a5-27ca-4502-bdf2-f31f940833de"
+          }}
+  
+  ```
+  *response:*
+  ```json
+ {"data": {    
+         "message_id": "ddb576a5-27ca-4502-bdf2-f31f940833de",
+         "message_status": true
+
+     },
+     "meta": {
+         "code": 200,
+         "request_id": "2lttqf04g643qgp6oc000cm1",
+         "type": "object",
+         "url": "http://localhost:4011/sending/status"
+     }
+ }
+  ```
