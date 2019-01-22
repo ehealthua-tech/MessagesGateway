@@ -8,7 +8,13 @@ defmodule MessagesGatewayWeb.SystemConfigController do
   @messages_gateway_conf "system_config"
   @operators_config :operators_config
 
-  #  ---- send a message to the client any available way ------------------------
+  @typep conn()           :: Plug.Conn.t()
+  @typep result()         :: Plug.Conn.t()
+
+  @spec index(conn, params) :: result when
+          conn:   conn(),
+          params: map(),
+          result: result()
 
   def index(conn, _params) do
     with system_config <- RedisManager.get(@messages_gateway_conf)
@@ -17,7 +23,10 @@ defmodule MessagesGatewayWeb.SystemConfigController do
     end
   end
 
-  #  ---- send a message to the client any available way ------------------------
+  @spec add(conn, params) :: result when
+          conn:   conn(),
+          params:  %{"resource": map()},
+          result: result()
 
   def add(conn, %{"resource" => sys_config}) do
     with :ok <- RedisManager.set(@messages_gateway_conf, sys_config)

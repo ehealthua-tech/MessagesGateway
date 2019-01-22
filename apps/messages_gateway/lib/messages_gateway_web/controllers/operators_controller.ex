@@ -11,6 +11,21 @@ defmodule MessagesGatewayWeb.OperatorsController do
   @operator_inactive false
   @operation_info "operators_info"
 
+  @typep conn()           :: Plug.Conn.t()
+  @typep result()         :: Plug.Conn.t()
+  @type operator_info_for_redis()  :: %{
+                                        id: String.t(),
+                                        active: boolean(),
+                                        name: String.t(),
+                                        priority: integer(),
+                                        limit: integer()
+                                        }
+
+  @spec index(conn, params) :: result when
+          conn:   conn(),
+          params: map(),
+          result: result()
+
   def index(conn, _params) do
     with operators <- OperatorsRequests.list_operators()
       do
@@ -18,12 +33,38 @@ defmodule MessagesGatewayWeb.OperatorsController do
     end
   end
 
+  @spec create(conn, create_params) :: result when
+          conn:   conn(),
+          create_params: %{"resource": %{
+            "name": String.t(),
+            "operator_type_id": String.t(),
+            "protocol_name": String.t(),
+            "config": map(),
+            "priority": integer(),
+            "price": integer(),
+            "limit": integer(),
+            "active": boolean()}},
+          result: result()
+
   def create(conn, %{"resource" => operator_info}) do
     status = OperatorsRequests.add_operator(operator_info)
     with {:ok, _} <- status do
       render(conn, "create.json", %{status: "success"})
     end
   end
+
+  @spec change_info(conn, create_params) :: result when
+          conn:   conn(),
+          create_params: %{"resource": %{
+            "id": String.t(),
+            "active": boolean(),
+            "config": map(),
+            "limit": integer(),
+            "name":  String.t(),
+            "operator_type": map(),
+            "price": integer(),
+            "priority": integer()}},
+          result: result()
 
   def change_info(conn, %{"resource" => %{"id" => id, "config" => config} = operator_info}) do
     {_, operator_info_r} = Map.split(operator_info, ["id", "operator_type", "config"])
@@ -36,18 +77,31 @@ defmodule MessagesGatewayWeb.OperatorsController do
     end
   end
 
+  @spec select_operator(list_operators, select_operator_list) :: result when
+          list_operators: [DbAgent.Operators.t()] | [] | {:error, Ecto.Changeset.t()},
+          select_operator_list: [] | [operator_info_for_redis()],
+          result: [] | [operator_info_for_redis()]
+
   def select_operator([], acc), do: acc
   def select_operator([%{operator: operator_struct}| t], acc) do
     operator = Map.from_struct(operator_struct)
-     %{id: operator.id, active: operator.active, name: operator.name,priority: operator.priority, limit: operator.limit}
     select_operator(t, [Map.merge(%{id: operator.id, active: operator.active, name: operator.name,
       priority: operator.priority, limit: operator.limit}, operator.config) | acc])
   end
+
+  @spec add_operators_info_to_redis(list_operators) :: result when
+          list_operators: [] | [operator_info_for_redis()],
+          result: :ok | :error
 
   def add_operators_info_to_redis(list_operators) do
     json = Jason.encode!(list_operators)
     MessagesGateway.RedisManager.set(@operation_info, json)
   end
+
+  @spec delete(conn, delete_params) :: result when
+          conn:   conn(),
+          delete_params: %{"id": String.t()},
+          result: result()
 
   def delete(conn, %{"id" => id}) do
     with {_, nil} <- OperatorsRequests.delete(id)
@@ -56,6 +110,11 @@ defmodule MessagesGatewayWeb.OperatorsController do
     end
   end
 
+  @spec show(conn, show_params) :: result when
+          conn:   conn(),
+          show_params: %{"id": String.t()},
+          result: result()
+
   def show(conn, %{"id" => id}) do
     with result <- OperatorsRequests.operator_by_id(id)
       do
@@ -63,8 +122,17 @@ defmodule MessagesGatewayWeb.OperatorsController do
     end
   end
 
+  @spec convert(value) :: result when
+          value:  map() | any(),
+          result: keyword()
+
   defp convert(map) when is_map(map), do: Enum.map(map, fn {k,v} ->{String.to_atom(k),convert(v)}  end)
   defp convert(v), do: v
+
+  @spec update_priority(conn, update_priority_params) :: result when
+          conn: conn(),
+          update_priority_params: %{"resource": [DbAgent.OperatorsRequests.operator_info_map()]},
+          result: result()
 
   def update_priority(conn, %{"resource" => operator_info}) do
     with {n, new_priority} <- OperatorsRequests.update_priority(operator_info),
@@ -76,6 +144,11 @@ defmodule MessagesGatewayWeb.OperatorsController do
       render(conn, "create.json", %{status: "success"})
     end
   end
+
+  @spec select_operators_id(value, acc) :: result when
+          value:  [DbAgent.Operators.t()] | [] | {:error, Ecto.Changeset.t()},
+          acc: [] | [%{required(String.t()) => %{operator_configs: map(), priority_on_price: integer(), }}],
+          result: [] | [%{required(String.t()) => %{operator_configs: map(), priority_on_price: integer(), }}]
 
   def select_operators_id([], acc), do: acc
   def select_operators_id([%{operator: operator_struct}| t], acc) do

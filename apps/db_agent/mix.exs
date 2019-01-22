@@ -40,7 +40,6 @@ defmodule DbAgent.Mixfile do
     [
       {:postgrex, ">= 0.0.0"},
       {:ecto, "~> 2.1"},
-      {:excoveralls, "~> 0.10", only: :test},
       {:phoenix_ecto, "~> 3.2"},
       {:scrivener_ecto, "~> 1.2"},
       {:jason, "~> 1.0"},
@@ -49,6 +48,7 @@ defmodule DbAgent.Mixfile do
       {:timex, "~> 3.2"},
       {:plug, "~> 1.4"},
       {:ecto_logger_json, git: "https://github.com/edenlabllc/ecto_logger_json.git", branch: "query_params"},
+      {:excoveralls, "~> 0.10", only: :test},
       {:mox, "~> 0.3", only: :test},
       {:ex_machina, "~> 2.0", only: [:dev, :test]}
     ]

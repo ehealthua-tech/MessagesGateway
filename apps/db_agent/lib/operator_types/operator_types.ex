@@ -18,14 +18,6 @@ defmodule DbAgent.OperatorTypes do
                updated_at: NaiveDateTime.t() | nil
              }
 
-  @type operator_types_map :: %{
-                          id: String.t(),
-                          active: boolean,
-                          name:  String.t(),
-                          priority: integer
-                        }
-
-
   schema "operator_types" do
     field(:active, :boolean, default: false)
     field(:name, :string, null: false)
@@ -33,7 +25,11 @@ defmodule DbAgent.OperatorTypes do
     timestamps()
   end
 
-  @spec changeset(operator_types :: t(), map()) :: Ecto.Changeset.t()
+  @spec changeset(operator_types, attrs) :: result when
+          operator_types: t(),
+          attrs: map(),
+          result: Ecto.Changeset.t()
+
   def changeset(operator_types, attrs) do
     operator_types
     |> cast(attrs, [:name, :active, :priority])

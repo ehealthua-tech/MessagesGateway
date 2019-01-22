@@ -36,21 +36,23 @@ defmodule DbAgent.OperatorsRequests do
   @doc """
     Get all operators from database
   """
-  @spec list_operators :: [OperatorsSchema.t()] | [] | {:error, Ecto.Changeset.t()}
+  @spec list_operators() :: result when
+          result: [OperatorsSchema.t()] | [] | {:error, Ecto.Changeset.t()}
+
   def list_operators() do
-    x =
     OperatorsSchema
     |> join(:inner, [op], opt in OperatorTypesSchema, opt.id == op.operator_type_id)
     |> select([op, opt],%{operator: op, operator_type: opt})
     |> Repo.all()
-    :io.format("~nx ~p~n", [x])
-    x
   end
 
   @doc """
     Add operator to database
   """
-  @spec add_operator(params :: OperatorsSchema.operators_map()) :: {:ok, OperatorsSchema.t()} | {:error, Ecto.Changeset.t()}
+  @spec add_operator(params) :: result when
+          params: OperatorsSchema.operators_map(),
+          result: {:ok, OperatorsSchema.t()} | {:error, Ecto.Changeset.t()}
+
   def add_operator(params) do
     %OperatorsSchema{}
     |> OperatorsSchema.changeset(params)
@@ -60,7 +62,11 @@ defmodule DbAgent.OperatorsRequests do
   @doc """
     Change operator data
   """
-  @spec change_operator(id :: String.t(), operator_info :: [operator_info_list()]) :: {integer(), nil | [term()]}
+  @spec change_operator(id, operator_info) :: result when
+        id: String.t(),
+        operator_info: operator_info_list(),
+        result:  {integer(), nil | [term()]}
+
   def change_operator(id, operator_info) do
     OperatorsSchema
     |> where([ot], ot.id == ^id)
@@ -70,7 +76,10 @@ defmodule DbAgent.OperatorsRequests do
   @doc """
     Get operator by name
   """
-  @spec get_by_name(name :: String.t()) :: Ecto.Schema.t() | nil
+  @spec get_by_name(name) :: result when
+          name: String.t(),
+          result: Ecto.Schema.t() | nil
+
   def get_by_name(name) do
     OperatorsSchema
     |> where([op], op.name == ^name)
@@ -80,7 +89,10 @@ defmodule DbAgent.OperatorsRequests do
   @doc """
     Get operator by id
   """
-  @spec operator_by_id(id :: String.t()) :: Ecto.Schema.t() | nil
+  @spec operator_by_id(id) :: result when
+          id: String.t(),
+          result: Ecto.Schema.t() | nil
+
   def operator_by_id(id) do
     OperatorsSchema
     |> where([op], op.id == ^id)
@@ -90,7 +102,10 @@ defmodule DbAgent.OperatorsRequests do
   @doc """
     Get operator by operator type id
   """
-  @spec operator_by_operator_type_id(operator_type_id :: String.t()) :: [Ecto.Schema.t()]
+  @spec operator_by_operator_type_id(operator_type_id) :: result when
+          operator_type_id: String.t(),
+          result: [Ecto.Schema.t()]
+
   def operator_by_operator_type_id(operator_type_id) do
     OperatorsSchema
     |> where([op], op.operator_type_id == ^operator_type_id)
@@ -100,7 +115,10 @@ defmodule DbAgent.OperatorsRequests do
   @doc """
     Delete operator by id
   """
-  @spec delete(id :: String.t()) :: {integer(), nil | [term()]}
+  @spec delete(id) :: result when
+          id: String.t(),
+          result: {integer(), nil | [term()]}
+
   def delete(id) do
     from(p in OperatorsSchema, where: p.id == ^id)
     |> Repo.delete_all()
@@ -109,7 +127,10 @@ defmodule DbAgent.OperatorsRequests do
   @doc """
     Change operator priority
   """
-  @spec update_priority(operators_info :: [operator_info_map()]) :: {:ok, %{:rows => nil | [[term] | binary], :num_rows => non_neg_integer, optional(atom) => any}} | {:error, Exception.t}
+  @spec update_priority(operators_info) :: result when
+          operators_info: [operator_info_map()],
+          result:  {:ok, %{:rows => nil | [[term] | binary], :num_rows => non_neg_integer, optional(atom) => any}} | {:error, Exception.t}
+
   def update_priority(operators_info) do
     values = create_query_values(operators_info, "")
     query  = "UPDATE operators as op
@@ -124,7 +145,11 @@ defmodule DbAgent.OperatorsRequests do
   @doc """
     Create database query
   """
-  @spec create_query_values([operator_info_map()], String.t()) :: binary()
+  @spec create_query_values(operators_info, query) :: result when
+          operators_info: [operator_info_map()],
+          query:  String.t(),
+          result: binary()
+
   defp create_query_values([], acc), do:  binary_part(acc, 1, byte_size(acc) - 1)
   defp create_query_values([%{"id" => id, "priority" => priority, "active" => active}|t], acc) do
     new_acc = Enum.join([acc, ",(uuid('" , id, "'), ", Integer.to_string(priority), ", ", Atom.to_string(active), ")"])

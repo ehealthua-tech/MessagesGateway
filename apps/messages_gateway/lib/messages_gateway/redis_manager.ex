@@ -1,13 +1,12 @@
 defmodule MessagesGateway.RedisManager do
   @moduledoc false
 
-  @spec get(binary) :: {:ok, term} | {:error, binary}
+  @spec get(binary) :: term() | binary()
   def get(key) when is_binary(key), do: command(["GET", key]) |> check_get(key)
 
   defp check_get({:ok, value}, _) when value == nil, do:  {:error, :not_found}
   defp check_get({:ok, value}, _), do: Jason.decode!(value, [keys: :atoms])
   defp check_get({:error, reason} = err, key) do
-    Log.error("[#{__MODULE__}] Fail to get value by key (#{key}) with error #{inspect(reason)}")
     err
   end
 
@@ -18,10 +17,7 @@ defmodule MessagesGateway.RedisManager do
   defp do_set(params), do: command(params) |> check_set(params)
 
   defp check_set({:ok, _}, _), do: :ok
-  defp check_set({:error, reason} = err, params) do
-    Log.error("[#{__MODULE__}] Fail to set with params #{inspect(params)} with error #{inspect(reason)}")
-    err
-  end
+  defp check_set({:error, reason} = err, params), do: :error
 
   def keys(key) when is_binary(key) do
     case command(["KEYS", key]) do

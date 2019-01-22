@@ -48,7 +48,11 @@ defmodule DbAgent.Operators do
     timestamps()
   end
 
-  @spec changeset(operators :: t(), map()) :: Ecto.Changeset.t()
+  @spec changeset(operators, attrs) :: result when
+          operators: t(),
+          attrs: map(),
+          result: Ecto.Changeset.t()
+
   def changeset(operators, attrs) do
     operators
     |> cast(attrs, [:name, :operator_type_id, :config, :priority, :price, :limit, :protocol_name, :active])

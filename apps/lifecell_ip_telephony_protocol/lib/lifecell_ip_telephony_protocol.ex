@@ -28,9 +28,9 @@ defmodule LifecellIpTelephonyProtocol do
 
   def run(call) do
     call
-    |> answer!
-    |> hangup!
-    |> terminate!
+    |> answer
+    |> hangup
+    |> terminate
   end
 
   defp end_sending_messages(:error, payload) do

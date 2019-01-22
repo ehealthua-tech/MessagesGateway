@@ -1,4 +1,4 @@
-defmodule ViberProtocol.MqManager do
+defmodule SmsRouter.MqManager do
   use GenServer
   use AMQP
 
@@ -73,7 +73,7 @@ defmodule ViberProtocol.MqManager do
         {ok, sub} = AMQP.Queue.subscribe chan, queue_name,
                                          fn(payload, _meta) ->
                                            decoded_payload = Jason.decode!(payload)
-                                           ViberProtocol.send_message(decoded_payload)
+                                           SmsRouter.check_and_send(decoded_payload)
                                          end
         %{ state | chan: chan, connected: true, conn: conn, subscribe: sub }
       {:error, _} ->

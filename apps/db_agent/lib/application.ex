@@ -9,7 +9,11 @@ defmodule DbAgent.Application do
   """
   use Application
 
-  @spec start(atom(), :permanent | :transient | :temporary) :: {:ok, pid()} | {:ok, pid(), any()} | {:error, term()}
+  @spec start(type, args) :: result when
+          type: atom(),
+          args: :permanent | :transient | :temporary,
+          result: {:ok, pid()} | {:ok, pid(), any()} | {:error, term()}
+
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
 

@@ -13,7 +13,8 @@ defmodule MessagesGateway.Mixfile do
       elixirc_paths: elixirc_paths(Mix.env),
       compilers: [:phoenix, :gettext] ++ Mix.compilers,
       start_permanent: Mix.env == :prod,
-      deps: deps()
+      deps: deps(),
+      dialyzer: [plt_add_apps: [:ex_unit]]
     ]
   end
 
@@ -37,18 +38,22 @@ defmodule MessagesGateway.Mixfile do
   defp deps do
     [
       {:db_agent, in_umbrella: true},
-      {:smtp_protocol, in_umbrella: true},
+
       {:phoenix, "~> 1.3.4"},
       {:phoenix_pubsub, "~> 1.0"},
       {:phoenix_html, "~> 2.10"},
       {:phoenix_live_reload, "~> 1.0", only: :dev},
       {:gettext, "~> 0.11"},
-      {:amqp, "~> 1.0"},
+      {:amqp, "~> 1.1.0"},
       {:eview, "~> 0.12"},
       {:redix, ">= 0.0.0"},
       {:jason, "~> 1.1"},
       {:plug_logger_json, "~> 0.5"},
-      {:plug_cowboy, "~> 1.0"}
+      {:plug_cowboy, "~> 1.0"},
+      {:dialyxir, "~> 1.0.0-rc.3", only: [:dev, :test], runtime: false},
+      {:excoveralls, "~> 0.10", only: :test},
+      {:mox, "~> 0.3", only: :test},
+      {:ex_machina, "~> 2.0", only: [:dev, :test]}
     ]
   end
 end

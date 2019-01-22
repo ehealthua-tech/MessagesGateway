@@ -3,6 +3,7 @@ defmodule SmsRouter do
   Documentation for SmsRouter.
   """
   alias SmsRouter.RedisManager
+  alias SmsRouter.MqManager
   alias DbAgent.ContactsRequests
 
   @operator_codes :operator_codes
@@ -10,7 +11,7 @@ defmodule SmsRouter do
 
   def check_and_send(message) do
     {operator_id, operator_config} = search_contact_in_db(message)
-    MqSubscriber.send_to_operator(message, operator_id)
+    MqManager.send_to_operator(message, operator_id)
   end
 
   defp search_contact_in_db(message) do

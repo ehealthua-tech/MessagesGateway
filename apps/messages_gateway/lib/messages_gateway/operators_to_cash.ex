@@ -26,7 +26,7 @@ defmodule MessagesGateway.OperatorsToCash do
 
   def add_operators_info_to_redis(list_operators) do
     json = Jason.encode!(list_operators)
-    Processes.spawn(MessagesGateway.RedisManager.set("operators_info", json))
+    spawn(MessagesGateway.RedisManager.set("operators_info", json))
     :ok
   end
 

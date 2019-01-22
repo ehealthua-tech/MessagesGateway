@@ -8,29 +8,45 @@ defmodule MessagesGatewayWeb.MessageController do
 
   action_fallback(MessagesGatewayWeb.FallbackController)
 
-#  ---- send a message to the client any available way ------------------------
+  #  ---- Types ---------------------------------------------------------------
+  @typep conn()           :: Plug.Conn.t()
+  @typep result()         :: Plug.Conn.t()
+
+  @type message_request_body_with_callback() :: %{"contact": String.t(), "body": String.t(), "callback_url": String.t()}
+  @type message_request_body_without_callback() :: %{"contact": String.t(), "body": String.t()}
+  @type message_request_body() ::  message_request_body_without_callback() | message_request_body_with_callback()
+  @type message_request() :: %{"resource": message_request_body()}
+
+  @type email_request_body() :: %{"email": String.t(), "body": String.t(), "subject": String.t()}
+  @type email_request :: %{"resource": email_request_body}
+
+  @type check_status_request_body() :: %{"message_id": String.t()}
+  @type check_status_request() :: %{"resource": check_status_request_body()}
+
+  @type change_status_request_body() :: %{"message_id": String.t()}
+  @type change_status_request() :: %{"resource": change_status_request_body()}
+
+  #  ---- send a message to the client any available way ----------------------
+
+  @spec new_message(conn, new_message_params) :: result when
+          conn: conn(),
+          new_message_params: message_request(),
+          result: result()
 
   def new_message(conn, %{"resource" => %{"contact" => contact, "body" => body} = resource}) do
     with {:ok, priority_list} <- Prioritization.get_message_priority_list(),
          {:ok, message_id} <- add_to_db_and_queue(resource, priority_list)
       do
-      :io.format("~nmessage_id: ~p~n", [message_id])
       render(conn, "index.json", message_id: message_id)
     end
   end
 
-#  ---- send a message to the client only by SMS way --------------------------
-
-  def new_sms(conn, %{"resource" => %{"contact" => phone, "body" => body} = resource}) do
-    with {:ok, priority_list} <- Prioritization.get_message_priority_list(),
-         {:ok, message_id} <- add_to_db_and_queue(resource, priority_list)
-      do
-      render(conn, "index.json", %{message_id: message_id})
-    end
-
-  end
-
 #  ---- send only e-mail ------------------------------------------------------
+
+  @spec new_email(conn, new_email_params) :: result when
+          conn:   conn(),
+          new_email_params: email_request(),
+          result: result()
 
   def new_email(conn, %{"resource" => %{"email" => email, "body" => body, "subject" => subject} = resource}) do
     with {:ok, priority_list} <- Prioritization.get_smtp_priority_list(),
@@ -42,8 +58,12 @@ defmodule MessagesGatewayWeb.MessageController do
 
   end
 
-
 # ---- Check message status ---------------------------------------------------------
+
+  @spec message_status(conn, message_status_params) :: result when
+          conn:   conn(),
+          message_status_params: check_status_request(),
+          result: result()
 
   def message_status(conn, %{"resource" => %{"message_id" => message_id}}) do
     with message_info <- MessagesGateway.RedisManager.get(message_id)
@@ -53,6 +73,11 @@ defmodule MessagesGatewayWeb.MessageController do
   end
 
 # ---- Change message status ---------------------------------------------------------
+
+  @spec change_message_status(conn, change_message_status_params) :: result when
+          conn:   conn(),
+          change_message_status_params: change_status_request(),
+          result: result()
 
   def change_message_status(conn, %{"resource" => %{"message_id" => message_id, "sending_active" => active}}) do
     with {:ok, json_body} <- Jason.encode(%{sending_status: active}),
@@ -64,32 +89,52 @@ defmodule MessagesGatewayWeb.MessageController do
   end
 
 # ---- Help functions ---------------------------------------------------------
+  @spec add_to_db_and_queue(resource, priority_list) :: result when
+          resource: message_request_body(),
+          priority_list: Prioritization.priority_list(),
+          result: {:ok, String.t()}
 
   def add_to_db_and_queue( %{"contact" => phone, "body" => body} = resource, priority_list) do
     with {:ok, message_id} <- UUID.generate_uuid(),
          :ok <- add_to_redis(message_id, %{active: @sending_start_status, sending_status: @status_not_send}),
-         :ok <- add_to_message_queue(message_id, %{message_id: message_id, contact: phone, body: body,
+         :ok <- add_to_message_queue(%{message_id: message_id, contact: phone, body: body,
            callback_url: Map.get(resource, "callback_url", ""), priority_list: priority_list})
       do
         {:ok, message_id}
     end
   end
 
+  @spec add_email_to_db_and_queue(contact, body, subject, priority_list) :: result when
+          contact: String.t(),
+          body: String.t(),
+          subject: String.t(),
+          priority_list: Prioritization.priority_list(),
+          result: {:ok, String.t()}
+
   def add_email_to_db_and_queue(contact, body, subject, priority_list) do
     with {:ok, message_id} <- UUID.generate_uuid(),
          :ok <- add_to_redis(message_id, %{active: @sending_start_status, sending_status: @status_not_send}),
-         :ok <- add_to_message_queue(message_id, %{message_id: message_id, contact: contact, body: body, callback_url: "",
+         :ok <- add_to_message_queue(%{message_id: message_id, contact: contact, body: body, callback_url: "",
            priority_list: priority_list, subject: subject})
       do
       {:ok, message_id}
     end
   end
 
+  @spec add_to_redis(message_id, body) :: result when
+          message_id: String.t(),
+          body: map(),
+          result: :ok | :error
+
   def add_to_redis(message_id, body) do
     MessagesGateway.RedisManager.set(message_id, body)
   end
 
-  def add_to_message_queue(message_id, body) do
+  @spec add_to_message_queue(body) :: result when
+          body: map(),
+          result: term()
+
+  def add_to_message_queue(body) do
     Jason.encode!(body)
     |> MessagesGateway.MqManager.publish()
   end

@@ -7,7 +7,6 @@ defmodule TelegramProtocol.RedisManager do
   defp check_get({:ok, value}, _) when value == nil, do:  {:error, :not_found}
   defp check_get({:ok, value}, _), do: Jason.decode!(value, [keys: :atoms])
   defp check_get({:error, reason} = err, key) do
-    Log.error("[#{__MODULE__}] Fail to get value by key (#{key}) with error #{inspect(reason)}")
     err
   end
 
@@ -19,7 +18,6 @@ defmodule TelegramProtocol.RedisManager do
 
   defp check_set({:ok, _}, _), do: :ok
   defp check_set({:error, reason} = err, params) do
-    Log.error("[#{__MODULE__}] Fail to set with params #{inspect(params)} with error #{inspect(reason)}")
     err
   end
 
