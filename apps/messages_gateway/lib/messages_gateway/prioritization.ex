@@ -6,6 +6,10 @@ defmodule MessagesGateway.Prioritization do
   @operators_config "operators_config"
   @first_priority 1
 
+
+  @spec get_message_priority_list() :: result when
+          result: {:ok, MessagesGatewayInit.priority_list()}
+
   def get_message_priority_list() do
     with messages_gateway_conf <- RedisManager.get(@messages_gateway_conf),
         priority_list <- RedisManager.get(@operators_config)
@@ -13,6 +17,9 @@ defmodule MessagesGateway.Prioritization do
         {:ok, priority_list}
     end
   end
+
+  @spec get_smtp_priority_list() :: result when
+          result: {:ok, MessagesGatewayInit.priority_list()}
 
   def get_smtp_priority_list() do
     with messages_gateway_conf <- RedisManager.get(@messages_gateway_conf),
@@ -22,6 +29,10 @@ defmodule MessagesGateway.Prioritization do
       {:ok, priority_list}
     end
   end
+
+  @spec get_priority_list(protocol_name) :: result when
+          protocol_name: String.t(),
+          result: {:ok, MessagesGatewayInit.priority_list()}
 
   def get_priority_list(protocol_name) do
     with {:ok, operators_type_config} <- RedisManager.get(@operators_config) do

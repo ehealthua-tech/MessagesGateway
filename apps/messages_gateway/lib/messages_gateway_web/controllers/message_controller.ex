@@ -91,7 +91,7 @@ defmodule MessagesGatewayWeb.MessageController do
 # ---- Help functions ---------------------------------------------------------
   @spec add_to_db_and_queue(resource, priority_list) :: result when
           resource: message_request_body(),
-          priority_list: Prioritization.priority_list(),
+          priority_list: MessagesGatewayInit.priority_list(),
           result: {:ok, String.t()}
 
   def add_to_db_and_queue( %{"contact" => phone, "body" => body} = resource, priority_list) do

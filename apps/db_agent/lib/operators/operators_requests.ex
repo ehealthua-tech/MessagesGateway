@@ -32,12 +32,13 @@ defmodule DbAgent.OperatorsRequests do
                                price: integer,
                                priority: integer
                              ]
+  @type operators_list() :: %{operator: OperatorsSchema.t(), operator_type: OperatorTypesSchema.t() }
 
   @doc """
     Get all operators from database
   """
   @spec list_operators() :: result when
-          result: [OperatorsSchema.t()] | [] | {:error, Ecto.Changeset.t()}
+          result: [operators_list()] | [] | {:error, Ecto.Changeset.t()}
 
   def list_operators() do
     OperatorsSchema

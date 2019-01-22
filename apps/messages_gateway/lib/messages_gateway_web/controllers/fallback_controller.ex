@@ -17,7 +17,7 @@ defmodule MessagesGatewayWeb.FallbackController do
   def call(conn, {:error, :access_denied}) do
     conn
     |> put_status(:unauthorized)
-    |> render(Error, :"401")
+    |> render(Error, :"401", %{message: :access_denied})
   end
 
   def call(conn, {:error, {:access_denied, reason}}) when is_map(reason) do
@@ -41,7 +41,7 @@ defmodule MessagesGatewayWeb.FallbackController do
   def call(conn, {:error, :forbidden}) do
     conn
     |> put_status(:forbidden)
-    |> render(Error, :"403")
+    |> render(Error, :"403", %{message: :forbidden})
   end
 
   def call(conn, {:error, {:forbidden, reason}}) when is_map(reason) do
@@ -59,13 +59,13 @@ defmodule MessagesGatewayWeb.FallbackController do
   def call(conn, {:error, :not_found}) do
     conn
     |> put_status(:not_found)
-    |> render(Error, :"404")
+    |> render(Error, :"404", %{message: :not_found})
   end
 
   def call(conn, nil) do
     conn
     |> put_status(:not_found)
-    |> render(Error, :"404")
+    |> render(Error, :"404", %{message: :not_found})
   end
 
   def call(conn, {:error, {:conflict, reason}}) do

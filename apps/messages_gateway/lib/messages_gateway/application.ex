@@ -3,7 +3,11 @@ defmodule MessagesGateway.Application do
 
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications
-  @spec start(Application.start_type(), list) :: Supervisor.on_start()
+  @spec start(type, args) :: result when
+          type: Application.start_type(),
+          args: list,
+          result: {:ok, pid()} | {:error, {:already_started, pid()} | {:shutdown, term()} | term()}
+
   def start(_type, _args) do
     import Supervisor.Spec
 
@@ -24,18 +28,11 @@ defmodule MessagesGateway.Application do
     end
     # Define workers and child supervisors to be supervised
     children = redis_workers ++ [
-      # Start the endpoint when the application starts
-#      worker(MessagesGateway.OperatorsToCash, []),
       supervisor(MessagesGatewayWeb.Endpoint, []),
       worker(MessagesGateway.MqManager, []),
       worker(MessagesGatewayInit, [])
-      # mq = MessagesGatewayWeb.MqManager
-      # Start your own worker by calling: MessagesGateway.Worker.start_link(arg1, arg2, arg3)
-      # worker(MessagesGateway.Worker, [arg1, arg2, arg3]),
     ]
 
-    # See https://hexdocs.pm/elixir/Supervisor.html
-    # for other strategies and supported options
     opts = [strategy: :one_for_one, name: MessagesGateway.Supervisor]
     Supervisor.start_link(children, opts)
 
@@ -43,6 +40,12 @@ defmodule MessagesGateway.Application do
 
   # Tell Phoenix to update the endpoint configuration
   # whenever the application is updated.
+  @spec config_change(changed, new, removed) :: result when
+          changed: keyword(),
+          new: keyword(),
+          removed: [atom()],
+          result: :ok
+
   def config_change(changed, _new, removed) do
     MessagesGatewayWeb.Endpoint.config_change(changed, removed)
     :ok
