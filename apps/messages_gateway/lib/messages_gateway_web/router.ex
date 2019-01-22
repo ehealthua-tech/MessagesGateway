@@ -33,7 +33,8 @@ defmodule MessagesGatewayWeb.Router do
     end
   end
 
-  scope "/sending" do
+  scope "/sending", MessagesGatewayWeb do
+    pipe_through :api
     post "/message", MessageController, :new_message
     post "/email", MessageController, :new_email
     post "/status", MessageController, :message_status

@@ -148,6 +148,8 @@ defmodule TelegramProtocol do
   def handle_info({:recv, %Object.UpdateChatReadOutbox{chat_id: chat_id, last_read_outbox_message_id: last_read_outbox_message_id}},  %{messages: %{message_id: message_id} = payload} = state) do
     message_info = MessagesGateway.RedisManager.get(payload.message_id)
     MessagesGateway.RedisManager.set(payload.message_id, Jason.encode!(Map.put(message_info, "telegram_sending_status", true)))
+    url = Application.get_env(:telegram_protocol, :elasticsearch_url)
+    HTTPoison.post(Enum.join([url, "/telegram/log/", message_id]), Jason.encode!(%{:status => "sent"}), [{"Content-Type", "application/json"}])
     {:noreply, state}
   end
 

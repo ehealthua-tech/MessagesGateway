@@ -23,7 +23,9 @@ defmodule SmtpProtocol do
     {:ok, []}
   end
 
-  def send_email(%{contact: recipient, body: body, subject: subject}) do
+  def send_email(%{message_id: message_id, contact: recipient, body: body, subject: subject}) do
     SmtpProtocol.Email.email(recipient, subject, body) |> SmtpProtocol.Mailer.deliver_now
+    url = Application.get_env(:smtp_protocol, :elasticsearch_url)
+    HTTPoison.post(Enum.join([url, "/log/", message_id]), Jason.encode!(%{:status => "sent"}), [{"Content-Type", "application/json"}])
   end
 end
