@@ -10,11 +10,11 @@ use Mix.Config
 
 # You can configure your application as:
 #
-#     config :lifecell_ip_telephony_protocol, key: :value
+#     config :vodafon_sms_protocol, key: :value
 #
 # and access this configuration in your application as:
 #
-#     Application.get_env(:lifecell_ip_telephony_protocol, :key)
+#     Application.get_env(:vodafon_sms_protocol, :key)
 #
 # You can also configure a 3rd-party app:
 #
@@ -28,20 +28,16 @@ use Mix.Config
 # here (which is why it is important to import them last).
 #
 #     import_config "#{Mix.env()}.exs"
-config :ex_ami,
-       servers: [
-         {:asterisk, [
-           {:connection, {ExAmi.TcpConnection, [
-             {:host, "127.0.0.1"}, {:port, 5038}
-           ]}},
-           {:username, "elixirconf"},
-           {:secret, "elixirconf"}
-         ]} ]
 
-
-config :lifecell_ip_telephony_protocol,  LifecellIpTelephonyProtocol.RedisManager,
+config :vodafon_sms_protocol,  VodafonSmsProtocol.RedisManager,
        host: "127.0.0.1",
        database: "1",
        password: nil,
        port: 6379,
        pool_size: 5
+
+config :vodafon_sms_protocol,
+       namespace: MessagesRouter,
+       mq_host: "localhost",
+       mq_port: 5672,
+       resend_timeout: 30

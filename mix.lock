@@ -64,6 +64,7 @@
   "redix": {:hex, :redix, "0.9.0", "c631c921354587e054bf1e2a6b7d0120d617352fc42b624b9ca79ea484d0326c", [:mix], [], "hexpm"},
   "scrivener": {:hex, :scrivener, "2.5.0", "e1f78c62b6806d91cc9c4778deef1ea4e80aa9fadfce2c16831afe0468cc8a2c", [:mix], [], "hexpm"},
   "scrivener_ecto": {:hex, :scrivener_ecto, "1.3.0", "69698428e22810ac8a47abc12d1df5b2f5d8f6b36dc5d5bfe6dd93fde857c576", [:mix], [{:ecto, "~> 2.0", [hex: :ecto, repo: "hexpm", optional: false]}, {:postgrex, "~> 0.11.0 or ~> 0.12.0 or ~> 0.13.0", [hex: :postgrex, repo: "hexpm", optional: true]}, {:scrivener, "~> 2.4", [hex: :scrivener, repo: "hexpm", optional: false]}], "hexpm"},
+  "smppex": {:hex, :smppex, "2.2.9", "7aba8b04af2407f2505e786cab3349edd638af10243d743c8cf3eda78c30967e", [:mix], [{:ranch, "~> 1.3", [hex: :ranch, repo: "hexpm", optional: false]}], "hexpm"},
   "speak_ex": {:hex, :speak_ex, "0.3.0", "7d95564392f06ecb6129e629b0a3a9b8b2d88a1a7893af3b3bc12519df084b95", [:mix], [{:ex_ami, "~> 0.1", [hex: :ex_ami, repo: "hexpm", optional: false]}], "hexpm"},
   "ssl_verify_fun": {:hex, :ssl_verify_fun, "1.1.4", "f0eafff810d2041e93f915ef59899c923f4568f4585904d010387ed74988e77b", [:make, :mix, :rebar3], [], "hexpm"},
   "sweet_xml": {:hex, :sweet_xml, "0.6.5", "dd9cde443212b505d1b5f9758feb2000e66a14d3c449f04c572f3048c66e6697", [:mix], [], "hexpm"},
