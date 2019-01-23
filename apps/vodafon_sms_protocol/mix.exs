@@ -32,6 +32,7 @@ defmodule VodafonSmsProtocol.MixProject do
       {:plug_cowboy, "~> 1.0"},
       {:smppex, "~> 2.0"},
       {:redix, ">= 0.0.0"},
+      {:amqp, "~> 1.0"},
       {:ex_doc, "~> 0.19", only: :dev, runtime: false}
 
     ]

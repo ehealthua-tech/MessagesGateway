@@ -28,7 +28,8 @@ defmodule SmsRouter.MixProject do
     [
 
         {:db_agent, in_umbrella: true},
-        {:jason, "~> 1.1"}
+        {:jason, "~> 1.1"},
+        {:amqp, "~> 1.0"}
 
     ]
   end
