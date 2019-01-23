@@ -91,14 +91,14 @@ defmodule MessagesGatewayWeb.MessageController do
 # ---- Help functions ---------------------------------------------------------
   @spec add_to_db_and_queue(resource, priority_list) :: result when
           resource: message_request_body(),
-          priority_list: MessagesGatewayInit.priority_list(),
+          priority_list: MessagesGatewayInit.priority_list() | {:error, any()},
           result: {:ok, String.t()}
-
+  def add_to_db_and_queue( _, {:error, _} = res), do: res
   def add_to_db_and_queue( %{"contact" => phone, "body" => body} = resource, priority_list) do
     with {:ok, message_id} <- UUID.generate_uuid(),
          :ok <- add_to_redis(message_id, %{active: @sending_start_status, sending_status: @status_not_send}),
          :ok <- add_to_message_queue(%{message_id: message_id, contact: phone, body: body,
-           callback_url: Map.get(resource, "callback_url", ""), priority_list: priority_list})
+           callback_url: Map.get(resource, "callback_url", ""), priority_list: priority_list}, priority_list)
       do
         {:ok, message_id}
     end
@@ -115,7 +115,7 @@ defmodule MessagesGatewayWeb.MessageController do
     with {:ok, message_id} <- UUID.generate_uuid(),
          :ok <- add_to_redis(message_id, %{active: @sending_start_status, sending_status: @status_not_send}),
          :ok <- add_to_message_queue(%{message_id: message_id, contact: contact, body: body, callback_url: "",
-           priority_list: priority_list, subject: subject})
+           priority_list: priority_list, subject: subject}, priority_list)
       do
       {:ok, message_id}
     end
@@ -130,13 +130,15 @@ defmodule MessagesGatewayWeb.MessageController do
     MessagesGateway.RedisManager.set(message_id, body)
   end
 
-  @spec add_to_message_queue(body) :: result when
+  @spec add_to_message_queue(body, priority) :: result when
           body: map(),
+          priority: Prioritization.priority_list(),
           result: term()
 
-  def add_to_message_queue(body) do
-    Jason.encode!(body)
-    |> MessagesGateway.MqManager.publish()
+  def add_to_message_queue(body, priority) do
+    body_json = Jason.encode!(body)
+    priority_json = Jason.encode!(priority)
+    MessagesGateway.MqManager.publish(body_json, priority_json)
   end
 
 end

@@ -8,7 +8,7 @@ defmodule MessagesGateway.Prioritization do
 
 
   @spec get_message_priority_list() :: result when
-          result: {:ok, MessagesGatewayInit.priority_list()}
+          result: {:ok, {:error, any()} | MessagesGatewayInit.priority_list()}
 
   def get_message_priority_list() do
     with messages_gateway_conf <- RedisManager.get(@messages_gateway_conf),
@@ -19,23 +19,22 @@ defmodule MessagesGateway.Prioritization do
   end
 
   @spec get_smtp_priority_list() :: result when
-          result: {:ok, MessagesGatewayInit.priority_list()}
+          result: {:ok,  {:error, any()} | MessagesGatewayInit.priority_list()}
 
   def get_smtp_priority_list() do
     with messages_gateway_conf <- RedisManager.get(@messages_gateway_conf),
          priority_list <- RedisManager.get(@operators_config)
       do
-      :io.format("~npriority_list: ~p~n", [priority_list])
-      {:ok, priority_list}
+        {:ok, priority_list}
     end
   end
 
   @spec get_priority_list(protocol_name) :: result when
           protocol_name: String.t(),
-          result: {:ok, MessagesGatewayInit.priority_list()}
+          result: {:ok,  [nil] | [MessagesGatewayInit.priority_list()]}
 
   def get_priority_list(protocol_name) do
-    with {:ok, operators_type_config} <- RedisManager.get(@operators_config) do
+    with operators_type_config <- RedisManager.get(@operators_config) do
       {:ok, [Enum.find(operators_type_config, fn x -> x.protocol_name == protocol_name end)]}
     end
   end
