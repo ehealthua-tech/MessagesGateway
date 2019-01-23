@@ -31,12 +31,13 @@ defmodule MessagesGatewayWeb.Router do
     scope "/system_config" do
       resources "/", SystemConfigController, except: [:new, :edit, :update, :create, :delete, :show]
     end
+  end
 
-    post "/send_message", MessageController, :new_message
-    post "/send_sms", MessageController, :new_sms
-    post "/send_email", MessageController, :new_email
-    post "/message_status", MessageController, :message_status
-
+  scope "/sending", MessagesGatewayWeb do
+    pipe_through :api
+    post "/message", MessageController, :new_message
+    post "/email", MessageController, :new_email
+    post "/status", MessageController, :message_status
   end
 
 end
