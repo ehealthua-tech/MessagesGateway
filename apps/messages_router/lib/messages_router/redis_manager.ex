@@ -1,12 +1,18 @@
 defmodule MessagesRouter.RedisManager do
   @moduledoc false
 
-  @spec get(binary) :: {:ok, term} | {:error, binary}
+  @spec get(binary) :: term | {:error, binary}
   def get(key) when is_binary(key), do: command(["GET", key]) |> check_get(key)
 
+  @spec check_get({:ok, nil} | {:ok, map()} | {:error, term()}, term()) :: {:error, :not_found} | map() | {:error, term()}
   defp check_get({:ok, value}, _) when value == nil, do:  {:error, :not_found}
   defp check_get({:ok, value}, _), do: Jason.decode!(value, [keys: :atoms])
+<<<<<<< HEAD:apps/messages_router/lib/redis_manager.ex
   defp check_get({:error, reason} = err, key) do
+=======
+  defp check_get({:error, _reason} = err, _key) do
+    :io.format("~n~nerr:~n~p~n~n",[err])
+>>>>>>> staging:apps/messages_router/lib/messages_router/redis_manager.ex
     err
   end
 
@@ -16,14 +22,20 @@ defmodule MessagesRouter.RedisManager do
   @spec do_set(list) :: :ok | {:error, binary}
   defp do_set(params), do: command(params) |> check_set(params)
 
+  @spec check_set({:ok, term} | {:error, term}, term()) :: :ok | {:error, term()}
   defp check_set({:ok, _}, _), do: :ok
+<<<<<<< HEAD:apps/messages_router/lib/redis_manager.ex
   defp check_set({:error, reason} = err, params) do
+=======
+  defp check_set({:error, _reason} = err, _params) do
+>>>>>>> staging:apps/messages_router/lib/messages_router/redis_manager.ex
     err
   end
 
   @spec del(binary) :: {:ok, non_neg_integer} | {:error, binary}
   def del(key) when is_binary(key), do:  command(["DEL", key]) |> check_del()
 
+  @spec check_del({:ok, term} | term()) :: {:ok, term()} | term()
   defp check_del({:ok, n}) when n >= 1, do: {:ok, n}
   defp check_del(err), do: err
 
