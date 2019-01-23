@@ -17,6 +17,8 @@ defmodule TelegramProtocol do
     {:ok, app_name} = :application.get_application(__MODULE__)
     RedisManager.set(Atom.to_string(app_name), @protocol_config)
     TelegramProtocol.start_telegram_lib
+    url = Application.get_env(:telegram_protocol, :elasticsearch_url)
+    HTTPoison.post(Enum.join([url, "/log"]), Jason.encode!(%{status: "protocol started"}), [{"Content-Type", "application/json"}])
     {:ok, []}
   end
 
@@ -149,7 +151,7 @@ defmodule TelegramProtocol do
     message_info = MessagesGateway.RedisManager.get(payload.message_id)
     MessagesGateway.RedisManager.set(payload.message_id, Jason.encode!(Map.put(message_info, "telegram_sending_status", true)))
     url = Application.get_env(:telegram_protocol, :elasticsearch_url)
-    HTTPoison.post(Enum.join([url, "/telegram/log/", message_id]), Jason.encode!(%{:status => "sent"}), [{"Content-Type", "application/json"}])
+    HTTPoison.post(Enum.join([url, "/log/", message_id]), Jason.encode!(%{:status => "sent"}), [{"Content-Type", "application/json"}])
     {:noreply, state}
   end
 

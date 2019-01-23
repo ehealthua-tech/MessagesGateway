@@ -20,6 +20,8 @@ defmodule SmtpProtocol do
   def init(_opts) do
     {:ok, app_name} = :application.get_application(__MODULE__)
     RedisManager.set(Atom.to_string(app_name), @protocol_config)
+    url = Application.get_env(:smtp_protocol, :elasticsearch_url)
+    HTTPoison.post(Enum.join([url, "/log"]), Jason.encode!(%{status: "protocol started"}), [{"Content-Type", "application/json"}])
     {:ok, []}
   end
 

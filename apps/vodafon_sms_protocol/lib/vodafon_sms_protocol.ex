@@ -14,6 +14,8 @@ defmodule VodafonSmsProtocol do
   end
 
   def init(_opts) do
+    url = Application.get_env(:vodafon_sms_protocol, :elasticsearch_url)
+    HTTPoison.post(Enum.join([url, "/log"]), Jason.encode!(%{status: "protocol started"}), [{"Content-Type", "application/json"}])
     {:ok, []}
   end
 
