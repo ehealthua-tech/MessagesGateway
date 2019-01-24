@@ -34,9 +34,11 @@ config :sms_router,
        mq_host: "localhost",
        mq_port: 5672
 
-config :messages_gateway, SmsRouter.RedisManager,
+config :sms_router, SmsRouter.RedisManager,
        host: "127.0.0.1",
        database: "1",
        password: nil,
        port: 6379,
        pool_size: 5
+
+config :sms_router, elasticsearch_url: "http://192.168.100.165:9200"

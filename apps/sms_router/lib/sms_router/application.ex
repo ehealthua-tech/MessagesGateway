@@ -7,7 +7,7 @@ defmodule SmsRouter.Application do
 
   def start(_type, _args) do
     import Supervisor.Spec
-    config = Application.get_env(:messages_gateway,  SmsRouter.RedisManager)
+    config = Application.get_env(:sms_router,  SmsRouter.RedisManager)
     hostname = config[:host]
     password = config[:password]
     database = config[:database]

@@ -8,3 +8,5 @@ config :db_agent, DbAgent.Repo,
        database: "messages_gateway",
        hostname: "localhost",
        pool_size: 10
+
+config :db_agent, elasticsearch_url: "http://192.168.100.165:9200"
