@@ -22,7 +22,7 @@ defmodule SmsRouter.Application do
       )
     end
     children = [
-    worker(SmsRouterSubscriber, []) | redis_workers
+    worker(SmsRouter.MqManager, []) | redis_workers
       # Starts a worker by calling: SmsRouter.Worker.start_link(arg)
       # {SmsRouter.Worker, arg},
     ]
