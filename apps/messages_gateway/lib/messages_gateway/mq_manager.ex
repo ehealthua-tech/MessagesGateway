@@ -20,9 +20,10 @@ defmodule MessagesGateway.MqManager do
   end
 
   def handle_call({:publish, message}, _, %{chan: chan, connected: true, queue_name: queue_name} = state) do
-    :io.format("~nmessage: ~p~n", [message])
     result = Basic.publish(chan, "", @queue, message, [persistent: true, priority: 0])
-    :io.format("~nresult: ~p~n", [result])
+    url = Application.get_env(:messages_gateway, :elasticsearch_url)
+    message_id = Map.get(Jason.decode!(message), "message_id")
+    HTTPoison.post(Enum.join([url, "/log_messages_gateway/log/", message_id]), Jason.encode!(%{message_id: message_id, status: "add_to_queue"}), [{"Content-Type", "application/json"}])
     {:reply, result, state}
   end
 

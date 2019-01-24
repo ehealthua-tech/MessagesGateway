@@ -38,4 +38,4 @@ config :lifecell_sms_protocol,  LifecellSmsProtocol.RedisManager,
        port: 6379,
        pool_size: 5
 
-config :lifecell_sms_protocol, elasticsearch_url: "http://192.168.100.165:9200/lifecell_sms"
+config :lifecell_sms_protocol, elasticsearch_url: "http://192.168.100.165:9200"

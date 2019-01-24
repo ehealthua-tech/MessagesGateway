@@ -14,7 +14,6 @@ defmodule MessagesGatewayWeb.MessageController do
     with {:ok, priority_list} <- Prioritization.get_message_priority_list(),
          {:ok, message_id} <- add_to_db_and_queue(resource, priority_list)
       do
-      :io.format("~nmessage_id: ~p~n", [message_id])
       url = Application.get_env(:messages_gateway, :elasticsearch_url)
       HTTPoison.post(Enum.join([url, "/log/", message_id]), Jason.encode!(resource), [{"Content-Type", "application/json"}])
       render(conn, "index.json", message_id: message_id)
@@ -27,7 +26,6 @@ defmodule MessagesGatewayWeb.MessageController do
     with {:ok, priority_list} <- Prioritization.get_message_priority_list(),
          {:ok, message_id} <- add_to_db_and_queue(resource, priority_list)
       do
-      :io.format("~nmessage_id: ~p~n", [message_id])
       url = Application.get_env(:messages_gateway, :elasticsearch_url)
       HTTPoison.post(Enum.join([url, "/log/", message_id]), Jason.encode!(resource), [{"Content-Type", "application/json"}])
       render(conn, "index.json", %{message_id: message_id})
@@ -39,12 +37,10 @@ defmodule MessagesGatewayWeb.MessageController do
 
   def new_email(conn, %{"resource" => %{"email" => email, "body" => body, "subject" => subject} = resource}) do
     with {:ok, priority_list} <- Prioritization.get_smtp_priority_list(),
-         smtp_priority_list = priority_list,
          {:ok, message_id} <- add_email_to_db_and_queue(email, body, subject, priority_list)
       do
-#      :io.format("~nmessage_id: ~p~n", [message_id])
-#      url = Application.get_env(:messages_gateway, :elasticsearch_url)
-#      HTTPoison.post(Enum.join([url, "/log/", message_id]), Jason.encode!(resource), [{"Content-Type", "application/json"}])
+      url = Application.get_env(:messages_gateway, :elasticsearch_url)
+      HTTPoison.post(Enum.join([url, "/log/", message_id]), Jason.encode!(resource), [{"Content-Type", "application/json"}])
       render(conn, "index.json", %{message_id: message_id})
     end
 
@@ -96,14 +92,13 @@ defmodule MessagesGatewayWeb.MessageController do
   def add_to_redis(message_id, body) do
     MessagesGateway.RedisManager.set(message_id, body)
     url = Application.get_env(:messages_gateway, :elasticsearch_url)
-    HTTPoison.post(Enum.join([url, "/log/", message_id]), Jason.encode!(%{message_id: message_id, status: "add_to_redis"}), [{"Content-Type", "application/json"}])
+    HTTPoison.post(Enum.join([url, "/log_messages_gateway/log/", message_id]), Jason.encode!(%{message_id: message_id, status: "add_to_redis"}), [{"Content-Type", "application/json"}])
+    :ok
   end
 
   def add_to_message_queue(message_id, body) do
     Jason.encode!(body)
     |> MessagesGateway.MqManager.publish()
-    url = Application.get_env(:messages_gateway, :elasticsearch_url)
-    HTTPoison.post(Enum.join([url, "/log/", message_id]), Jason.encode!(%{message_id: message_id, status: "add_to_queue"}), [{"Content-Type", "application/json"}])
   end
 
 end

@@ -50,4 +50,4 @@ config :smtp_protocol, SmtpProtocol.RedisManager,
        port: 6379,
        pool_size: 5
 
-config :smtp_protocol, elasticsearch_url: "http://192.168.100.165:9200/smtp"
+config :smtp_protocol, elasticsearch_url: "http://192.168.100.165:9200"

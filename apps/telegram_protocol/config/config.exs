@@ -43,4 +43,4 @@ config :telegram_protocol,  TelegramProtocol.RedisManager,
        port: 6379,
        pool_size: 5
 
-config :telegram_protocol, elasticsearch_url: "http://192.168.100.165:9200/telegram"
+config :telegram_protocol, elasticsearch_url: "http://192.168.100.165:9200"

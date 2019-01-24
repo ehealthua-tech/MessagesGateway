@@ -46,4 +46,4 @@ config :lifecell_ip_telephony_protocol,  LifecellIpTelephonyProtocol.RedisManage
        port: 6379,
        pool_size: 5
 
-config :lifecell_ip_telephony_protocol, elasticsearch_url: "http://192.168.100.165:9200/lifecell_ip_telephony"
+config :lifecell_ip_telephony_protocol, elasticsearch_url: "http://192.168.100.165:9200"

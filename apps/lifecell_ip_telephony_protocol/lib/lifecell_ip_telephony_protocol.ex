@@ -15,7 +15,7 @@ defmodule LifecellIpTelephonyProtocol do
     {:ok, app_name} = :application.get_application(__MODULE__)
     RedisManager.set(Atom.to_string(app_name), @protocol_config)
     url = Application.get_env(:lifecell_ip_telephony_protocol, :elasticsearch_url)
-    HTTPoison.post(Enum.join([url, "/log"]), Jason.encode!(%{status: "protocol started"}), [{"Content-Type", "application/json"}])
+    HTTPoison.post(Enum.join([url, "/log_lifecell_ip_telephony_protocol/log"]), Jason.encode!(%{status: "protocol started"}), [{"Content-Type", "application/json"}])
     {:ok, []}
   end
 
