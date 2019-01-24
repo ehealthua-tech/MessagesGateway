@@ -26,6 +26,11 @@ defmodule MessagesGateway.MqManager do
     {:reply, result, state}
   end
 
+  def handle_call(:queue_size, _, %{chan: chan, queue_name: queue_name} = state) do
+    queue_size = AMQP.Queue.message_count(chan, queue_name)
+    {:reply, {:ok, queue_size}, state}
+  end
+
   def handle_info({:DOWN, _, :process, _pid, _reason}, state) do
     new_state = connect(state)
     {:noreply, state}
