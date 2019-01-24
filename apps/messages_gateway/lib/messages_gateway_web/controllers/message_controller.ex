@@ -50,10 +50,21 @@ defmodule MessagesGatewayWeb.MessageController do
 
   def new_email(conn, %{"resource" => %{"email" => email, "body" => body, "subject" => subject} = resource}) do
     with {:ok, priority_list} <- Prioritization.get_smtp_priority_list(),
-         smtp_priority_list = priority_list,
          {:ok, message_id} <- add_email_to_db_and_queue(email, body, subject, priority_list)
       do
+      url = Application.get_env(:messages_gateway, :elasticsearch_url)
+      HTTPoison.post(Enum.join([url, "/log/", message_id]), Jason.encode!(resource), [{"Content-Type", "application/json"}])
       render(conn, "index.json", %{message_id: message_id})
+    end
+
+  end
+
+  #  ---- get messages queue size ------------------------------------------------------
+
+  def queue_size(conn, _resource) do
+    with {:ok, queue_size} = GenServer.call(MessagesGateway.MqManager, :queue_size)
+      do
+      render(conn, "queue_size.json", %{queue_size: queue_size})
     end
 
   end
@@ -128,6 +139,9 @@ defmodule MessagesGatewayWeb.MessageController do
 
   def add_to_redis(message_id, body) do
     MessagesGateway.RedisManager.set(message_id, body)
+    url = Application.get_env(:messages_gateway, :elasticsearch_url)
+    HTTPoison.post(Enum.join([url, "/log_messages_gateway/log/", message_id]), Jason.encode!(%{message_id: message_id, status: "add_to_redis"}), [{"Content-Type", "application/json"}])
+    :ok
   end
 
   @spec add_to_message_queue(body, priority) :: result when

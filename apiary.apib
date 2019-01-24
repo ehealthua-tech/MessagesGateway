@@ -1,0 +1,308 @@
+FORMAT: 1A
+HOST: http://admin-dev-messagesgateway.skywell.software
+
+# MessagesGateway API-Meta
+
+This file covers Admin REST API description of MessagesGateway component of EHEALTH System
+
+## Web.admin Requests Collection [/admins]
+### Get operator types [GET /api/operator_type]
+This request is used to show list of operator types.
+As a response you'll get values of active,id,last_update,priority,name parameters.
+
++ Response 200 (application/json)
+
+          {
+             {
+            "active": true,
+            "id": "d9ca99a2-f5a9-4c9b-aa70-133fa9b9a9b1",
+            "last_update": "2018-12-14T13:51:31.181995",
+            "priority": 1,
+            "name": "sms"
+        },
+        {
+            "active": true,
+            "id": "616c7928-f9d7-472c-b994-87a0e3bc36b3",
+            "last_update": "2018-12-14T13:51:38.685603",
+            "priority": 1,
+            "name": "viber"
+        }
+          }
+
+### Add operator type [POST /api/operator_type/{operator_type_name},{priority} ]
+This request is used to add new operator type to system.
++ Parameters
+    + operator_type_name: viber1 (string, required),
+    + priority: 1 (integer,required)
+
++ Request 
+        
+        {"resource": {"operator_type_name":"viber1", "priority":  1}}
+
++ Response 200 (application/json)
+
+        {
+           "status": success
+        }
+
+### Update priority [POST /api/operator_type/update_priority/{id},{name},{priority},{active} ]
+This request is used to update priority of some selected operator.
+As a response you'll get "status" value.
++ Parameters
+    + active: true (bool, required),
+    + id: 0825f627 (string, required),
+    + name: viber (string, required),
+    + priority: 2 (integer,required)
+
++ Request
+
+            {"resource": [
+            {
+                "active": true,
+                "id": "0825f627-9772-4107-aa99-11d6c18249b8",
+                "name": "viber",
+                "priority": 2
+            }
+           ]}
+           }
+    
++ Response 200 (application/json)
+
+        { "data": {
+        "status": "success"
+        },
+        "meta": {
+        "code": 200,
+        "request_id": "2loi661afgnl4uf0hs000121",
+        "type": "object",
+        "url": "http://admin-dev-messagesgateway.skywell.software/api/operator_type"
+         }
+           "status": success
+        }
+        
+        
+        
+### Deactivate operator type [POST /api/operator_type/deactivate/{operator_type_id},{active} ] 
+This request is used to deactivate some selected type of operator.
+As a response you'll get "status" of this operation.
+ + Parameters
+    + active: true (bool, required),
+    + operator_type_id: "4d7ae33b-0542-4381-bfd1-dca84d90df9e" (string, required),
+
++ Request 
+
+         {"resource": 
+         {"operator_type_id": "4d7ae33b-0542-4381-bfd1-dca84d90df9e", 
+          "active": true}
+         }
+    
++ Response 200 (application/json)
+
+        {"data": {
+        "status": "success"
+         },
+        "meta": {
+        "code": 200,
+        "request_id": "2loi6j7jt06quj6vqc000131",
+        "type": "object",
+        "url": "http://admin-dev-messagesgateway.skywell.software/api/operator_type/deactivate"
+         }
+
+### Get_all_operators [GET /api/operators] 
+This request is used to show all operators.
+In response you'll get all operators with their parameters.
+
+
++ Response 200 (application/json)
+
+        {
+          "active": false,
+            "config": {
+                "host": "blabal"
+            },
+            "id": "421f2284-2a8b-466e-8530-410ade1b14b4",
+            "last_update": "2018-12-17T13:59:48.016885",
+            "limit": 1000,
+            "name": "sms4",
+            "operator_type": {
+                "active": true,
+                "id": "616c7928-f9d7-472c-b994-87a0e3bc36b3",
+                "name": "viber"
+            },
+            "price": 18,
+            "priority": 1
+         }
+         ],
+        "meta": {
+        "code": 200,
+        "request_id": "2loi72amu293c364i400017h",
+        "type": "list",
+        "url": "http://admin-dev-messagesgateway.skywell.software/api/operators"
+         }
+         }       
+
+### Delete operator type [DELETE /api/operator_type/id ]   
+This request is used to delete some selected operator type.
+As a response you'll get "status" of this operation.
+ 
++ Response 200 (application/json)
+
+        {"data": {
+        "status": "success"
+        },
+        "meta": {
+        "code": 200,
+        "request_id": "2loi7fu73i0d62nobc000191",
+        "type": "object",
+        "url": "http://admin-dev-messagesgateway.skywell.software/api/operators/update_priority"
+        }
+        }  
+        
+### Add operator [POST /api/operators/{name},{operator_type_id},{protocol_name},{config},{priority},{price},{limit},{active}] ]
+This request is used to add new operator
++ Parameters
+    + name: sms4 (string, required),
+    + operator_type_id: 616c7928 (string,required),
+    + protocol_name: viber_protocol (string,required),
+    + config:  {"host": "blabal"} (json,required),
+    + priority: 1 (integer,required),
+    + price: 18 (integer,required),
+    + limit: 1000 (integer,required),
+    + active: false (bool, required)
+
++ Request 
+
+         {"resource": {
+         "name":"sms4", 
+         "operator_type_id": "616c7928-f9d7-472c-b994-87a0e3bc36b3",
+         "config": {"host": "blabal"}, 
+         "priority": 1, 
+         "price": 18, 
+         "limit":1000, 
+         "active": false
+         }
+         }
+         
++ Response 200 (application/json)
+
+        {
+          "data": {
+        "status": "success"
+        },
+        "meta": {
+        "code": 200,
+        "request_id": "2loi70f8251gep7a5k000171",
+        "type": "object",
+        "url": "http://admin-dev-messagesgateway.skywell.software/api/operators"
+        }
+        }    
+
+### Update priority [POST /api/operators/update_priority/{id},{name},{operator_type},{config},{priority},{price},{limit},{active}] 
+This request is used to update priority depending on changes
+# OperatorType
++ id: 616c7928-f9d7-472c-b994-87a0e3bc36b3 (string,required)
++ name: viber (string,required)
++ active: true (bool,required)
+
++ Parameters
+     + id: 421f2284-2a8b-466e-8530-410ade1b14b4 (String,required),
+     + name: sms4 (String,required),
+     + operator_type: {"active": true,id": "616c7928-f9d7-472c-b994-87a0e3bc36b3","name": "viber"}(OperatorType obj,required),
+     + config:  {"host": "blabal"}(Json,required),
+     + priority: 2 (Integer,required),
+     + price: 18 (Integer,required),
+     + limit: 1000 (Integer,required),
+     + active: true (bool,required)
+     
++ Request 
+
+         {"resource": [
+          {
+                "active": true,
+                "config": {
+                    "host": "blabal"
+                },
+                "id": "421f2284-2a8b-466e-8530-410ade1b14b4",
+                "limit": 1000,
+                "name": "sms4",
+                "operator_type": {
+                    "active": true,
+                    "id": "616c7928-f9d7-472c-b994-87a0e3bc36b3",
+                    "name": "viber"
+                },
+                "price": 18,
+                "priority": 2
+            }
+          }     
+
++ Response 200 (application/json)
+
+         {
+          "data": {
+          "status": "success"
+          }  
+          }
+          
+### Change operator [POST /api/operators/change/{id},{name},{protocol_name},{config},{priority},{price},{limit},{active}]
+This request is used to apply changes of operator that are  made through section "Details" of operator
+
++ Parameters
+    + id: 4e250374-0cb5-46fe-acf8-fcd07b1d9105 (String,required)
+    + name: viber (String,required),
+    + protocol_name:  viber-protocol (String,required),
+    + config: {"host": "blabal"}(Json,required),
+    + priority: 1 (Integer,required),
+    + price: 18 (Integer,required),
+    + limit: 1000 (Integer,required),
+    + active: true (Bool,required)
+
++ Request 
+
+         {"resource": {
+          {
+                "active": true,
+            "config": {
+                "host": "blabal"
+            },
+            "id": "4e250374-0cb5-46fe-acf8-fcd07b1d9105",
+            "limit": 1000,
+            "protocol_name": "viber_protocol",
+            "name": "viber",
+            "price": 18,
+            "priority": 1
+            }
+           } 
+           
+            
++ Response 200 (application/json)
+
+        {
+            "data": {
+        "status": "success"
+         },
+        "meta": {
+        "code": 200,
+        "request_id": "2loi78dhm9vvlvceoc000181",
+        "type": "object",
+        "url": "http://admin-dev-messagesgateway.skywell.software/api/operators/update_priority"
+        }
+        }    
+
+
+
+### operator_delete [DELETE /api/operators/id]
+This request is used for delete of operator after clicking on Rubbish button on some operator.
+         
++ Response 200 (application/json)
+
+        {
+          "data": {
+         "status": "success"
+         },
+         "meta": {
+         "code": 200,
+         "request_id": "2loi7fu73i0d62nobc000191",
+         "type": "object",
+         "url": "http://admin-dev-messagesgateway.skywell.software/api/operators/update_priority"
+         }
+         }  

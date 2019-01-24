@@ -515,3 +515,25 @@ body:
      }
  }
   ```
+  **queue_size**
+  
+  *request:*
+  ```
+  Method: GET 
+  url: HOST:PORT/sending/queue_size
+  ```
+  
+  *response:*
+  ```json
+  {
+      "data": {
+      "queue_size": 1
+      },
+      "meta": {
+          "code": 200,
+          "request_id": "2lubpth03bmds1gm9o000301",
+          "type": "object",
+          "url": "http://192.168.100.165:4011/sending/queue_size"
+      }
+  }
+  ```

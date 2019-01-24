@@ -38,6 +38,7 @@ defmodule MessagesGatewayWeb.Router do
     post "/message", MessageController, :new_message
     post "/email", MessageController, :new_email
     post "/status", MessageController, :message_status
+    get "/queue_size", MessageController, :queue_size
   end
 
 end

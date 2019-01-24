@@ -46,6 +46,19 @@ defmodule MessagesGateway.MqManager do
     {:reply, result, state}
   end
 
+  def handle_call({:publish, message}, _, %{chan: chan, connected: true, queue_name: queue_name} = state) do
+    result = Basic.publish(chan, "", @queue, message, [persistent: true, priority: 0])
+    url = Application.get_env(:messages_gateway, :elasticsearch_url)
+    message_id = Map.get(Jason.decode!(message), "message_id")
+    HTTPoison.post(Enum.join([url, "/log_messages_gateway/log/", message_id]), Jason.encode!(%{message_id: message_id, status: "add_to_queue"}), [{"Content-Type", "application/json"}])
+    {:reply, result, state}
+  end
+
+  def handle_call(:queue_size, _, %{chan: chan, queue_name: queue_name} = state) do
+    queue_size = AMQP.Queue.message_count(chan, queue_name)
+    {:reply, {:ok, queue_size}, state}
+  end
+
   @spec handle_info(msg :: :timeout | term(), state :: term()) ::
           {:noreply, new_state}
           | {:noreply, new_state, timeout() | :hibernate | {:continue, term()}}
@@ -54,7 +67,6 @@ defmodule MessagesGateway.MqManager do
   def handle_info(:message, state) do
     new_state = connect(state)
     {:noreply, new_state}
-  end
 
   def handle_info({:DOWN, _, :process, _pid, _reason}, state) do
     new_state = connect(state)

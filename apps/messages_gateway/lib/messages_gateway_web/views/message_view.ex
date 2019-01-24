@@ -8,6 +8,12 @@ defmodule MessagesGatewayWeb.MessageView do
     }
   end
 
+  def render("queue_size.json", %{queue_size: queue_size}) do
+    %{
+      "queue_size" => queue_size,
+    }
+  end
+
   def render("message_status.json", %{message_id: message_id, message_status: message_status})
     do
     %{
