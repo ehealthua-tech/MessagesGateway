@@ -6,10 +6,11 @@ defmodule MessagesGateway.MixProject do
       apps_path: "apps",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
+      elixir: "1.7.4",
+      erlang_otp: "21.0",
       dialyzer: [plt_add_apps: [:ex_unit]],
       test_coverage: [tool: ExCoveralls]
-
-                                                ]
+    ]
   end
 
 

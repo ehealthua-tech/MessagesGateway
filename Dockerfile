@@ -1,11 +1,9 @@
 FROM ubuntu:16.04
-FROM elixir:1.7.4
+FROM elixir:1.7.4 as builder
 
-#ARG APP_NAME=mga
-
-ADD . /app
-
-WORKDIR /app
+ADD . /messages_gateway_api
+RUN chmod 0777 /messages_gateway_api
+WORKDIR /messages_gateway_api
 
 ENV MIX_ENV=prod
 
@@ -23,28 +21,43 @@ RUN apt-get install -y \
       openssl \
       cmake \
       gperf \
-      bash
+      bash \
+      g++ \
+      build-essential
 
-RUN apt-get install g++
-RUN apt-get install build-essential
 
-RUN which cmake
-RUN cmake --version
-#RUN ls -ls /usr/local/Cellar/cmake/
+WORKDIR /messages_gateway_api
 
 RUN mix do \
       local.hex --force, \
       local.rebar --force,\
       deps.get, \
-      deps.compile, \
-       release --name="mga"
+      deps.compile
+
+WORKDIR /messages_gateway_api
+COPY rel rel
+RUN mix release --env=prod --verbose
+
+FROM ubuntu:16.04
+
+RUN apt-get update
+RUN apt-get install -y openssl
+    # we need bash and openssl for Phoenix
 
 
-COPY --from=builder /app/_build/prod/rel/mga/releases/0.1.0/mga.tar.gz /app
+ENV PORT=4000 \
+    MIX_ENV=prod \
+    REPLACE_OS_VARS=true \
+    SHELL=/bin/bash
 
-RUN tar -xzf mga.tar.gz; rm mga.tar.gz
+WORKDIR /messages_gateway_api
 
-ENV REPLACE_OS_VARS=true \
-      APP=mga
+COPY --from=builder  /messages_gateway_api/_build/prod/rel/messages_gateway_api/releases/0.1.0/messages_gateway_api.tar.gz .
 
-CMD ./bin/mga foreground
+RUN tar -xzf messages_gateway_api.tar.gz; rm messages_gateway_api.tar.gz
+
+RUN chown -R root ./releases
+
+USER root
+
+CMD ./bin/messages_gateway_api foreground

@@ -2,8 +2,8 @@ version: '2'
 
 
 services:
-  mga:
-    image: 'docker.skywell/message_gateway_admin_web/mga:latest'
+  messages_gateway_api:
+    image: 'docker.skywell/message_gateway_admin_web/messages_gateway_api:latest'
     container_name: message_gateway_api
     build:
       context: ../..

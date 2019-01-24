@@ -6,7 +6,7 @@ defmodule DbAgent.Mixfile do
       app: :db_agent,
       version: "0.0.1",
       build_path: "../../_build",
-      config_path: "../../config/config.exs",
+      config_path: "../../config/dev.exs",
       deps_path: "../../deps",
       lockfile: "../../mix.lock",
       elixir: "~> 1.4",
@@ -24,8 +24,8 @@ defmodule DbAgent.Mixfile do
   # Type `mix help compile.app` for more information.
   def application do
     [
-      mod: {DbAgent.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      mod: {DbAgent.Application, []}
+#      ,extra_applications: [:logger, :runtime_tools]
     ]
   end
 
@@ -48,7 +48,7 @@ defmodule DbAgent.Mixfile do
       {:poison, "~> 3.1"},
       {:timex, "~> 3.2"},
       {:plug, "~> 1.4"},
-      {:ecto_logger_json, git: "https://github.com/edenlabllc/ecto_logger_json.git", branch: "query_params"},
+#      {:ecto_logger_json, git: "https://github.com/edenlabllc/ecto_logger_json.git", branch: "query_params"},
       {:mox, "~> 0.3", only: :test},
       {:ex_machina, "~> 2.0", only: [:dev, :test]}
     ]
