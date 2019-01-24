@@ -1,63 +1,63 @@
-FROM elixir:1.6-alpine as builder
+FROM ubuntu:16.04
+FROM elixir:1.7.4 as builder
 
-ARG APP_NAME
-
-ADD . /app
-
-WORKDIR /app
-
-ENV MIX_ENV=test
-
-# Copy mix files so we use distillery:
-COPY mix.exs mix.lock ./
-
-COPY config config
-
-COPY apps apps
-
-RUN mix do \
-      local.hex --force, \
-      local.rebar --force,\
-      deps.get, \
-      deps.compile, \
-      dialyzer --halt-exit-status, \
-      test
-
-RUN rm -rf ./deps
+ADD . /messages_gateway_api
+RUN chmod 0777 /messages_gateway_api
+WORKDIR /messages_gateway_api
 
 ENV MIX_ENV=prod
 
-RUN apk add git
+COPY mix.exs mix.lock ./
+COPY config config
+COPY apps apps
+
+RUN apt-get update
+RUN apt-get install -y \
+      make \
+      git \
+      libncurses5-dev libncursesw5-dev \
+      zlib1g \
+      ca-certificates \
+      openssl \
+      cmake \
+      gperf \
+      bash \
+      g++ \
+      build-essential
+
+
+WORKDIR /messages_gateway_api
 
 RUN mix do \
       local.hex --force, \
       local.rebar --force,\
       deps.get, \
-      deps.compile, \
-       release --name="${APP_NAME}"
+      deps.compile
 
-FROM alpine:3.8
+WORKDIR /messages_gateway_api
+COPY rel rel
+RUN mix release --env=prod --verbose
 
-ARG APP_NAME
+FROM ubuntu:16.04
 
-RUN apk add --no-cache \
-      ncurses-libs \
-      zlib \
-      ca-certificates \
-      openssl \
-      bash
-
-WORKDIR /app
-
-COPY --from=builder /app/_build/prod/rel/${APP_NAME}/releases/0.1.0/${APP_NAME}.tar.gz /app
-
-RUN tar -xzf ${APP_NAME}.tar.gz; rm ${APP_NAME}.tar.gz
-
-ENV REPLACE_OS_VARS=true \
-      APP=${APP_NAME}
-
-CMD ./bin/${APP} foreground
+RUN apt-get update
+RUN apt-get install -y openssl
+    # we need bash and openssl for Phoenix
 
 
+ENV PORT=4000 \
+    MIX_ENV=prod \
+    REPLACE_OS_VARS=true \
+    SHELL=/bin/bash
 
+WORKDIR /messages_gateway_api
 
+COPY --from=builder  /messages_gateway_api/_build/prod/rel/messages_gateway_api/releases/0.1.0/messages_gateway_api.tar.gz .
+
+RUN tar -xzf messages_gateway_api.tar.gz; rm messages_gateway_api.tar.gz
+
+RUN chown -R root ./releases
+
+USER root
+
+CMD ./bin/messages_gateway_api foreground

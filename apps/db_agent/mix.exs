@@ -6,7 +6,7 @@ defmodule DbAgent.Mixfile do
       app: :db_agent,
       version: "0.0.1",
       build_path: "../../_build",
-      config_path: "../../config/config.exs",
+      config_path: "../../config/dev.exs",
       deps_path: "../../deps",
       lockfile: "../../mix.lock",
       elixir: "~> 1.4",
@@ -24,8 +24,8 @@ defmodule DbAgent.Mixfile do
   # Type `mix help compile.app` for more information.
   def application do
     [
-      mod: {DbAgent.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      mod: {DbAgent.Application, []}
+#      ,extra_applications: [:logger, :runtime_tools]
     ]
   end
 

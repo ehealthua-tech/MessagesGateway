@@ -6,7 +6,7 @@ defmodule VodafonSmsProtocol.MixProject do
       app: :vodafon_sms_protocol,
       version: "0.1.0",
       build_path: "../../_build",
-      config_path: "../../config/config.exs",
+      config_path: "../../config/dev.exs",
       deps_path: "../../deps",
       lockfile: "../../mix.lock",
       elixir: "~> 1.7",
@@ -32,6 +32,7 @@ defmodule VodafonSmsProtocol.MixProject do
       {:plug_cowboy, "~> 1.0"},
       {:smppex, "~> 2.0"},
       {:redix, ">= 0.0.0"},
+      {:amqp, "~> 1.0"},
       {:ex_doc, "~> 0.19", only: :dev, runtime: false}
 
     ]
