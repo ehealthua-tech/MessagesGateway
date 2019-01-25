@@ -61,10 +61,15 @@ defmodule MessagesGatewayWeb.MessageController do
 
   #  ---- get messages queue size ------------------------------------------------------
 
+  @spec queue_size(conn, _params) :: result when
+          conn:   conn(),
+          _params: any(),
+          result: result()
+
   def queue_size(conn, _resource) do
-    with {:ok, queue_size} = GenServer.call(MessagesGateway.MqManager, :queue_size)
+    with {:ok, queue_size, datetime} = GenServer.call(MessagesGateway.MqManager, :queue_size)
       do
-      render(conn, "queue_size.json", %{queue_size: queue_size})
+      render(conn, "queue_size.json", %{queue_size: queue_size, date_time: datetime})
     end
 
   end
