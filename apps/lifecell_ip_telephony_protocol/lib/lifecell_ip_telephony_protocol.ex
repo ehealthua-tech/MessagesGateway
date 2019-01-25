@@ -21,8 +21,11 @@ defmodule LifecellIpTelephonyProtocol do
 
   def send_message(%{phone: phone} = payload) do
     try do
-      run(phone)
-      end_sending_messages(:success, payload)
+  #    run(phone)
+  #    end_sending_messages(:success, payload)
+      url = Application.get_env(:lifecell_ip_telephony_protocol, :elasticsearch_url)
+      HTTPoison.post(Enum.join([url, "/log_lifecell_ip_telephony_protocol/log"]), Jason.encode!(%{status: "not supported"}), [{"Content-Type", "application/json"}])
+      end_sending_messages(:error, payload)
     catch
       _ -> end_sending_messages(:error, payload)
     end
