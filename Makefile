@@ -11,7 +11,7 @@ COMPOSE_HTTP_TIMEOUT=86400
 
 all:build run
 
-run: create_networks
+run:
 	docker-compose -p ${COMPOSE_PROJECT_NAME} -f ${COMPOSE_FILE} up -d
 
 build:

@@ -4,7 +4,7 @@ defmodule MessagesGatewayWeb.OperatorTypeController do
   use MessagesGatewayWeb, :controller
   alias DbAgent.OperatorTypesRequests
   alias DbAgent.OperatorsRequests
-
+  alias MessagesGateway.RedisManager
   action_fallback(MessagesGatewayWeb.FallbackController)
 
   @operator_active true
@@ -48,7 +48,7 @@ defmodule MessagesGatewayWeb.OperatorTypeController do
   def update_priority(conn, %{"resource" => operator_info}) do
     with {n, new_priority} <- OperatorTypesRequests.update_priority(operator_info)
       do
-      MessagesGatewayInit.create_operators_list_to_redis()
+      RedisManager.set("operators_config",  MessagesGatewayInit.create_operators_list_to_redis())
       render(conn, "create.json", %{status: "success"})
     end
   end

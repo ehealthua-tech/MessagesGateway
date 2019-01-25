@@ -29,6 +29,7 @@ defmodule TelegramProtocol do
   def handle_info(:start_telegram_lib, state) do
     {:ok, app_name} = :application.get_application(__MODULE__)
     protocol_config = RedisManager.get(Atom.to_string(app_name))
+    :io.format("~nprotocol_config: ~p~n", [protocol_config])
     state =
       case protocol_config.api_id == "" and
            protocol_config.api_hash == "" and
@@ -59,7 +60,7 @@ defmodule TelegramProtocol do
 
   def telegram_authorization_process(%Object.AuthorizationStateWaitPhoneNumber{}, {pid, command, protocol_config} = state) do
     query = %Method.SetAuthenticationPhoneNumber{
-      phone_number: @phone,
+      phone_number: protocol_config.phone,
       allow_flash_call: false
     }
     TDLib.transmit(String.to_atom(protocol_config.session_name), query)

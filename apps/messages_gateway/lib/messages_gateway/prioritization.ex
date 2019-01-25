@@ -23,9 +23,11 @@ defmodule MessagesGateway.Prioritization do
 
   def get_smtp_priority_list() do
     with messages_gateway_conf <- RedisManager.get(@messages_gateway_conf),
-         priority_list <- RedisManager.get(@operators_config)
+      operators_type_config <- RedisManager.get(@operators_config)
       do
-        {:ok, priority_list}
+      priority_list = Enum.find(operators_type_config, fn x -> x.protocol_name == "smtp_protocol" end)
+        :io.format("~npriority_list: ~p~n", [priority_list])
+        {:ok, [priority_list]}
     end
   end
 

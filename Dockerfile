@@ -1,15 +1,4 @@
 FROM ubuntu:16.04
-FROM elixir:1.7.4 as builder
-
-ADD . /messages_gateway_api
-RUN chmod 0777 /messages_gateway_api
-WORKDIR /messages_gateway_api
-
-ENV MIX_ENV=prod
-
-COPY mix.exs mix.lock ./
-COPY config config
-COPY apps apps
 
 RUN apt-get update
 RUN apt-get install -y \
@@ -24,6 +13,20 @@ RUN apt-get install -y \
       bash \
       g++ \
       build-essential
+
+FROM elixir:1.7.4 as builder
+
+ADD . /messages_gateway_api
+RUN chmod 0777 /messages_gateway_api
+WORKDIR /messages_gateway_api
+
+ENV MIX_ENV=prod
+
+COPY mix.exs mix.lock ./
+COPY config config
+COPY apps apps
+
+
 
 
 WORKDIR /messages_gateway_api
