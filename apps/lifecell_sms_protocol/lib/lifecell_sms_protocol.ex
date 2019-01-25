@@ -30,17 +30,20 @@ defmodule LifecellSmsProtocol do
   end
 
   def check_and_send(%{contact: phone, body: message} = payload) do
-    with {:ok, request_body} <- prepare_request_body(payload),
-         {:ok, response_body} <- EndpointManager.prepare_and_send_sms_request(request_body),
-         {:ok, pars_body} <- xmap(response_body, @send_sms_response_parse_schema)
-      do
-      :io.format("~npars_body: ~p~n", [pars_body])
-        check_sending_status(pars_body, payload)
-      else
-        error ->
-          :io.format("~nerror: ~p~n", [error])
-          end_sending_messages(payload)
-    end
+    url = Application.get_env(:lifecell_sms_protocol, :elasticsearch_url)
+    HTTPoison.post(Enum.join([url, "/log_lifecell_sms_protocol/log"]), Jason.encode!(%{status: "not supported"}), [{"Content-Type", "application/json"}])
+    end_sending_messages(payload)
+#    with {:ok, request_body} <- prepare_request_body(payload),
+#         {:ok, response_body} <- EndpointManager.prepare_and_send_sms_request(request_body),
+#         {:ok, pars_body} <- xmap(response_body, @send_sms_response_parse_schema)
+#      do
+#      :io.format("~npars_body: ~p~n", [pars_body])
+#        check_sending_status(pars_body, payload)
+#      else
+#        error ->
+#          :io.format("~nerror: ~p~n", [error])
+#          end_sending_messages(payload)
+#    end
   end
 
   def check_message_status(payload) do
