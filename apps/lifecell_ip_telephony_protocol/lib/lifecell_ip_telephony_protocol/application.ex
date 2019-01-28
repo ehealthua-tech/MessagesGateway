@@ -9,7 +9,6 @@ defmodule LifecellIpTelephonyProtocol.Application do
     redis_connects = create_redis_connects()
     # List all child processes to be supervised
     children = redis_connects ++ [
-      worker(LifecellIpTelephonyProtocol.MqManager, []),
       worker(LifecellIpTelephonyProtocol, [])
       # Starts a worker by calling: LifecellIpTelephonyProtocol.Worker.start_link(arg)
       # {LifecellIpTelephonyProtocol.Worker, arg},

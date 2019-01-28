@@ -80,7 +80,7 @@ defmodule MessagesRouter.MqManager do
 
     @spec connect(map()) :: map()
     def connect(%{queue_name: queue_name} = state) do
-      host = Application.get_env(:messages_router, :mq_host, "localhost")
+      host = Application.get_env(:messages_router, :mq_host, "192.168.100.165")
       port = Application.get_env(:messages_router, :mq_port, 5672)
 
       case Connection.open([host: host, port: port]) do

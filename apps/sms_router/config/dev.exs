@@ -31,11 +31,11 @@ use Mix.Config
 
 config :sms_router,
        namespace: MessagesRouter,
-       mq_host: "localhost",
+       mq_host: "192.168.100.165",
        mq_port: 5672
 
 config :sms_router, SmsRouter.RedisManager,
-       host: "127.0.0.1",
+       host: "192.168.100.165",
        database: "1",
        password: nil,
        port: 6379,

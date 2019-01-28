@@ -19,8 +19,7 @@ defmodule SmtpProtocol.Application do
     end
     children = redis_workers ++
                [
-                 worker(SmtpProtocol, []),
-                 worker(SmtpProtocol.MqManager, [])
+                 worker(SmtpProtocol, [])
                ]
 
     opts = [strategy: :one_for_one, name: SmtpProtocol.Supervisor]

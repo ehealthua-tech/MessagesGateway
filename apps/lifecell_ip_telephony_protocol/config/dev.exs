@@ -40,7 +40,7 @@ config :ex_ami,
 
 
 config :lifecell_ip_telephony_protocol,  LifecellIpTelephonyProtocol.RedisManager,
-       host: "127.0.0.1",
+       host: "192.168.100.165",
        database: "1",
        password: nil,
        port: 6379,

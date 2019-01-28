@@ -19,7 +19,6 @@ defmodule TelegramProtocol.Application do
     end
     children = redis_workers ++
       [
-        worker(TelegramProtocol.MqManager, []),
         worker(TelegramProtocol, [])
       ]
 

@@ -12,6 +12,7 @@ defmodule LifecellIpTelephonyProtocol do
   end
 
   def init(_opts) do
+    :io.format("~n~p~n", [__MODULE__])
     {:ok, app_name} = :application.get_application(__MODULE__)
     RedisManager.set(Atom.to_string(app_name), @protocol_config)
     url = Application.get_env(:lifecell_ip_telephony_protocol, :elasticsearch_url)

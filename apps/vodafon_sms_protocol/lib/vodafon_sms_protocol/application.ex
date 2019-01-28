@@ -9,7 +9,6 @@ defmodule VodafonSmsProtocol.Application do
     redis_connects = create_redis_connects()
     # List all child processes to be supervised
     children = redis_connects ++ [
-      worker(VodafonSmsProtocol.MqManager, []),
       worker(VodafonSmsProtocol, [])
       # Starts a worker by calling: VodafonSmsProtocol.Worker.start_link(arg)
       # {VodafonSmsProtocol.Worker, arg},

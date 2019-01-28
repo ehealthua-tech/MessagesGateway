@@ -31,14 +31,14 @@ use Mix.Config
 
 config :viber_protocol,
        namespace: MessagesRouter,
-       mq_host: "localhost",
+       mq_host: "192.168.100.165",
        mq_port: 5672
 
 config :viber_protocol,
        auth_token: "48f01d9268e7d064-5c8b70def6243721-a025fd7b15cb0902"
 
 config :viber_protocol,  ViberProtocol.RedisManager,
-       host: "127.0.0.1",
+       host: "192.168.100.165",
        database: "1",
        password: nil,
        port: 6379,

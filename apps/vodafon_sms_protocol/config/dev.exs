@@ -30,7 +30,7 @@ use Mix.Config
 #     import_config "#{Mix.env()}.exs"
 
 config :vodafon_sms_protocol,  VodafonSmsProtocol.RedisManager,
-       host: "127.0.0.1",
+       host: "192.168.100.165",
        database: "1",
        password: nil,
        port: 6379,
@@ -38,7 +38,7 @@ config :vodafon_sms_protocol,  VodafonSmsProtocol.RedisManager,
 
 config :vodafon_sms_protocol,
        namespace: MessagesRouter,
-       mq_host: "localhost",
+       mq_host: "192.168.100.165",
        mq_port: 5672,
        resend_timeout: 30
 
