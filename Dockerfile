@@ -1,15 +1,24 @@
-FROM elixir:1.7.4-alpine as builder
+FROM elixir:1.7.4 as builder
 
-ARG messages_gateway_api
+RUN apt-get update
+RUN apt-get install -y \
+      make \
+      git \
+      libncurses5-dev libncursesw5-dev \
+      zlib1g \
+      ca-certificates \
+      openssl \
+      cmake \
+      gperf \
+      bash \
+      g++ \
+      build-essential
 
 ADD . /app
 
 WORKDIR /app
 
 ENV MIX_ENV=prod
-
-RUN apk update && apk add gperf alpine-sdk openssl-dev git cmake git
-
 
 RUN mix do \
       local.hex --force, \
@@ -33,15 +42,15 @@ RUN apk add --no-cache \
       gperf \
       gcc
 
-
 WORKDIR /app
 
-COPY --from=builder /app/_build/prod/rel/messages_gateway_api/releases/0.1.0/$messages_gateway_api.tar.gz /app
-COPY --from=builder /app/commits.txt /app
+COPY --from=builder ./app/_build/prod/rel/messages_gateway_api/releases/0.1.0/messages_gateway_api.tar.gz /app
+#COPY --from=builder ./app/commits.txt /app
 
 RUN tar -xzf messages_gateway_api.tar.gz; rm messages_gateway_api.tar.gz
 
 ENV REPLACE_OS_VARS=true \
       APP=messages_gateway_api
+
 
 CMD ./bin/messages_gateway_api foreground
