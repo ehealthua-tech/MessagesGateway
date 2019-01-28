@@ -1,6 +1,7 @@
 defmodule ViberProtocol do
   use GenServer
   alias ViberProtocol.RedisManager
+  alias ViberProtocol.MqManager
   alias ViberEndpoint
 
   @event_types ["delivered", "seen", "failed", "subscribed","unsubscribed", "conversation_started"]
@@ -19,17 +20,22 @@ defmodule ViberProtocol do
   end
 
   def send_message(%{"message_id" => message_id, "contact" => phone, "body" => message} = payload) do
-    conn = DbAgent.ContactsRequests.select_viber_id(phone)
-    body = %{receiver: conn.viber_id, min_api_version: 1, sender: %{name: "E-Test"},
-      type: "text", text: message}
-    {:ok, answer} = ViberEndpoint.request("send_message", body)
-    if "ok" ==  Map.get(answer, :status_message) do
-      url = Application.get_env(:viber_protocol, :elasticsearch_url)
-      HTTPoison.post(Enum.join([url, "/log_viber_protocol/log", message_id]), Jason.encode!(%{:status => "sent"}), [{"Content-Type", "application/json"}])
-      :ok
-    else
-      resend(payload)
+    conn = DbAgent.ContactsRequests.get_by_phone_number!(phone)
+    :io.format("~nconn: ~p~n", [conn])
+    case conn do
+    nil -> resend(payload)
+    _->
+      body = %{receiver: conn.viber_id, min_api_version: 1, sender: %{name: "E-Test"},type: "text", text: message}
+      {:ok, answer} = ViberEndpoint.request("send_message", body)
+      if "ok" ==  Map.get(answer, :status_message) do
+         url = Application.get_env(:viber_protocol, :elasticsearch_url)
+         HTTPoison.post(Enum.join([url, "/log_viber_protocol/log", message_id]), Jason.encode!(%{:status => "sent"}), [{"Content-Type", "application/json"}])
+         :ok
+      else
+        resend(payload)
+      end
     end
+
   end
 
   def add_contact(conn) do
@@ -99,15 +105,19 @@ defmodule ViberProtocol do
     end
   end
 
-  defp resend(%{"priority_list" => priority_list} = payload) do
-    if priority_list != [] do
-      selected_operator = Enum.min_by(priority_list, fn e -> Map.get(e, "priority") end)
-      %{"operator_type_id" => operator_type_id} = selected_operator
-      new_priority_list = List.delete(priority_list, selected_operator)
-      ViberProtocol.MqManager.send_to_operator(Jason.encode!(Map.put(payload, :priority_list, new_priority_list)), operator_type_id)
-    else
-      :callback_failed
-    end
+#  defp resend(%{"priority_list" => priority_list} = payload) do
+#    if priority_list != [] do
+#      selected_operator = Enum.min_by(priority_list, fn e -> Map.get(e, "priority") end)
+#      %{"operator_type_id" => operator_type_id} = selected_operator
+#      new_priority_list = List.delete(priority_list, selected_operator)
+#      ViberProtocol.MqManager.send_to_operator(Jason.encode!(Map.put(payload, :priority_list, new_priority_list)), operator_type_id)
+#    else
+#      :callback_failed
+#    end
+#  end
+
+  defp resend(payload) do
+    MqManager.send_to_operator(Jason.encode!(payload), "message_queue")
   end
 
 end

@@ -1,66 +1,47 @@
-FROM ubuntu:16.04
+FROM elixir:1.7.4-alpine as builder
 
-RUN apt-get update
-RUN apt-get install -y \
-      make \
-      git \
-      libncurses5-dev libncursesw5-dev \
-      zlib1g \
-      ca-certificates \
-      openssl \
-      cmake \
-      gperf \
-      bash \
-      g++ \
-      build-essential
+ARG messages_gateway_api
 
-FROM elixir:1.7.4 as builder
+ADD . /app
 
-ADD . /messages_gateway_api
-RUN chmod 0777 /messages_gateway_api
-WORKDIR /messages_gateway_api
+WORKDIR /app
 
 ENV MIX_ENV=prod
 
-COPY mix.exs mix.lock ./
-COPY config config
-COPY apps apps
+RUN apk update && apk add gperf alpine-sdk openssl-dev git cmake git
 
-
-
-
-WORKDIR /messages_gateway_api
 
 RUN mix do \
       local.hex --force, \
-      local.rebar --force,\
+      local.rebar --force, \
       deps.get, \
-      deps.compile
+      deps.compile, \
+      release --name=messages_gateway_api
 
-WORKDIR /messages_gateway_api
-COPY rel rel
-RUN mix release --env=prod --verbose
+FROM alpine:3.8
 
-FROM ubuntu:16.04
+ARG messages_gateway_api
 
-RUN apt-get update
-RUN apt-get install -y openssl
-    # we need bash and openssl for Phoenix
+RUN apk add --no-cache \
+      ncurses-libs \
+      zlib \
+      ca-certificates \
+      openssl \
+      bash \
+      make \
+      cmake \
+      gperf \
+      gcc
 
 
-ENV PORT=4000 \
-    MIX_ENV=prod \
-    REPLACE_OS_VARS=true \
-    SHELL=/bin/bash
+WORKDIR /app
 
-WORKDIR /messages_gateway_api
-
-COPY --from=builder  /messages_gateway_api/_build/prod/rel/messages_gateway_api/releases/0.1.0/messages_gateway_api.tar.gz .
+COPY --from=builder /app/_build/prod/rel/messages_gateway_api/releases/0.1.0/$messages_gateway_api.tar.gz /app
+COPY --from=builder /app/commits.txt /app
 
 RUN tar -xzf messages_gateway_api.tar.gz; rm messages_gateway_api.tar.gz
 
-RUN chown -R root ./releases
-
-USER root
+ENV REPLACE_OS_VARS=true \
+      APP=messages_gateway_api
 
 CMD ./bin/messages_gateway_api foreground
