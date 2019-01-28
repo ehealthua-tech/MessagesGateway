@@ -1,6 +1,7 @@
 defmodule MessagesRouter do
   @moduledoc false
   alias MessagesRouter.MqManager
+  alias MessagesRouter.RedisManager
 
   @spec send_message(map()) :: :ok | {:error, binary()}
   def send_message(payload) do
@@ -29,14 +30,19 @@ defmodule MessagesRouter do
 
   @spec check_next_protocol(map(), map(), map()) :: :ok | {:error, binary()} | term()
   defp check_next_protocol(%{active_protocol_type: true, active: true} = selected_protocol, _, payload)  do
-    sending_message_to_protocol(payload, selected_protocol.protocol_name)
+    sending_message_to_protocol(payload)
   end
   defp check_next_protocol(_, message_status_info, payload) do
     select_next_protocol(message_status_info, payload)
   end
 
-  @spec sending_message_to_protocol(map(), String.t()) :: term()
-  defp sending_message_to_protocol(payload, protocol_name), do: MqManager.send_to_operator(payload, protocol_name)
+  @spec sending_message_to_protocol(map()) :: term()
+  def sending_message_to_protocol(payload) do
+     protocol_config = RedisManager.get(payload.protocol_name)
+     :io.format("~nx~p~n", [protocol_config])
+     x = apply(String.to_atom(protocol_config.module_name), String.to_atom(protocol_config.method_name), [payload])
+     :io.format("~nx~p~n", [x])
+  end
 
   @spec end_sending_message(map(), map() | {:error, binary()}) :: :ok | {:error, binary()}
   defp end_sending_message(payload, message_status_info) do

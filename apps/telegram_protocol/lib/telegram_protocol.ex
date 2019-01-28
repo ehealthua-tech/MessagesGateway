@@ -7,7 +7,7 @@ defmodule TelegramProtocol do
   @api_id Application.get_env(:telegram_protocol, :api_id)
   @api_hash Application.get_env(:telegram_protocol, :api_hash)
   @phone Application.get_env(:telegram_protocol, :phone)
-  @protocol_config %{api_id: "", api_hash: "",  phone: "", session_name: "", code: "", password: ""}
+  @protocol_config %{api_id: "", api_hash: "",  phone: "", session_name: "", code: "", password: "", module_name: __MODULE__, method_name: :send_message}
 
   def start_link do
     GenServer.start_link(__MODULE__, [], name: __MODULE__)
@@ -184,6 +184,7 @@ defmodule TelegramProtocol do
 
   #-API-------------------------------------------------------------------------------------------------------------------
   def send_message(payload) do
+    :io.format("~n~p~n", [payload])
     {:ok, app_name} = :application.get_application(__MODULE__)
     protocol_config = RedisManager.get(Atom.to_string(app_name))
     GenServer.cast(__MODULE__, {:send_messages, payload, protocol_config})
@@ -212,7 +213,6 @@ defmodule TelegramProtocol do
       selected_operator = Enum.min_by(priority_list, fn e -> e.priority end)
       operator_type_id = selected_operator.operator_type_id
       new_priority_list = List.delete(priority_list, operator_type_id)
-      TelegramProtocol.MqManager.send_to_operator(Jason.encode!(Map.put(payload, :priority_list, new_priority_list)), operator_type_id)
     else
       :callback_failed
     end
