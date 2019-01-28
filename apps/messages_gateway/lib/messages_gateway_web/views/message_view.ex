@@ -8,9 +8,10 @@ defmodule MessagesGatewayWeb.MessageView do
     }
   end
 
-  def render("queue_size.json", %{queue_size: queue_size}) do
+  def render("queue_size.json", %{queue_size: queue_size, date_time: datetime}) do
     %{
       "queue_size" => queue_size,
+      "date_time" => datetime
     }
   end
 

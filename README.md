@@ -527,6 +527,7 @@ body:
   ```json
   {
       "data": {
+      "date_time": "2019-01-25 14:03:42.925080Z",
       "queue_size": 1
       },
       "meta": {
