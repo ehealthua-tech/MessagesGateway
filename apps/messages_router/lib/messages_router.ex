@@ -39,9 +39,9 @@ defmodule MessagesRouter do
   @spec sending_message_to_protocol(map()) :: term()
   def sending_message_to_protocol(payload) do
      protocol_config = RedisManager.get(payload.protocol_name)
-     :io.format("~nx~p~n", [protocol_config])
-     x = apply(String.to_atom(protocol_config.module_name), String.to_atom(protocol_config.method_name), [payload])
-     :io.format("~nx~p~n", [x])
+
+     apply(String.to_atom(protocol_config.module_name), String.to_atom(protocol_config.method_name), [payload])
+     |> send_message()
   end
 
   @spec end_sending_message(map(), map() | {:error, binary()}) :: :ok | {:error, binary()}
