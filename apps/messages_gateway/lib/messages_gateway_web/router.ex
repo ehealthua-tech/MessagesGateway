@@ -3,7 +3,10 @@ defmodule MessagesGatewayWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+  end
 
+  pipeline :auth do
+    plug(:required_headers)
   end
 
   scope "/api", MessagesGatewayWeb do
@@ -31,10 +34,16 @@ defmodule MessagesGatewayWeb.Router do
     scope "/system_config" do
       resources "/", SystemConfigController, except: [:new, :edit, :update, :create, :delete, :show]
     end
+
+    scope "/keys" do
+      post "/deactivate", KeysController, :deactivate
+      post "/activate", KeysController, :activate
+      resources "/", KeysController, except: [:new, :edit, :update, :create]
+    end
   end
 
   scope "/sending", MessagesGatewayWeb do
-    pipe_through :api
+    pipe_through([:api, :auth])
     post "/message", MessageController, :new_message
     post "/email", MessageController, :new_email
     post "/status", MessageController, :message_status
