@@ -41,5 +41,3 @@ config :vodafon_sms_protocol,
        mq_host: "192.168.100.165",
        mq_port: 5672,
        resend_timeout: 30
-
-config :vodafon_sms_protocol, elasticsearch_url: "http://192.168.100.165:9200"

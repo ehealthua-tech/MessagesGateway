@@ -52,8 +52,6 @@ defmodule MessagesGatewayWeb.MessageController do
     with {:ok, priority_list} <- Prioritization.get_smtp_priority_list(),
          {:ok, message_id} <- add_email_to_db_and_queue(email, body, subject, priority_list)
       do
-      url = Application.get_env(:messages_gateway, :elasticsearch_url)
-      HTTPoison.post(Enum.join([url, "/log/", message_id]), Jason.encode!(resource), [{"Content-Type", "application/json"}])
       render(conn, "index.json", %{message_id: message_id})
     end
 
@@ -146,8 +144,6 @@ defmodule MessagesGatewayWeb.MessageController do
 
   def add_to_redis(message_id, body) do
     MessagesGateway.RedisManager.set(message_id, body)
-    url = Application.get_env(:messages_gateway, :elasticsearch_url)
-    HTTPoison.post(Enum.join([url, "/log_messages_gateway/log/", message_id]), Jason.encode!(%{message_id: message_id, status: "add_to_redis"}), [{"Content-Type", "application/json"}])
     :ok
   end
 

@@ -53,5 +53,3 @@ config :messages_gateway, MessagesGateway.RedisManager,
        password: nil,
        port: 6379,
        pool_size: 5
-
-config :messages_gateway, elasticsearch_url: "http://192.168.100.165:9200"

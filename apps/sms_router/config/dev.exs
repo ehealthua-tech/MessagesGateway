@@ -40,5 +40,3 @@ config :sms_router, SmsRouter.RedisManager,
        password: nil,
        port: 6379,
        pool_size: 5
-
-config :sms_router, elasticsearch_url: "http://192.168.100.165:9200"
