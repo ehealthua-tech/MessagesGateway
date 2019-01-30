@@ -413,6 +413,8 @@ body:
  Method: POST 
  
  url: HOST:PORT/sending/message
+ 
+ Headers must contain key "Auhtorization" with value "Bearer *token*".
  ```
  body:
  ```json
@@ -453,6 +455,8 @@ body:
  Method: POST 
  
  url: HOST:PORT/sending/email
+ 
+ Headers must contain key "Auhtorization" with value "Bearer *token*".
  ```
  body:
  ```json
@@ -491,6 +495,8 @@ body:
 Method: POST 
 
 url: HOST:PORT/sending/status
+
+Headers must contain key "Auhtorization" with value "Bearer *token*".
 ```
 body:
   ```json
@@ -521,6 +527,8 @@ body:
   ```
   Method: GET 
   url: HOST:PORT/sending/queue_size
+  
+  Headers must contain key "Auhtorization" with value "Bearer *token*".
   ```
   
   *response:*
@@ -537,4 +545,95 @@ body:
           "url": "http://192.168.100.165:4011/sending/queue_size"
       }
   }
+  
   ```
+**generate new keys**
+
+*request:*
+```
+Method: GET
+url: HOST:PORT/api/keys
+```
+
+*response:*
+```json
+{
+    "data": {
+        "key": "2lv4eu5ceq98tcqki0000kn1",
+        "status": "active",
+        "user": "lhr9titjai85608="
+    },
+    "meta": {
+        "code": 200,
+        "request_id": "2loi61rj3955jeltk800011h",
+        "type": "object",
+        "url": "http://192.168.100.165:4011/api/keys"
+    }
+}
+```
+**deactivate keys**
+
+*request:*
+```
+Method: POST
+url: HOST:PORT/api/keys/deactivate
+```
+
+*response:*
+```json
+{
+    "data": {
+        "status": "success"
+    },
+    "meta": {
+        "code": 200,
+        "request_id": "2loi61rj3955jeltk800011h",
+        "type": "object",
+        "url": "http://192.168.100.165:4011/api/keys/deactivate"
+    }
+}
+```
+**activate_keys**
+
+*request:*
+```
+Method: POST
+url: HOST:PORT/api/keys/activate
+```
+
+*response:*
+```json
+{
+    "data": {
+        "status": "success"
+    },
+    "meta": {
+        "code": 200,
+        "request_id": "2loi61rj3955jeltk800011h",
+        "type": "object",
+        "url": "http://192.168.100.165:4011/api/keys/activate"
+    }
+}
+```
+**delete_keys**
+
+*request:*
+```
+Method: DELETE
+url: HOST:PORT/api/keys/id
+```
+
+*response:*
+```json
+{
+    "data": {
+        "status": "success"
+    },
+    "meta": {
+        "code": 200,
+        "request_id": "2loi61rj3955jeltk800011h",
+        "type": "object",
+        "url": "http://192.168.100.165:4011/api/keys/id"
+    }
+}
+```
