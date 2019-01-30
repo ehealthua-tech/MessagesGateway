@@ -3,7 +3,7 @@ defmodule LifecellIpTelephonyProtocol do
   Documentation for LifecellIpTelephonyProtocol.
   """
   @protocol_config %{host: "", port: ""}
-  use SpeakEx.CallController
+#  use SpeakEx.CallController
   alias LifecellIpTelephonyProtocol.MqManager
   alias LifecellIpTelephonyProtocol.RedisManager
 
@@ -30,12 +30,12 @@ defmodule LifecellIpTelephonyProtocol do
     end
   end
 
-  def run(call) do
-    call
-    |> answer
-    |> hangup
-    |> terminate
-  end
+#  def run(call) do
+#    call
+#    |> answer
+#    |> hangup
+#    |> terminate
+#  end
 
 
   defp end_sending_messages(:error, payload) do

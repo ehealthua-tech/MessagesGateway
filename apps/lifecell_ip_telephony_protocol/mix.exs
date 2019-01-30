@@ -27,7 +27,7 @@ defmodule LifecellIpTelephonyProtocol.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:speak_ex, "~> 0.3"},
+#      {:speak_ex, "~> 0.3"},
       {:amqp, "~> 1.0"}
     ]
   end
