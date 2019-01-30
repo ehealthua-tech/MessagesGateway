@@ -24,12 +24,12 @@ defmodule LifecellSmsProtocol do
   def init(_opts) do
     {:ok, app_name} = :application.get_application(__MODULE__)
     RedisManager.set(Atom.to_string(app_name), @protocol_config)
-    MgLogger.log_message(__MODULE__, %{__MODULE__ => "started"})
+    GenServer.cast(MgLogger.Server, {:log, __MODULE__, %{__MODULE__ => "started"}})
     {:ok, []}
   end
 
   def check_and_send(%{contact: phone, body: message} = payload) do
-    MgLogger.log_message(__MODULE__, %{__MODULE__ => "not supported"})
+    GenServer.cast(MgLogger.Server, {:log, __MODULE__, %{__MODULE__ => "not supported"}})
     end_sending_messages(payload)
 #    with {:ok, request_body} <- prepare_request_body(payload),
 #         {:ok, response_body} <- EndpointManager.prepare_and_send_sms_request(request_body),

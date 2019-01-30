@@ -14,12 +14,12 @@ defmodule VodafonSmsProtocol do
   end
 
   def init(_opts) do
-    MgLogger.log_message(__MODULE__, %{__MODULE__ => "started"})
+    GenServer.cast(MgLogger.Server, {:log, __MODULE__, %{__MODULE__ => "started"}})
     {:ok, []}
   end
 
   def send_message(payload) do
-    MgLogger.log_message(__MODULE__, %{__MODULE__ => "not supported"})
+    GenServer.cast(MgLogger.Server, {:log, __MODULE__, %{__MODULE__ => "not supported"}})
     MqManager.send_to_operator(Jason.encode!(payload), "message_queue")
 #    with {:ok, app_name} <- :application.get_application(__MODULE__),
 #        protocol_config <- RedisManager.get(Atom.to_string(app_name)),

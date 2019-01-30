@@ -17,7 +17,7 @@ defmodule TelegramProtocol do
     {:ok, app_name} = :application.get_application(__MODULE__)
     RedisManager.set(Atom.to_string(app_name), @protocol_config)
     TelegramProtocol.start_telegram_lib
-    MgLogger.log_message(__MODULE__, %{__MODULE__ => "started"})
+    GenServer.cast(MgLogger.Server, {:log, __MODULE__, %{__MODULE__ => "started"}})
     {:ok, []}
   end
 
@@ -149,7 +149,7 @@ defmodule TelegramProtocol do
   def handle_info({:recv, %Object.UpdateChatReadOutbox{chat_id: chat_id, last_read_outbox_message_id: last_read_outbox_message_id}},  %{messages: %{message_id: message_id} = payload} = state) do
     message_info = MessagesGateway.RedisManager.get(payload.message_id)
     MessagesGateway.RedisManager.set(payload.message_id, Jason.encode!(Map.put(message_info, "telegram_sending_status", true)))
-    MgLogger.log_message(__MODULE__, %{"message_id" => message_id, "status" => "sent"})
+    GenServer.cast(MgLogger.Server, {:log, __MODULE__, %{"message_id" => message_id, "status" => "sent"}})
     {:noreply, state}
   end
 

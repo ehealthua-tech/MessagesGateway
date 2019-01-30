@@ -4,10 +4,12 @@ defmodule MgLogger.Application do
   @moduledoc false
 
   use Application
+  import Supervisor.Spec
 
   def start(_type, _args) do
     # List all child processes to be supervised
     children = [
+      worker(MgLogger.Server, [])
       # Starts a worker by calling: MgLogger.Worker.start_link(arg)
       # {MgLogger.Worker, arg},
     ]

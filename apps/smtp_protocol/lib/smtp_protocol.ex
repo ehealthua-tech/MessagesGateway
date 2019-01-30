@@ -20,12 +20,12 @@ defmodule SmtpProtocol do
   def init(_opts) do
     {:ok, app_name} = :application.get_application(__MODULE__)
     RedisManager.set(Atom.to_string(app_name), @protocol_config)
-    MgLogger.log_message(__MODULE__, %{__MODULE__ => "started"})
+    GenServer.cast(MgLogger.Server, {:log, __MODULE__, %{__MODULE__ => "started"}})
     {:ok, []}
   end
 
   def send_email(%{message_id: message_id, contact: recipient, body: body, subject: subject}) do
     SmtpProtocol.Email.email(recipient, subject, body) |> SmtpProtocol.Mailer.deliver_now
-    MgLogger.log_message(__MODULE__, %{"message_id" => message_id, "status" => "sent"})
+    GenServer.cast(MgLogger.Server, {:log, __MODULE__, %{"message_id" => message_id, "status" => "sent"}})
   end
 end

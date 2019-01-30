@@ -14,7 +14,7 @@ defmodule LifecellIpTelephonyProtocol do
   def init(_opts) do
     {:ok, app_name} = :application.get_application(__MODULE__)
     RedisManager.set(Atom.to_string(app_name), @protocol_config)
-    MgLogger.log_message(__MODULE__, %{__MODULE__ => "started"})
+    GenServer.cast(MgLogger.Server, {:log, __MODULE__, %{__MODULE__ => "started"}})
     {:ok, []}
   end
 
@@ -22,7 +22,7 @@ defmodule LifecellIpTelephonyProtocol do
     try do
   #    run(phone)
   #    end_sending_messages(:success, payload)
-      MgLogger.log_message(__MODULE__, %{__MODULE__ => "not supported"})
+      GenServer.cast(MgLogger.Server, {:log, __MODULE__, %{__MODULE__ => "not supported"}})
       end_sending_messages(:error, payload)
     catch
       _ -> end_sending_messages(:error, payload)
