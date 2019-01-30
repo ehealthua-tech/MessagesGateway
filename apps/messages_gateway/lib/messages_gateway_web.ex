@@ -23,6 +23,7 @@ defmodule MessagesGatewayWeb do
       import Plug.Conn
       import MessagesGatewayWeb.Router.Helpers
       import MessagesGatewayWeb.Gettext
+      import MessagesGateway.Plugs.Headers
     end
   end
 
@@ -48,6 +49,7 @@ defmodule MessagesGatewayWeb do
       use Phoenix.Router
       import Plug.Conn
       import Phoenix.Controller
+      import MessagesGateway.Plugs.Headers
     end
   end
 
