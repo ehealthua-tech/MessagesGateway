@@ -40,13 +40,12 @@ defmodule LifecellIpTelephonyProtocol do
   end
 
   defp end_sending_messages(:error, payload) do
-    MqManager.send_to_operator(Jason.encode!(payload), "message_queue")
+    RedisManager.set(payload.message_id, :error)
   end
 
   defp end_sending_messages(:success, payload) do
     message_status_info = RedisManager.get(payload.message_id)
     new_message_status_info = Map.put(message_status_info, :sending_status, true)
     RedisManager.set(payload.message_id, new_message_status_info)
-    MqManager.send_to_operator(Jason.encode!(payload), "message_queue")
   end
 end

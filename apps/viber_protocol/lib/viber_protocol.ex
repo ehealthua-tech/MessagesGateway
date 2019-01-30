@@ -117,7 +117,7 @@ defmodule ViberProtocol do
 #  end
 
   defp resend(payload) do
-    MqManager.send_to_operator(Jason.encode!(payload), "message_queue")
+    :ok
   end
 
 end

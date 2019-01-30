@@ -14,7 +14,12 @@ RUN apk update && apk add gperf alpine-sdk openssl-dev git cmake git
 RUN mix do \
       local.hex --force, \
       local.rebar --force, \
-      deps.get, \
+      deps.get
+
+COPY --from=builder /app/MessagesGateway.API/apps/telegram_protocol/priv/tdlib-json-cli /app/MessagesGateway.API/deps/tdlib/priv/
+COPY --from=builder /app/MessagesGateway.API/apps/telegram_protocol/priv/types.json /app/MessagesGateway.API/deps/tdlib/priv/
+
+RUN mix do \
       deps.compile, \
       release --name=messages_gateway_api
 

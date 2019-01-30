@@ -112,9 +112,10 @@ defmodule MessagesGatewayWeb.MessageController do
   def add_to_db_and_queue( _, {:error, _} = res), do: res
   def add_to_db_and_queue( %{"contact" => phone, "body" => body} = resource, priority_list) do
     with {:ok, message_id} <- UUID.generate_uuid(),
-         :ok <- add_to_redis(message_id, %{active: @sending_start_status, sending_status: @status_not_send}),
-         :ok <- add_to_message_queue(%{message_id: message_id, contact: phone, body: body,
-           callback_url: Map.get(resource, "callback_url", ""), priority_list: priority_list})
+         :ok <- add_to_redis(message_id,  %{message_id: message_id, contact: phone, body: body,
+           callback_url: Map.get(resource, "callback_url", ""), priority_list: priority_list,
+           active: @sending_start_status, sending_status: @status_not_send}),
+         :ok <- add_to_message_queue(%{message_id: message_id})
       do
         {:ok, message_id}
     end
@@ -129,11 +130,12 @@ defmodule MessagesGatewayWeb.MessageController do
 
   def add_email_to_db_and_queue(contact, body, subject, priority_list) do
     with {:ok, message_id} <- UUID.generate_uuid(),
-         :ok <- add_to_redis(message_id, %{active: @sending_start_status, sending_status: @status_not_send}),
-         :ok <- add_to_message_queue(%{message_id: message_id, contact: contact, body: body, callback_url: "",
-           priority_list: priority_list, subject: subject})
+         :ok <- add_to_redis(message_id, %{message_id: message_id, contact: contact, body: body, callback_url: "",
+           priority_list: priority_list, subject: subject, active: @sending_start_status,
+           sending_status: @status_not_send}),
+         :ok <- add_to_message_queue(%{message_id: message_id})
       do
-      {:ok, message_id}
+        {:ok, message_id}
     end
   end
 

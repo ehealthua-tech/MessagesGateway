@@ -5,7 +5,6 @@ defmodule VodafonSmsProtocol do
 
   use GenServer
   alias VodafonSmsProtocol.RedisManager
-  alias VodafonSmsProtocol.MqManager
 
   @protocol_config %{host: "", port: "",  phone_for_send: "", time_for_send: "", system_id: "", password: ""}
 
@@ -22,7 +21,7 @@ defmodule VodafonSmsProtocol do
   def send_message(payload) do
     url = Application.get_env(:vodafon_sms_protocol, :elasticsearch_url)
     HTTPoison.post(Enum.join([url, "/log_vodafon_sms_protocol/log"]), Jason.encode!(%{status: "not supported"}), [{"Content-Type", "application/json"}])
-    MqManager.send_to_operator(Jason.encode!(payload), "message_queue")
+
 #    with {:ok, app_name} <- :application.get_application(__MODULE__),
 #        protocol_config <- RedisManager.get(Atom.to_string(app_name)),
 #        {:ok, esme} <- SMPPEX.ESME.Sync.start_link(protocol_config.host, protocol_config.port),
@@ -46,11 +45,11 @@ defmodule VodafonSmsProtocol do
   end
 
   defp end_sending_messages(:stop, delivery_report, esme, bind_resp, payload) do
-    MqManager.send_to_operator(Jason.encode!(payload), "message_queue")
+    :ok
   end
 
   defp end_sending_messages(:timeout, delivery_report, esme, bind_resp, payload) do
-     MqManager.send_to_operator(Jason.encode!(payload), "message_queue")
+    :ok
   end
 
   defp end_sending_messages(received_items, delivery_report, esme, bind_resp, payload) do
@@ -60,8 +59,8 @@ defmodule VodafonSmsProtocol do
         message_status_info = RedisManager.get(payload.message_id)
         new_message_status_info = Map.put(message_status_info, :sending_status, true)
         RedisManager.set(payload.message_id, new_message_status_info)
-        MqManager.send_to_operator(Jason.encode!(payload), "message_queue")
-      _-> MqManager.send_to_operator(Jason.encode!(payload), "message_queue")
+
+      _-> :ok
     end
   end
 

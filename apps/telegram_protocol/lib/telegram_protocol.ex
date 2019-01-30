@@ -30,21 +30,17 @@ defmodule TelegramProtocol do
     {:noreply, state}
   end
 
-  defp check_config(protocol_config) when
-      protocol_config.api_id == "" and
-      protocol_config.api_hash == "" and
-      protocol_config.phone == "" and
-      protocol_config.session_name == ""
+  defp check_config({:error, _}), do: start_telegram_lib()
+  defp check_config(%{api_id: api_id, api_hash: api_hash, phone: phone, session_name: session_name} = protocol_config)
+       when api_id == "" and api_hash == "" and phone == "" and session_name == ""
     do
     start_telegram_lib()
-    state
   end
 
   defp check_config(protocol_config) do
     config = struct(TDLib.default_config(), %{api_id: String.to_integer(protocol_config.api_id), api_hash: protocol_config.api_hash})
     {:ok, _pid} = TDLib.open(String.to_atom(protocol_config.session_name), self(), config)
-    {pid, command} = TDLib.transmit(String.to_atom(protocol_config.session_name), "verbose 0")
-    state
+    {_pid, _command} = TDLib.transmit(String.to_atom(protocol_config.session_name), "verbose 0")
   end
 
   #-Authorization process------------------------------------------------------
@@ -97,15 +93,17 @@ defmodule TelegramProtocol do
     {:noreply, state}
   end
 
-  defp send_code(protocol_config) when protocol_config.code == "", do: check_authentication_code()
+  defp send_code({:error, _}), do: check_authentication_code()
+  defp send_code(%{code: code}) when code == "", do: check_authentication_code()
   defp send_code(protocol_config) do
-    query = %Method.CheckAuthenticationCode{code: payload.code}
+    query = %Method.CheckAuthenticationCode{code: protocol_config.code}
     TDLib.transmit(String.to_atom(protocol_config.session_name), query)
   end
 
-  defp send_password(protocol_config) when protocol_config.password == "", do: check_authentication_code()
+  defp send_password({:error, _}), do: check_authentication_password()
+  defp send_password(%{password: password}) when password == "", do: check_authentication_password()
   defp send_password(protocol_config) do
-    query = %Method.CheckAuthenticationCode{code: payload.password}
+    query = %Method.CheckAuthenticationCode{code: protocol_config.password}
     TDLib.transmit(String.to_atom(protocol_config.session_name), query)
   end
 
@@ -114,7 +112,7 @@ defmodule TelegramProtocol do
   # Importing contacts to our contact
   def handle_cast({:send_messages, payload},  state) do
     query = %Method.ImportContacts{contacts: [%{phone_number: payload.contact}]}
-    TDLib.transmit(String.to_atom(protocol_config.session_name), query)
+    do_query(query)
 
     # if user number not fount in telegram or timeout will be more than 20 sec we canceled sending
     # and use for send another operator
@@ -133,7 +131,7 @@ defmodule TelegramProtocol do
   def select_user_info(0, state), do: :ignore
   def select_user_info(user_id) do
     query = %Method.GetUser{user_id: user_id}
-    TDLib.transmit(String.to_atom(state.session_name), query)  #@todo session_name????????????
+    do_query(query)
   end
 
   # Creating private chat with importing contact (if it does not have telegram user id will be 0 and we send payload to messages router )
@@ -157,7 +155,7 @@ defmodule TelegramProtocol do
     reference = Process.send_after(self(), {:error_sending_messages, state_info.message_id}, 30000)
     new_state = %{user_id: user_id, phone_number: contact, message_id: state_info.message_id, error_reference: reference}
     query = %Method.CreatePrivateChat{user_id: user_id, force: false}
-    TDLib.transmit(String.to_atom(state.session_name), query)
+    do_query(query)
     [new_state | old_state]
   end
 
@@ -173,15 +171,14 @@ defmodule TelegramProtocol do
       %Object.InputMessageText{
         text: %Object.FormattedText{
           text: text}, }}
-    TDLib.transmit(String.to_atom(state.session_name), query)
-    reference = Process.send_after(self(), {:error_sending_messages, state_info.message_id}, 10000)
+    do_query(query)
     {:noreply, state}
   end
 
   # if user read message we selected UpdateChatReadOutbox
   def handle_info({:recv, %Object.UpdateChatReadOutbox{chat_id: chat_id}}, state) do
     query = %Method.SearchChatMembers{chat_id: chat_id, query: "", limit: 200}
-    TDLib.transmit(String.to_atom(state.session_name), query)
+    do_query(query)
     {:noreply, state}
   end
 
@@ -190,7 +187,14 @@ defmodule TelegramProtocol do
     :io.format("~nmembers: ~p~n", [member])
     {[state_info], old_state} = Enum.split_while(state, fn x -> x.user_id == member.id end)
     Process.cancel_timer(state_info.error_reference)
-    spawn(TelegramProtocol, end_sending_messages, [:success, state_info.message_id])
+    spawn(TelegramProtocol, :end_sending_messages, [:success, state_info.message_id])
+    {:noreply, old_state}
+  end
+
+  # if we have some error remove this messages from state and ending sending it
+  def handle_info({:error_sending_messages, message_id}, state) do
+    {_, old_state} = Enum.split_while(state, fn x -> x.message_id == message_id end)
+    spawn(TelegramProtocol, :end_sending_messages, [:error, message_id])
     {:noreply, old_state}
   end
 
@@ -198,11 +202,10 @@ defmodule TelegramProtocol do
     {:noreply, state}
   end
 
-  # if we have some error remove this messages from state and ending sending it
-  def handle_info({:error_sending_messages, message_id}, state) do
-    {_, old_state} = Enum.split_while(state, fn x -> x.message_id == message_id end)
-    end_sending_messages(:error, message_id)
-    {:noreply, old_state}
+  defp do_query(query) do
+    {:ok, app_name} = :application.get_application(__MODULE__)
+    protocol_config = RedisManager.get(Atom.to_string(app_name))
+    TDLib.transmit(String.to_atom(protocol_config.session_name), query)
   end
 
   #-API------------------------------------------------------------------------
@@ -215,19 +218,16 @@ defmodule TelegramProtocol do
 
   #-check status of message and return result ---------------------------------
   defp end_sending_messages(:success, message_id) do
-    RedisManager.get(message_id)
-    |> Map.put(:sending_status, true)
-    |> end_sending_messages()
-  end
+    message_status_info =
+      RedisManager.get(message_id)
+      |> Map.put(:sending_status, true)
 
-  defp end_sending_messages(_, message_id) do
-    RedisManager.get(message_id)
-    |> end_sending_messages()
-  end
-
-  defp end_sending_messages(message_status_info) do
-    RedisManager.set(message_status_info.message_id, message_status_info)
+    RedisManager.set(message_id, message_status_info)
     message_status_info
+  end
+
+  defp end_sending_messages(:error, message_id) do
+    RedisManager.get(message_id)
   end
 
 end

@@ -6,7 +6,6 @@ defmodule LifecellSmsProtocol do
   alias LifecellSmsProtocol.EndpointManager
   alias LifecellSmsProtocol.RedisManager
   alias LifecellSmsProtocol.CronManager
-  alias LifecellSmsProtocol.MqManager
 
   @messages_unknown_status ['Accepted', 'Enroute', 'Unknown']
   @messages_error_status   ['Expired', 'Deleted', 'Undeliverable', 'Rejected']
@@ -99,7 +98,7 @@ defmodule LifecellSmsProtocol do
   end
 
   defp end_sending_messages(payload) do
-      MqManager.send_to_operator(Jason.encode!(payload), "message_queue")
+    :ok
   end
 
 end
