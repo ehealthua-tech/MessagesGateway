@@ -37,6 +37,7 @@ defmodule LifecellIpTelephonyProtocol do
     |> terminate
   end
 
+  
   defp end_sending_messages(:error, payload) do
     RedisManager.set(payload.message_id, :error)
   end

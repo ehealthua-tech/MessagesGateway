@@ -19,8 +19,8 @@ defmodule LifecellIpTelephonyProtocol.MixProject do
   def application do
     [
       extra_applications: [:logger],
-      mod: {LifecellIpTelephonyProtocol.Application, []},
-      applications: [:ex_ami]
+      mod: {LifecellIpTelephonyProtocol.Application, []}
+#      applications: [:ex_ami]
     ]
   end
 
