@@ -27,7 +27,8 @@ release :messages_gateway_api do
     smtp_protocol: :permanent,
     telegram_protocol: :permanent,
     viber_protocol: :permanent,
-    vodafon_sms_protocol: :permanent
+    vodafon_sms_protocol: :permanent,
+    mg_logger: :permanent
   ]
 end
 
