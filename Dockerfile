@@ -25,8 +25,9 @@ RUN mix do \
       local.rebar --force, \
       deps.get
 
-COPY --from=builder /app/MessagesGateway.API/apps/telegram_protocol/priv/tdlib-json-cli /app/MessagesGateway.API/deps/tdlib/priv/
-COPY --from=builder /app/MessagesGateway.API/apps/telegram_protocol/priv/types.json /app/MessagesGateway.API/deps/tdlib/priv/
+RUN ls -la
+COPY --from=builder ./apps/telegram_protocol/priv/tdlib-json-cli /app/deps/tdlib/priv/
+COPY --from=builder ./apps/telegram_protocol/priv/types.json /app/deps/tdlib/priv/
 
 RUN mix do \
       deps.compile, \
