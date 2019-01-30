@@ -1,5 +1,5 @@
 use Mix.Releases.Config,
-    default_release: :default,
+    default_release: :dev,
     default_environment: Mix.env()
 
 environment :dev do
@@ -12,7 +12,6 @@ environment :prod do
   set include_erts: true
   set include_src: false
   set cookie: :"$FA/rA@uUX6fJ)cXN|Bb&Q)V&hH>]C%>0PA=ZE7:bAf[f?4$^N.lB@Y]9kXRqFl`"
-  set vm_args: "rel/vm.args"
 end
 
 release :messages_gateway_api do
