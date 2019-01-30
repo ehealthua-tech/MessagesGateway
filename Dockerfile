@@ -13,7 +13,7 @@ RUN mix do \
       local.rebar --force, \
       deps.get
 
-RUN ls -la apps/deps
+RUN ls -la app/deps
 RUN cp apps/telegram_protocol/priv/tdlib-json-cli /app/deps/tdlib/priv/
 RUN cp apps/telegram_protocol/priv/types.json /app/deps/tdlib/priv/
 
