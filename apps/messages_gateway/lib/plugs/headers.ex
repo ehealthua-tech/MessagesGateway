@@ -12,9 +12,7 @@ defmodule MessagesGateway.Plugs.Headers do
   @spec required_headers(Plug.Conn.t(), map()) :: Plug.Conn.t() | :error
 
   def required_headers(%Plug.Conn{params: params, req_headers: headers} = conn, _) do
-    :io.format("~nAUTH:~p~n",[headers])
     authorization = get_header(headers, "Authorization")
-    :io.format("~nAUTH:~p~n",[authorization])
     ["Bearer", user_and_key ] =  String.split(authorization, " ")
     [user, key_hash] = String.split(user_and_key, ":")
     {:ok, ref} = :dets.open_file(:mydata_file, [])
