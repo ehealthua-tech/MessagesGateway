@@ -13,8 +13,7 @@ defmodule ViberProtocol do
   def init(_opts) do
     {:ok, app_name} = :application.get_application(__MODULE__)
     RedisManager.set(Atom.to_string(app_name), @protocol_config)
-    url = Application.get_env(:viber_protocol, :elasticsearch_url)
-    HTTPoison.post(Enum.join([url, "/log_viber_protocol/log"]), Jason.encode!(%{status: "protocol started"}), [{"Content-Type", "application/json"}])
+    MgLogger.log_message(__MODULE__, %{__MODULE__ => "started"})
     {:ok, []}
   end
 
@@ -25,7 +24,7 @@ defmodule ViberProtocol do
     {:ok, answer} = ViberEndpoint.request("send_message", body)
     if "ok" ==  Map.get(answer, :status_message) do
       url = Application.get_env(:viber_protocol, :elasticsearch_url)
-      HTTPoison.post(Enum.join([url, "/log_viber_protocol/log", message_id]), Jason.encode!(%{:status => "sent"}), [{"Content-Type", "application/json"}])
+      MgLogger.log_message(__MODULE__, %{"message_id" => message_id, "status" => "sent"})
       :ok
     else
       resend(payload)

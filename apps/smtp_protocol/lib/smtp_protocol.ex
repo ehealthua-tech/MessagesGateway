@@ -20,14 +20,12 @@ defmodule SmtpProtocol do
   def init(_opts) do
     {:ok, app_name} = :application.get_application(__MODULE__)
     RedisManager.set(Atom.to_string(app_name), @protocol_config)
-    url = Application.get_env(:smtp_protocol, :elasticsearch_url)
-    HTTPoison.post(Enum.join([url, "/log_smtp_protocol/log"]), Jason.encode!(%{status: "protocol started"}), [{"Content-Type", "application/json"}])
+    MgLogger.log_message(__MODULE__, %{__MODULE__ => "started"})
     {:ok, []}
   end
 
   def send_email(%{message_id: message_id, contact: recipient, body: body, subject: subject}) do
     SmtpProtocol.Email.email(recipient, subject, body) |> SmtpProtocol.Mailer.deliver_now
-    url = Application.get_env(:smtp_protocol, :elasticsearch_url)
-    HTTPoison.post(Enum.join([url, "/log_smtp_protocol/log", message_id]), Jason.encode!(%{:status => "sent"}), [{"Content-Type", "application/json"}])
+    MgLogger.log_message(__MODULE__, %{"message_id" => message_id, "status" => "sent"})
   end
 end

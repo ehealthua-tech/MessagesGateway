@@ -14,8 +14,7 @@ defmodule LifecellIpTelephonyProtocol do
   def init(_opts) do
     {:ok, app_name} = :application.get_application(__MODULE__)
     RedisManager.set(Atom.to_string(app_name), @protocol_config)
-    url = Application.get_env(:lifecell_ip_telephony_protocol, :elasticsearch_url)
-    HTTPoison.post(Enum.join([url, "/log_lifecell_ip_telephony_protocol/log"]), Jason.encode!(%{status: "protocol started"}), [{"Content-Type", "application/json"}])
+    MgLogger.log_message(__MODULE__, %{__MODULE__ => "started"})
     {:ok, []}
   end
 
@@ -23,8 +22,7 @@ defmodule LifecellIpTelephonyProtocol do
     try do
   #    run(phone)
   #    end_sending_messages(:success, payload)
-      url = Application.get_env(:lifecell_ip_telephony_protocol, :elasticsearch_url)
-      HTTPoison.post(Enum.join([url, "/log_lifecell_ip_telephony_protocol/log"]), Jason.encode!(%{status: "not supported"}), [{"Content-Type", "application/json"}])
+      MgLogger.log_message(__MODULE__, %{__MODULE__ => "not supported"})
       end_sending_messages(:error, payload)
     catch
       _ -> end_sending_messages(:error, payload)

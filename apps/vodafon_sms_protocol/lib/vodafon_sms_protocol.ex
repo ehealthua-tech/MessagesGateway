@@ -14,14 +14,12 @@ defmodule VodafonSmsProtocol do
   end
 
   def init(_opts) do
-    url = Application.get_env(:vodafon_sms_protocol, :elasticsearch_url)
-    HTTPoison.post(Enum.join([url, "/log_vodafon_sms_protocol/log"]), Jason.encode!(%{status: "protocol started"}), [{"Content-Type", "application/json"}])
+    MgLogger.log_message(__MODULE__, %{__MODULE__ => "started"})
     {:ok, []}
   end
 
   def send_message(payload) do
-    url = Application.get_env(:vodafon_sms_protocol, :elasticsearch_url)
-    HTTPoison.post(Enum.join([url, "/log_vodafon_sms_protocol/log"]), Jason.encode!(%{status: "not supported"}), [{"Content-Type", "application/json"}])
+    MgLogger.log_message(__MODULE__, %{__MODULE__ => "not supported"})
     MqManager.send_to_operator(Jason.encode!(payload), "message_queue")
 #    with {:ok, app_name} <- :application.get_application(__MODULE__),
 #        protocol_config <- RedisManager.get(Atom.to_string(app_name)),
