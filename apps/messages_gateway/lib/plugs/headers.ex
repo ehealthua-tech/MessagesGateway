@@ -25,4 +25,14 @@ defmodule MessagesGateway.Plugs.Headers do
     conn
   end
 
+  def get_header(headers, header) when is_list(headers) do
+    Enum.reduce_while(headers, nil, fn {k, v}, acc ->
+      if String.downcase(k) == String.downcase(header) do
+        {:halt, v}
+      else
+        {:cont, acc}
+      end
+    end)
+  end
+
 end
