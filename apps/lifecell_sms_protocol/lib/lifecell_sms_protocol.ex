@@ -23,14 +23,12 @@ defmodule LifecellSmsProtocol do
   def init(_opts) do
     {:ok, app_name} = :application.get_application(__MODULE__)
     RedisManager.set(Atom.to_string(app_name), @protocol_config)
-    url = Application.get_env(:lifecell_sms_protocol, :elasticsearch_url)
-    HTTPoison.post(Enum.join([url, "/log_lifecell_sms_protocol/log"]), Jason.encode!(%{status: "protocol started"}), [{"Content-Type", "application/json"}])
+    GenServer.cast(MgLogger.Server, {:log, __MODULE__, %{__MODULE__ => "started"}})
     {:ok, []}
   end
 
   def check_and_send(%{contact: phone, body: message} = payload) do
-    url = Application.get_env(:lifecell_sms_protocol, :elasticsearch_url)
-    HTTPoison.post(Enum.join([url, "/log_lifecell_sms_protocol/log"]), Jason.encode!(%{status: "not supported"}), [{"Content-Type", "application/json"}])
+    GenServer.cast(MgLogger.Server, {:log, __MODULE__, %{__MODULE__ => "not supported"}})
     end_sending_messages(payload)
 #    with {:ok, request_body} <- prepare_request_body(payload),
 #         {:ok, response_body} <- EndpointManager.prepare_and_send_sms_request(request_body),

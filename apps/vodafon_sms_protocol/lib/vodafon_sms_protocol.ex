@@ -13,15 +13,12 @@ defmodule VodafonSmsProtocol do
   end
 
   def init(_opts) do
-    url = Application.get_env(:vodafon_sms_protocol, :elasticsearch_url)
-    HTTPoison.post(Enum.join([url, "/log_vodafon_sms_protocol/log"]), Jason.encode!(%{status: "protocol started"}), [{"Content-Type", "application/json"}])
+    GenServer.cast(MgLogger.Server, {:log, __MODULE__, %{__MODULE__ => "started"}})
     {:ok, []}
   end
 
   def send_message(payload) do
-    url = Application.get_env(:vodafon_sms_protocol, :elasticsearch_url)
-    HTTPoison.post(Enum.join([url, "/log_vodafon_sms_protocol/log"]), Jason.encode!(%{status: "not supported"}), [{"Content-Type", "application/json"}])
-
+    GenServer.cast(MgLogger.Server, {:log, __MODULE__, %{__MODULE__ => "not supported"}})
 #    with {:ok, app_name} <- :application.get_application(__MODULE__),
 #        protocol_config <- RedisManager.get(Atom.to_string(app_name)),
 #        {:ok, esme} <- SMPPEX.ESME.Sync.start_link(protocol_config.host, protocol_config.port),

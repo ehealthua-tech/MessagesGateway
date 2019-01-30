@@ -14,8 +14,7 @@ defmodule TelegramProtocol do
     {:ok, app_name} = :application.get_application(__MODULE__)
     RedisManager.set(Atom.to_string(app_name), @protocol_config)
     TelegramProtocol.start_telegram_lib
-    url = Application.get_env(:telegram_protocol, :elasticsearch_url)
-    HTTPoison.post(Enum.join([url, "/log_telegram_protocol/log"]), Jason.encode!(%{status: "protocol started"}), [{"Content-Type", "application/json"}])
+    GenServer.cast(MgLogger.Server, {:log, __MODULE__, %{__MODULE__ => "started"}})
     {:ok, []}
   end
 
