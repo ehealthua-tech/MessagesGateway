@@ -43,10 +43,7 @@ COPY --from=builder /app/_build/prod/rel/messages_gateway_api/releases/0.1.0/mes
 RUN tar -xzf messages_gateway_api.tar.gz; rm messages_gateway_api.tar.gz
 
 ENV REPLACE_OS_VARS=true \
-    RELX_REPLACE_OS_VARS=true \
-    APP=messages_gateway_api\
-    PORT=4000 \
-    MIX_ENV=prod
+    APP=messages_gateway_api \
 
 
 CMD ./bin/messages_gateway_api foreground
