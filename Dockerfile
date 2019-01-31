@@ -18,7 +18,7 @@ RUN cp apps/telegram_protocol/priv/types.json /app/deps/tdlib/priv/
 
 RUN mix do \
       deps.compile, \
-      release --name=messages_gateway_api
+      release --name=messages_gateway_api --env=prod --verbose
 
 FROM alpine:3.8
 
@@ -37,13 +37,19 @@ RUN apk add --no-cache \
 
 WORKDIR /app
 
+ENV PORT=4000 \
+    MIX_ENV=prod \
+    REPLACE_OS_VARS=true \
+    SHELL=/bin/bash
+
 COPY --from=builder /app/_build/prod/rel/messages_gateway_api/releases/0.1.0/messages_gateway_api.tar.gz /app
 #COPY --from=builder ./app/commits.txt /app
 
 RUN tar -xzf messages_gateway_api.tar.gz; rm messages_gateway_api.tar.gz
 
-ENV REPLACE_OS_VARS=true \
-    APP=messages_gateway_api
+RUN chown -R root ./releases
 
+EXPOSE 4000
+USER root
 
 CMD ./bin/messages_gateway_api foreground

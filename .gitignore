@@ -29,3 +29,5 @@ dump.rdb
 dev.secret.exs
 
 *.iml
+
+mydata_file
