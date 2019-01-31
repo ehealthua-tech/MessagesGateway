@@ -16,23 +16,24 @@ use Mix.Config
 config :messages_gateway, MessagesGatewayWeb.Endpoint,
   load_from_system_env: true,
   load_from_system_env: true,
-  http: [port: {:system, "PORT"}],
+  http: [port: System.get_env("PORT") |> String.to_integer() ],
   url: [
-    host: {:system, "HOST", "localhost"},
-    port: {:system, "PORT"}
+    host: System.get_env("HOST"),
+    port: System.get_env("PORT") |> String.to_integer()
   ],
   debug_errors: false,
   code_reloader: false
 
-config :messages_gateway, MessagesGateway.RedisManager,
-       database: "${REDIS_NAME}",
-       password: "${REDIS_PASSWORD}",
-       host: "${REDIS_HOST}",
-       port: "${REDIS_PORT}",
-       pool_size: "${REDIS_POOL_SIZE}"
+config :messages_gateway, MessagesGatewayWeb.RedisManager,
+       database: System.get_env("REDIS_NAME"),
+       password: System.get_env("REDIS_PASSWORD"),
+       host: System.get_env("REDIS_HOST"),
+       port: System.get_env("REDIS_PORT") |> String.to_integer(),
+       pool_size: System.get_env("REDIS_POOL_SIZE") |> String.to_integer()
+
 
 config :messages_gateway,
-       namespace: "${MQ_NAMESPACE}",
-       mq_host: "${MQ_HOST}",
-       mq_port: "${MQ_PORT}",
-       resend_timeout: "${MQ_RESEND_TIMEOUT}"
+       namespace: System.get_env("MQ_NAMESPACE"),
+       mq_host:  System.get_env("MQ_HOST"),
+       mq_port:  System.get_env( "MQ_PORT") |> String.to_integer(),
+       resend_timeout: System.get_env("MQ_RESEND_TIMEOUT") |> String.to_integer()

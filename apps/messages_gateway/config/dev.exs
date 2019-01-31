@@ -7,7 +7,7 @@ use Mix.Config
 # watchers to your application. For example, we use it
 # with brunch.io to recompile .js and .css sources.
 config :messages_gateway, MessagesGatewayWeb.Endpoint,
-  http: [port: 4011],
+  http: [port: 4001],
   debug_errors: true,
   code_reloader: true,
   check_origin: false,
@@ -55,3 +55,9 @@ config :messages_gateway, MessagesGateway.RedisManager,
        pool_size: 5
 
 config :messages_gateway, elasticsearch_url: "http://192.168.100.165:9200"
+
+config :messages_gateway,
+       namespace: System.get_env("MQ_NAMESPACE"),
+       mq_host:  System.get_env("MQ_HOST"),
+       mq_port:  System.get_env( "MQ_PORT"),
+       resend_timeout: System.get_env("MQ_RESEND_TIMEOUT")

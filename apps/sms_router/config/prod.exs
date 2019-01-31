@@ -1,9 +1,9 @@
 use Mix.Config
 
 
-config :messages_gateway, SmsRouter.RedisManager,
-       database: "${REDIS_NAME}",
-       password: "${REDIS_PASSWORD}",
-       host: "${REDIS_HOST}",
-       port: "${REDIS_PORT}",
-       pool_size: "${REDIS_POOL_SIZE}"
+config :sms_router, SmsRouter.RedisManager,
+       database: System.get_env("REDIS_NAME"),
+       password: System.get_env("REDIS_PASSWORD"),
+       host: System.get_env("REDIS_HOST"),
+       port: System.get_env("REDIS_PORT") |> String.to_integer(),
+       pool_size: System.get_env("REDIS_POOL_SIZE") |> String.to_integer()

@@ -78,8 +78,8 @@ defmodule MessagesGateway.MqManager do
 
   @spec connect(map()) :: map()
   def connect(%{queue_name: queue_name} = state) do
-    host = System.get_env("MQ_HOST")
-    port = System.get_env("MQ_PORT")
+    host = Application.get_env(:messages_gateway, :mq_host)
+    port = Application.get_env(:messages_gateway, :mq_port)
 
     case Connection.open([host: host, port: port]) do
       {:ok, conn} ->

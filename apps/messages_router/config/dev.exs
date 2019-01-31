@@ -40,3 +40,4 @@ config :messages_router, MessagesRouter.RedisManager,
        password: nil,
        port: 6379,
        pool_size: 5
+
