@@ -16,10 +16,10 @@ use Mix.Config
 config :messages_gateway, MessagesGatewayWeb.Endpoint,
   load_from_system_env: true,
   load_from_system_env: true,
-  http: [port: {:system, "PORT", "80"}],
+  http: [port: {:system, "PORT"}],
   url: [
     host: {:system, "HOST", "localhost"},
-    port: {:system, "PORT", "80"}
+    port: {:system, "PORT"}
   ],
   debug_errors: false,
   code_reloader: false
