@@ -55,8 +55,10 @@ defmodule DbAgent.OperatorsRequests do
           result: {:ok, OperatorsSchema.t()} | {:error, Ecto.Changeset.t()}
 
   def add_operator(params) do
+    priority = calc_priority()
+    insert_params = Map.put(params, :priority, priority)
     %OperatorsSchema{}
-    |> OperatorsSchema.changeset(params)
+    |> OperatorsSchema.changeset(insert_params)
     |> Repo.insert()
   end
 
@@ -155,6 +157,19 @@ defmodule DbAgent.OperatorsRequests do
   defp create_query_values([%{"id" => id, "priority" => priority, "active" => active}|t], acc) do
     new_acc = Enum.join([acc, ",(uuid('" , id, "'), ", Integer.to_string(priority), ", ", Atom.to_string(active), ")"])
     create_query_values(t, new_acc)
+  end
+
+  defp calc_priority() do
+    select_max_priority()
+    |> calc_priority()
+  end
+
+  defp calc_priority(max_priority) when is_integer(max_priority), do: max_priority + 1
+  defp calc_priority(_), do: 1
+
+  defp select_max_priority() do
+    query = from ot in OperatorTypesSchema, select: max(ot.priority)
+    SQL.query(Repo, query)
   end
 
 end
