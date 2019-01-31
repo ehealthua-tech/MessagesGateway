@@ -37,7 +37,7 @@ RUN apk add --no-cache \
 
 WORKDIR /app
 
-ENV PORT=4000 \
+ENV PORT=4011 \
     MIX_ENV=prod \
     REPLACE_OS_VARS=true \
     SHELL=/bin/bash
@@ -49,7 +49,7 @@ RUN tar -xzf messages_gateway_api.tar.gz; rm messages_gateway_api.tar.gz
 
 RUN chown -R root ./releases
 
-EXPOSE 4000
+EXPOSE 4011
 USER root
 
 CMD ./bin/messages_gateway_api foreground
