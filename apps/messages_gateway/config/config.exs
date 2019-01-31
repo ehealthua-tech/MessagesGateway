@@ -6,10 +6,6 @@
 use Mix.Config
 
 # General application configuration
-config :messages_gateway,
-  namespace: MessagesGateway,
-  mq_host: "192.168.100.165",
-  mq_port: 5672
 
 # Configures the endpoint
 config :messages_gateway, MessagesGatewayWeb.Endpoint,
