@@ -18,6 +18,7 @@ defmodule ViberProtocol do
   end
 
   def send_message(%{"message_id" => message_id, "contact" => phone, "body" => message} = payload) do
+    GenServer.cast(MgLogger.Server, {:log, __MODULE__, %{:message_id => message_id, status: "sending_viber"}})
     conn = DbAgent.ContactsRequests.get_by_phone_number!(phone)
     :io.format("~nconn: ~p~n", [conn])
     case conn do

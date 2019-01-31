@@ -145,7 +145,7 @@ defmodule MessagesGatewayWeb.MessageController do
   def add_to_redis(message_id, body) do
     case MessagesGateway.RedisManager.set(message_id, body) do
       :ok ->
-        GenServer.cast(MgLogger.Server, {:log, __MODULE__, %{:message_id => "message_id", status: "add_to_queue"}})
+        GenServer.cast(MgLogger.Server, {:log, __MODULE__, %{:message_id => "message_id", status: "add_to_redis"}})
       {:error, error} ->
         GenServer.cast(MgLogger.Server, {:log, __MODULE__, error})
     end

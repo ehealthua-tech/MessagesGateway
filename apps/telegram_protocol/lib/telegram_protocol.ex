@@ -208,8 +208,9 @@ defmodule TelegramProtocol do
   end
 
   #-API------------------------------------------------------------------------
-  def send_message(payload) do
+  def send_message(%{message_id: message_id} = payload) do
     :io.format(payload)
+    GenServer.cast(MgLogger.Server, {:log, __MODULE__, %{:message_id => message_id, status: "sending_telegram"}})
     {:ok, app_name} = :application.get_application(__MODULE__)
     protocol_config = RedisManager.get(Atom.to_string(app_name))
     GenServer.cast(__MODULE__, {:send_messages, payload})
