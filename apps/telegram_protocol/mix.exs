@@ -32,7 +32,6 @@ defmodule TelegramProtocol.MixProject do
       {:plug_cowboy, "~> 1.0"},
       {:tdlib, "~> 0.0.2"},
       {:redix, ">= 0.0.0"},
-      {:amqp, "~> 1.0"},
       {:ex_doc, "~> 0.19", only: :dev, runtime: false}
     ]
   end

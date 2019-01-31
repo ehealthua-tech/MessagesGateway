@@ -83,6 +83,8 @@ defmodule MessagesGateway.MqManager do
 
     case Connection.open([host: host, port: port]) do
       {:ok, conn} ->
+
+        :io.format("~n~n~n!!!!!!!!!!!!!!MQ CONNECT: ~p~n", [conn])
         Process.monitor(conn.pid)
 
         {:ok, chan} = Channel.open(conn)

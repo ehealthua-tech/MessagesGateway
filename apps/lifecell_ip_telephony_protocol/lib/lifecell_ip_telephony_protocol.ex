@@ -4,7 +4,6 @@ defmodule LifecellIpTelephonyProtocol do
   """
   @protocol_config %{host: "", port: ""}
 #  use SpeakEx.CallController
-  alias LifecellIpTelephonyProtocol.MqManager
   alias LifecellIpTelephonyProtocol.RedisManager
 
   def start_link do

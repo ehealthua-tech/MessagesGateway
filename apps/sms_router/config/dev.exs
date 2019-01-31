@@ -29,11 +29,6 @@ use Mix.Config
 #
 #     import_config "#{Mix.env()}.exs"
 
-config :sms_router,
-       namespace: MessagesRouter,
-       mq_host: "192.168.100.165",
-       mq_port: 5672
-
 config :sms_router, SmsRouter.RedisManager,
        host: "192.168.100.165",
        database: "1",

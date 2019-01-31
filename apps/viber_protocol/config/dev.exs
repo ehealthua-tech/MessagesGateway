@@ -28,12 +28,6 @@ use Mix.Config
 # here (which is why it is important to import them last).
 #
 #     import_config "#{Mix.env()}.exs"
-
-config :viber_protocol,
-       namespace: MessagesRouter,
-       mq_host: "192.168.100.165",
-       mq_port: 5672
-
 config :viber_protocol,
        auth_token: "48f01d9268e7d064-5c8b70def6243721-a025fd7b15cb0902"
 

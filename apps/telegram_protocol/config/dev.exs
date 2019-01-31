@@ -28,14 +28,6 @@ use Mix.Config
 # here (which is why it is important to import them last).
 #
 #     import_config "#{Mix.env()}.exs"
-
-config :telegram_protocol,
-       namespace: MessagesRouter,
-       mq_host: "192.168.100.165",
-       mq_port: 5672,
-       resend_timeout: 30
-
-
 config :telegram_protocol,  TelegramProtocol.RedisManager,
        host: "192.168.100.165",
        database: "1",

@@ -1,7 +1,6 @@
 defmodule ViberProtocol do
   use GenServer
   alias ViberProtocol.RedisManager
-  alias ViberProtocol.MqManager
   alias ViberEndpoint
 
   @event_types ["delivered", "seen", "failed", "subscribed","unsubscribed", "conversation_started"]

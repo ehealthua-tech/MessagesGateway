@@ -28,7 +28,6 @@ defmodule LifecellIpTelephonyProtocol.MixProject do
   defp deps do
     [
 #      {:speak_ex, "~> 0.3"},
-      {:amqp, "~> 1.0"}
     ]
   end
 end

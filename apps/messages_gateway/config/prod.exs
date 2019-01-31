@@ -30,3 +30,9 @@ config :messages_gateway, MessagesGateway.RedisManager,
        host: "${REDIS_HOST}",
        port: "${REDIS_PORT}",
        pool_size: "${REDIS_POOL_SIZE}"
+
+config :messages_gateway,
+       namespace: "${MQ_NAMESPACE}",
+       mq_host: "${MQ_HOST}",
+       mq_port: "${MQ_PORT}",
+       resend_timeout: "${MQ_RESEND_TIMEOUT}"
