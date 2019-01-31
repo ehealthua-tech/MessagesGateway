@@ -39,7 +39,7 @@ config :messages_gateway, MessagesGatewayWeb.Endpoint,
       ~r{lib/messages_gateway_web/templates/.*(eex)$}
     ]
   ]
-  
+
 
 # Do not include metadata nor timestamps in development logs
 config :logger, :console, format: "[$level] $message\n"

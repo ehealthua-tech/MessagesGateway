@@ -80,6 +80,8 @@ defmodule MessagesGateway.MqManager do
     host = Application.get_env(:messages_gateway, :mq_host)
     port = Application.get_env(:messages_gateway, :mq_port)
 
+    :io.format("~n~n~n!!!!!!!!!!!!!!host: ~p~n", [host])
+    :io.format("~n~n~n!!!!!!!!!!!!!!port: ~p~n", [port])
     case Connection.open([host: host, port: port]) do
       {:ok, conn} ->
 
