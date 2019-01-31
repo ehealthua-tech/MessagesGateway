@@ -33,11 +33,11 @@ defmodule MessagesGatewayWeb.KeysController do
 
   @spec deactivate(conn, params) :: result when
           conn:   conn(),
-          params: %{"resource": %{"user": String.t()}},
+          params: %{"resource": %{"id": String.t()}},
           result: result()
 
-  def deactivate(conn,%{"resource" => %{"user" => user}}) do
-    with :ok <- deactivate(user)
+  def deactivate(conn,%{"resource" => %{"id" => id}}) do
+    with :ok <- deactivate(id)
       do
       render(conn, "change_keys.json", %{status: "success"})
     end
@@ -45,11 +45,11 @@ defmodule MessagesGatewayWeb.KeysController do
 
   @spec activate(conn, params) :: result when
           conn:   conn(),
-          params: %{"resource": %{"user": String.t()}},
+          params: %{"resource": %{"id": String.t()}},
           result: result()
 
-  def activate(conn,%{"resource" => %{"user" => user}}) do
-    with :ok <- activate(user)
+  def activate(conn,%{"resource" => %{"id" => id}}) do
+    with :ok <- activate(id)
       do
       render(conn, "change_keys.json", %{status: "success"})
     end
@@ -57,7 +57,7 @@ defmodule MessagesGatewayWeb.KeysController do
 
   @spec delete(conn, params) :: result when
           conn:   conn(),
-          params: %{"resource": %{"user": String.t()}},
+          params: %{"resource": %{"id": String.t()}},
           result: result() | {:error, :operators_present}
 
   def delete(conn, %{"id" => id}) do
@@ -67,7 +67,7 @@ defmodule MessagesGatewayWeb.KeysController do
     end
   end
 
-  @spec generate() :: {:ok, user: String.t(), key: String.t()}
+  @spec generate() :: {:ok, id: String.t(), key: String.t()}
 
   defp generate() do
     key_binary = <<
@@ -76,14 +76,14 @@ defmodule MessagesGatewayWeb.KeysController do
       :erlang.unique_integer()::32
     >>
     key = Base.hex_encode32(key_binary, case: :lower)
-    user_binary = <<
+    id_binary = <<
       System.system_time(:nanosecond)::32,
       :erlang.phash2({node(), self()}, 16_777_216)::24,
       :erlang.unique_integer()::16
     >>
-    user = Base.hex_encode32(user_binary, case: :lower)
+    id = Base.hex_encode32(id_binary, case: :lower)
     {:ok, ref} = :dets.open_file(:mydata_file, [])
-    :dets.insert(ref, {user, {key, :active}})
+    :dets.insert(ref, {id, {key, :true}})
     :dets.close(ref)
     :ok
   end
@@ -93,44 +93,44 @@ defmodule MessagesGatewayWeb.KeysController do
   defp all_keys do
     {:ok, ref} = :dets.open_file(:mydata_file, [])
     list = :dets.select(ref, [{:"$1", [], [:"$1"]}])
-    map = Enum.map(list, fn({id, {key, status}}) -> %{id: id, key: key, status: status} end)
+    map = Enum.map(list, fn({id, {key, status}}) -> %{id: id, key: key, active: status} end)
     {:ok, map}
   end
 
-  @spec deactivate(user: String.t()) :: :ok
+  @spec deactivate(id: String.t()) :: :ok
 
-  defp deactivate(user) do
+  defp deactivate(id) do
     {:ok, ref} = :dets.open_file(:mydata_file, [])
-    [{user, {key,active}}] = :dets.lookup(ref, user)
-    if active == :not_active do
+    [{id, {key,status}}] = :dets.lookup(ref, id)
+    if status == :false do
       :ok
     else
-      :dets.insert(ref, {user, {key, :not_active}})
+      :dets.insert(ref, {id, {key, :false}})
     end
     :dets.close(ref)
   end
 
-  @spec activate(user: String.t()) :: :ok
+  @spec activate(id: String.t()) :: :ok
 
-  defp activate(user) do
+  defp activate(id) do
     {:ok, ref} = :dets.open_file(:mydata_file, [])
-    [{user, {key,active}}] = :dets.lookup(ref, user)
-    if active == :active do
+    [{id, {key,status}}] = :dets.lookup(ref, id)
+    if status == :true do
       :ok
     else
-      :dets.insert(ref, {user, {key, :active}})
+      :dets.insert(ref, {id, {key, :true}})
     end
     :dets.close(ref)
   end
 
-  @spec delete(user: String.t()) :: :ok
+  @spec delete(id: String.t()) :: :ok
 
-  defp delete(user) do
+  defp delete(id) do
     {:ok, ref} = :dets.open_file(:mydata_file, [])
-    if [] == :dets.lookup(ref, user) do
+    if [] == :dets.lookup(ref, id) do
       :ok
     else
-      :dets.delete(ref, user)
+      :dets.delete(ref, id)
     end
     :dets.close(ref)
   end
