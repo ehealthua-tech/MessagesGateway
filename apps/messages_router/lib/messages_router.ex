@@ -22,14 +22,14 @@ defmodule MessagesRouter do
   end
 
   @spec check_next_protocol(map(), map()) :: :ok | {:error, binary()} | term()
-  defp check_next_protocol(%{active_protocol_type: true, active: true}, message_status_info)  do
-    sending_message_to_protocol(message_status_info)
+  defp check_next_protocol(%{active_protocol_type: true, active: true} = protocol, message_status_info)  do
+    sending_message_to_protocol(protocol, message_status_info)
   end
   defp check_next_protocol(_, message_status_info), do: end_sending_message(message_status_info)
 
-  @spec sending_message_to_protocol(map()) :: term()
-  def sending_message_to_protocol(message_status_info) do
-     protocol_config = RedisManager.get(message_status_info.protocol_name)
+  @spec sending_message_to_protocol(map(), map()) :: term()
+  def sending_message_to_protocol(protocol, message_status_info) do
+    protocol_config = MessagesGateway.RedisManager.get(protocol.protocol_name)
      apply(String.to_atom(protocol_config.module_name), String.to_atom(protocol_config.method_name), [message_status_info])
      |> send_message()
   end
