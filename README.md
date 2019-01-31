@@ -651,7 +651,7 @@ url: HOST:PORT/api/keys/activate
 *request:*
 ```
 Method: DELETE
-url: HOST:PORT/api/keys/id
+url: HOST:PORT/api/keys/user
 ```
 
 *response:*

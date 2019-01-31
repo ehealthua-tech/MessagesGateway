@@ -9,5 +9,3 @@ config :db_agent, DbAgent.Repo,
        hostname: "192.168.100.165",
 #       port: 5432,
        pool_size: 10
-
-config :db_agent, elasticsearch_url: "http://192.168.100.165:9200"

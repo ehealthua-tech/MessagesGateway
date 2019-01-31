@@ -33,9 +33,8 @@ defmodule MessagesGateway.MqManager do
         when reply: term(), new_state: term(), reason: term()
   def handle_call({:publish, message}, _, %{chan: chan, connected: true, queue_name: queue_name} = state) do
     result = Basic.publish(chan, "", @queue, message, [persistent: true, priority: 0])
-    url = Application.get_env(:messages_gateway, :elasticsearch_url)
     message_id = Map.get(Jason.decode!(message), "message_id")
-    HTTPoison.post(Enum.join([url, "/log_messages_gateway/log/", message_id]), Jason.encode!(%{message_id: message_id, status: "add_to_queue"}), [{"Content-Type", "application/json"}])
+    GenServer.cast(MgLogger.Server, {:log, __MODULE__, %{:message_id => "message_id", status: "add_to_queue"}})
     {:reply, result, state}
   end
 

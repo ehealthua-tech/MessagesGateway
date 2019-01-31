@@ -14,7 +14,6 @@ defmodule MgLogger.Server do
   end
 
   def handle_cast({:log, module, payload}, %{:url => url} = state) do
-    :io.format("~n~p~n~n",[module])
     lowercase_string_module = String.downcase(to_string(module))
     payload_with_date = Map.put(payload, "date", DateTime.to_string(DateTime.utc_now()))
     payload_with_module_name = Map.put(payload_with_date, "module", lowercase_string_module)
