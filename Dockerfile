@@ -13,7 +13,6 @@ RUN mix do \
       local.rebar --force, \
       deps.get
 
-RUN ls -la apps/telegram_protocol/priv/
 RUN cp apps/telegram_protocol/priv/tdlib-json-cli /app/deps/tdlib/priv/
 RUN cp apps/telegram_protocol/priv/types.json /app/deps/tdlib/priv/
 
@@ -44,7 +43,7 @@ COPY --from=builder /app/_build/prod/rel/messages_gateway_api/releases/0.1.0/mes
 RUN tar -xzf messages_gateway_api.tar.gz; rm messages_gateway_api.tar.gz
 
 ENV REPLACE_OS_VARS=true \
-      APP=messages_gateway_api
+    APP=messages_gateway_api \
 
 
 CMD ./bin/messages_gateway_api foreground

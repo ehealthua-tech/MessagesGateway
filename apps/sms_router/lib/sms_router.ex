@@ -3,7 +3,6 @@ defmodule SmsRouter do
   Documentation for SmsRouter.
   """
   alias SmsRouter.RedisManager
-  alias SmsRouter.MqManager
   alias DbAgent.ContactsRequests
 
   @operator_codes :operator_codes

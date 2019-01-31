@@ -19,16 +19,16 @@ defmodule LifecellIpTelephonyProtocol.MixProject do
   def application do
     [
       extra_applications: [:logger],
-      mod: {LifecellIpTelephonyProtocol.Application, []},
-      applications: [:ex_ami]
+      mod: {LifecellIpTelephonyProtocol.Application, []}
+#      applications: [:ex_ami]
     ]
   end
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:speak_ex, "~> 0.3"},
-      {:amqp, "~> 1.0"}
+      {:httpoison, "~> 1.4"}
+#      {:speak_ex, "~> 0.3"},
     ]
   end
 end

@@ -1,0 +1,200 @@
+FORMAT: 1A
+HOST: https://dev-messagesgateway.skywell.software
+
+# MessagesGateway API General
+
+This part covers general request such as send message,send email,check status
+
+## Requests collection [/requests]
+### send message [POST/sending/message/{contact},{body},{system_id},{callback_url}]
+ This request is used to send message with some body.
+ 
+ Headers must contain key "Auhtorization" with value "Bearer *token*".
+ 
+ 
+ Returns  message_id and  system_id as a response 
++ Parameters
+     + contact: "+380631111111"(String,required),
+     + body: "hello"(String,required),
+     + system_id: "1111111"(String,required),
+     + callback_url: "https://www.google.com" (String,optional)
+
++ Request 
+
+         {"resource": {
+             "contact": "+380631111111",      
+             "body": "hello",
+             "system_id": "1111111",
+             "callback_url": "https://www.google.com"
+          }
+          }
+         
++ Response 200 (application/json)
+
+        {
+          "data": {
+        "message_id": "ddb576a5-27ca-4502-bdf2-f31f940833de",
+        "system_id": "1111111"
+        },
+        "meta": {
+        "code": 200,
+        "request_id": "2lttqf04g643qgp6oc000cm1",
+        "type": "object",
+        "url": "http://localhost:4011/sending/messagel"
+        }
+        }  
+
+### send email [POST /sending/email/{email},{body},{system_id}]
+This request is used during email sending .
+
+Headers must contain key "Auhtorization" with value "Bearer *token*".
+
+
+Returns  message_id and  system_id as a response  
++ Parameters
+     + email: "u@u.u"(String,required),
+     + body: "hello"(String,required),
+     + system_id: "1111111"(String,required),
+     
++ Request 
+
+         {"resource": {
+             "email": "u@u.u",      
+             "body": "hello",
+             "system_id": "1111111"
+          }
+          }     
+
++ Response 200 (application/json)
+
+        {
+          "data": {
+        "message_id": "ddb576a5-27ca-4502-bdf2-f31f940833de",
+        "system_id": "1111111"
+        },
+        "meta": {
+        "code": 200,
+        "request_id": "2lttqf04g643qgp6oc000cm1",
+        "type": "object",
+        "url": "http://localhost:4011/sending/email"
+        }
+        }   
+
+### check status [POST /sending/status/{message_id}]
+This request is used to check message_status via its message_id.
+
+Headers must contain key "Auhtorization" with value "Bearer *token*".
++ Parameters
+      + message_id: "ddb576a5-27ca-4502-bdf2-f31f940833de"(String,required)
+
++ Request
+
+          {"resource":
+          {
+              "message_id": "ddb576a5-27ca-4502-bdf2-f31f940833de"
+           }
+           }
+          
++ Response 200 (application/json)
+
+        {
+          "data": {    
+         "message_id": "ddb576a5-27ca-4502-bdf2-f31f940833de",
+         "message_status": true
+
+         },
+         "meta": {
+         "code": 200,
+         "request_id": "2lttqf04g643qgp6oc000cm1",
+         "type": "object",
+         "url": "http://localhost:4011/sending/status"
+         }
+         }  
+         
+### queue size  [GET /sending/queue_size ]
+This request is used to define number of messages in queue.
+
+Headers must contain key "Auhtorization" with value "Bearer *token*".
++ Response 200 (application/json)
+      
+           {
+          "data": {
+          "queue_size": 1
+            },
+          
+          "meta": {
+          "code": 200,
+          "request_id": "2lubpth03bmds1gm9o000301",
+          "type": "object",
+          "url": "http://dev-messagesgateway.skywell.software/sending/queue_size"
+           }
+           }
+         
+### generate new keys [GET /api/keys ]
+This request is used to generate new keys
++ Response 200 (application/json)
+
+        {
+        "data": {
+        "key": "2lv4eu5ceq98tcqki0000kn1",
+        "status": "active",
+        "user": "lhr9titjai85608="
+          },
+        "meta": {
+        "code": 200,
+        "request_id": "2loi61rj3955jeltk800011h",
+        "type": "object",
+        "url": "http://dev-messagesgateway.skywell.software/api/keys"
+         }
+         }
+         
+### deactivate keys [POST /api/keys/deactivate ]
+This request is used to deactivate keys
+
++ Response 200 (application/json)
+       
+           {
+           "data": {
+           "status": "success"
+           },
+           "meta": {
+           "code": 200,
+           "request_id": "2loi61rj3955jeltk800011h",
+           "type": "object",
+           "url": "http://dev-messagesgateway.skywell.software/api/keys/deactivate"
+          }
+          }
+
+### activate keys [POST /api/keys/activate ]
+This request is used to activate keys.
+
++ Response 200 (application/json)
+
+        {
+        "data": {
+        "status": "success"
+        },
+        "meta": {
+        "code": 200,
+        "request_id": "2loi61rj3955jeltk800011h",
+        "type": "object",
+        "url": "http://dev-messagesgateway.skywell.software/api/keys/activate"
+        }
+        }
+        
+### delete keys [DELETE /api/keys/id ]
+This request is used to delete keys
+
++ Response 200 (application/json)
+
+         {
+        "data": {
+        "status": "success"
+        },
+        "meta": {
+        "code": 200,
+        "request_id": "2loi61rj3955jeltk800011h",
+        "type": "object",
+        "url": "http://dev-messagesgateway.skywell.software/api/keys/id"
+         }
+         }

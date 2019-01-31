@@ -559,15 +559,46 @@ url: HOST:PORT/api/keys
 ```json
 {
     "data": {
-        "key": "2lv4eu5ceq98tcqki0000kn1",
-        "status": "active",
-        "user": "lhr9titjai85608="
+        "status": "success"
     },
     "meta": {
         "code": 200,
         "request_id": "2loi61rj3955jeltk800011h",
         "type": "object",
         "url": "http://192.168.100.165:4011/api/keys"
+    }
+}
+```
+**all_keys**
+
+*request:*
+```
+Method: GET
+url: HOST:PORT/api/keys/all
+```
+
+*response:*
+```json
+{
+    "data": {
+        "keys": [
+                    {
+                        "id": "vdvj56ue2ol0i8g=",
+                        "key": "2luvugfrfsb6pjgm58000282",
+                        "status": "active"
+                    },
+                    {
+                        "id": "onpd027i25qgn0g=",
+                        "key": "2luvu7u5ub1hvsghek0002r2",
+                        "status": "active"
+                    }
+                ]
+    },
+    "meta": {
+        "code": 200,
+        "request_id": "2loi61rj3955jeltk800011h",
+        "type": "object",
+        "url": "http://192.168.100.165:4011/api/keys/all"
     }
 }
 ```
