@@ -38,6 +38,7 @@ defmodule MessagesGatewayWeb.Router do
     scope "/keys" do
       post "/deactivate", KeysController, :deactivate
       post "/activate", KeysController, :activate
+      get "/all", KeysController, :get_all
       resources "/", KeysController, except: [:new, :edit, :update, :create]
     end
   end

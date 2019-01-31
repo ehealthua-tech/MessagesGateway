@@ -13,9 +13,21 @@ defmodule MessagesGatewayWeb.KeysController do
           result: result()
 
   def index(conn, _params) do
-    with {:ok, user, key} <- generate()
+    with :ok <- generate()
       do
-      render(conn, "index.json",  %{:user => user, :key => key, :status => :active})
+      render(conn, "change_keys.json", %{status: "success"})
+    end
+  end
+
+  @spec get_all(conn, params) :: result when
+          conn:   conn(),
+          params: map(),
+          result: result()
+
+  def get_all(conn, _params) do
+    with {:ok, keys} <- all_keys()
+      do
+      render(conn, "keys.json", %{keys: keys})
     end
   end
 
@@ -73,7 +85,16 @@ defmodule MessagesGatewayWeb.KeysController do
     {:ok, ref} = :dets.open_file(:mydata_file, [])
     :dets.insert(ref, {user, {key, :active}})
     :dets.close(ref)
-    {:ok, user, key}
+    :ok
+  end
+
+  @spec all_keys() :: {:ok, list()}
+
+  defp all_keys do
+    {:ok, ref} = :dets.open_file(:mydata_file, [])
+    list = :dets.select(ref, [{:"$1", [], [:"$1"]}])
+    map = Enum.map(list, fn({id, {key, status}}) -> %{id: id, key: key, status: status} end)
+    {:ok, map}
   end
 
   @spec deactivate(user: String.t()) :: :ok
