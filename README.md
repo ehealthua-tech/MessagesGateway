@@ -585,12 +585,12 @@ url: HOST:PORT/api/keys/all
                     {
                         "id": "vdvj56ue2ol0i8g=",
                         "key": "2luvugfrfsb6pjgm58000282",
-                        "status": "active"
+                        "active": true
                     },
                     {
                         "id": "onpd027i25qgn0g=",
                         "key": "2luvu7u5ub1hvsghek0002r2",
-                        "status": "active"
+                        "active": false
                     }
                 ]
     },
@@ -609,7 +609,14 @@ url: HOST:PORT/api/keys/all
 Method: POST
 url: HOST:PORT/api/keys/deactivate
 ```
-
+body:
+  ```json
+  
+  {"resource": {
+              "id":"ej1kh9mamotgt0o="
+          }}
+  
+  ```
 *response:*
 ```json
 {
@@ -631,7 +638,14 @@ url: HOST:PORT/api/keys/deactivate
 Method: POST
 url: HOST:PORT/api/keys/activate
 ```
-
+body:
+  ```json
+  
+  {"resource": {
+              "id":"ej1kh9mamotgt0o="
+          }}
+  
+  ```
 *response:*
 ```json
 {
@@ -651,7 +665,7 @@ url: HOST:PORT/api/keys/activate
 *request:*
 ```
 Method: DELETE
-url: HOST:PORT/api/keys/user
+url: HOST:PORT/api/keys/id
 ```
 
 *response:*
