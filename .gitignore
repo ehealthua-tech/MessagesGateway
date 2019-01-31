@@ -29,3 +29,12 @@ dump.rdb
 dev.secret.exs
 
 *.iml
+
+mydata_file
+
+
+docker run -p 4000:4011 \
+            --env-file env/messages_gateway_api/.env \
+              --add-host=localhost:192.168.100.165 \
+            --name messages_gateway_api \
+            registry.skywell.software/message_gateway_admin_web/messages_gateway_api:latest
