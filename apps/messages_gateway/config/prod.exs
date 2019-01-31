@@ -15,11 +15,10 @@ use Mix.Config
 # which you typically run after static files are built.
 config :messages_gateway, MessagesGatewayWeb.Endpoint,
   load_from_system_env: true,
-  load_from_system_env: true,
-  http: [port: System.get_env("PORT") |> String.to_integer() ],
+  http: [port: 4011 ],
   url: [
-    host: System.get_env("HOST"),
-    port: System.get_env("PORT") |> String.to_integer()
+    host: localhost,
+    port: 4011
   ],
   debug_errors: false,
   code_reloader: false
