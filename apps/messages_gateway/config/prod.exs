@@ -25,14 +25,14 @@ config :messages_gateway, MessagesGatewayWeb.Endpoint,
   code_reloader: false
 
 config :messages_gateway, MessagesGateway.RedisManager,
-       database: "${REDIS_NAME}",
-       password: "${REDIS_PASSWORD}",
-       host: "${REDIS_HOST}",
-       port: "${REDIS_PORT}",
-       pool_size: "${REDIS_POOL_SIZE}"
+       database: {:system, "REDIS_NAME"},
+       password: {:system, "REDIS_PASSWORD"},
+       host: {:system, "REDIS_HOST"},
+       port: {:system, "REDIS_PORT"},
+       pool_size: {:system, "REDIS_POOL_SIZE"}
 
 config :messages_gateway,
-       namespace: "${MQ_NAMESPACE}",
-       mq_host: "${MQ_HOST}",
-       mq_port: "${MQ_PORT}",
-       resend_timeout: "${MQ_RESEND_TIMEOUT}"
+       namespace: {:system, "MQ_NAMESPACE"},
+       mq_host: {:system, "MQ_HOST"},
+       mq_port: {:system, "MQ_PORT"},
+       resend_timeout: {:system, "MQ_RESEND_TIMEOUT"}
