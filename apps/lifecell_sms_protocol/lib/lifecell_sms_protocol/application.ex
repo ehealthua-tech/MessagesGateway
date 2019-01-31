@@ -7,7 +7,7 @@ defmodule LifecellSmsProtocol.Application do
 
   def start(_type, _args) do
     import Supervisor.Spec
-    config = Application.get_env(:telegram_protocol, TelegramProtocol.RedisManager)
+    config = Application.get_env(:lifecell_sms_protocol, LifecellSmsProtocol.RedisManager)
     hostname = config[:host]
     password = config[:password]
     database = config[:database]
@@ -21,9 +21,10 @@ defmodule LifecellSmsProtocol.Application do
         id: {Redix, i}
       )
     end
+    callback_port = Application.get_env(:lifecell_sms_protocol, :callback_port)
     children = redis_workers ++ [
       worker(LifecellSmsProtocol, []),
-      Plug.Cowboy.child_spec(scheme: :http, plug: LifecellSmsProtocol.LifecellSmsCallback, options: [port: 6014]),
+      Plug.Cowboy.child_spec(scheme: :http, plug: LifecellSmsProtocol.LifecellSmsCallback, options: [port: callback_port]),
       # Starts a worker by calling: LifecellSmsProtocol.Worker.start_link(arg)
       # {LifecellSmsProtocol.Worker, arg},
     ]

@@ -21,7 +21,7 @@ defmodule MessagesGateway.MixProject do
   # Run "mix help deps" for examples and options.
   defp deps do
     [
-      {:distillery, "~> 2.0", runtime: false},
+      {:distillery, "~> 1.5", runtime: false},
       {:dialyxir, "~> 1.0.0-rc.3", only: [:dev, :test], runtime: false},
       {:excoveralls, "~> 0.10", only: [:dev, :test]},
       {:credo, "~> 1.0", only: [:dev, :test]}

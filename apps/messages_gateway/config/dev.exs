@@ -7,7 +7,7 @@ use Mix.Config
 # watchers to your application. For example, we use it
 # with brunch.io to recompile .js and .css sources.
 config :messages_gateway, MessagesGatewayWeb.Endpoint,
-  http: [port: 4011],
+  http: [port: 4005],
   debug_errors: true,
   code_reloader: true,
   check_origin: false,
@@ -39,7 +39,6 @@ config :messages_gateway, MessagesGatewayWeb.Endpoint,
       ~r{lib/messages_gateway_web/templates/.*(eex)$}
     ]
   ]
-
 
 # Do not include metadata nor timestamps in development logs
 config :logger, :console, format: "[$level] $message\n"
