@@ -14,7 +14,7 @@ defmodule LifecellSmsProtocol do
   @send_sms_response_parse_schema [status: ~x"//state/text()", lifecell_sms_id: ~x"./@id", date:  ~x"./@date",
     id: ~x"./@ext_id", error: ~x"//status/state/@error" ]
 
-  @protocol_config %{login: "", password: ""}
+  @protocol_config %{login: "", password: "", code: ["093", "063"]}
 
   def start_link do
     GenServer.start_link(__MODULE__, [], name: __MODULE__)

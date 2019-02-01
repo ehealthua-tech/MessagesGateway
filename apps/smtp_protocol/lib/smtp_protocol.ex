@@ -3,13 +3,6 @@ defmodule SmtpProtocol do
   alias SmtpProtocol.RedisManager
 
   @protocol_config   %{
-    active: true,
-    active_protocol_type: true,
-    configs: %{},
-    limit: 10,
-    operator_priority: 1,
-    priority: 2,
-    protocol_name: "smtp_protocol",
     module_name: __MODULE__,
     method_name: :send_email
   }

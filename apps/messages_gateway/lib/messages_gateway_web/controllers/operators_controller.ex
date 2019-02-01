@@ -46,9 +46,9 @@ defmodule MessagesGatewayWeb.OperatorsController do
             "active": boolean()}},
           result: result()
 
-  def create(conn, %{"resource" => operator_info}) do
-    status = OperatorsRequests.add_operator(operator_info)
-    with {:ok, _} <- status do
+  def create(conn, %{"resource" => operator_info_resp}) do
+    operator_info = check_required_fuilds(Map.has_key?(operator_info_resp, "config"), operator_info_resp)
+    with {:ok, _} <- OperatorsRequests.add_operator(operator_info) do
       render(conn, "create.json", %{status: "success"})
     end
   end
@@ -66,16 +66,24 @@ defmodule MessagesGatewayWeb.OperatorsController do
             "priority": integer()}},
           result: result()
 
-  def change_info(conn, %{"resource" => %{"id" => id, "config" => config} = operator_info}) do
+  def change_info(conn, %{"resource" => %{"id" => id} = operator_info_resp}) do
+    operator_info = %{"config" => config} = check_required_fuilds(Map.has_key?(operator_info_resp, "config"), operator_info_resp)
     {_, operator_info_r} = Map.split(operator_info, ["id", "operator_type", "config"])
     with {1, _} <- OperatorsRequests.change_operator(id, [{:config, config} | convert(operator_info_r)])
       do
         OperatorsRequests.list_operators()
         |> select_operator([])
         |> add_operators_info_to_redis()
+
+        operator_info = OperatorsRequests.operator_by_id(id)
+        :io.format("~n~p~n", [])
+        update_protocol_config(Map.get(operator_info, "protocol_name"), config)
         render(conn, "create.json", %{status: "success"})
     end
   end
+
+  def check_required_fuilds(true, operator_info), do: operator_info
+  def check_required_fuilds(_, operator_info), do: Map.put(operator_info, "config", %{})
 
   @spec select_operator(list_operators, select_operator_list) :: result when
           list_operators: [DbAgent.Operators.t()] | [] | {:error, Ecto.Changeset.t()},
@@ -108,6 +116,12 @@ defmodule MessagesGatewayWeb.OperatorsController do
       do
         render(conn, "delete.json", %{status: "success"})
     end
+  end
+
+  def update_protocol_config(protocol_name, config) do
+    old_config = RedisManager.get(protocol_name)
+    new_config = Map.merge(old_config, config)
+    RedisManager.set(protocol_name, new_config)
   end
 
   @spec show(conn, show_params) :: result when

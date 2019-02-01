@@ -18,14 +18,18 @@ defmodule MessagesRouter do
     select_protocol = Enum.min_by(priority_list, fn x -> x.priority end)
     new_priority_list = List.delete(priority_list, select_protocol)
     new_message_status_info = Map.put(message_status_info, :priority_list, new_priority_list)
+    RedisManager.set(new_message_status_info.message_id, new_message_status_info)
     check_next_protocol(select_protocol, new_message_status_info)
   end
+  defp select_protocol_and_send(message_status_info), do: end_sending_message(message_status_info)
 
   @spec check_next_protocol(map(), map()) :: :ok | {:error, binary()} | term()
   defp check_next_protocol(%{active_protocol_type: true, active: true} = protocol, message_status_info)  do
     sending_message_to_protocol(protocol, message_status_info)
   end
-  defp check_next_protocol(_, message_status_info), do: end_sending_message(message_status_info)
+  defp check_next_protocol(_, message_status_info) do
+    check_message_status(message_status_info)
+  end
 
   @spec sending_message_to_protocol(map(), map()) :: term()
   def sending_message_to_protocol(protocol, message_status_info) do

@@ -4,7 +4,7 @@ defmodule ViberProtocol do
   alias ViberEndpoint
 
   @event_types ["delivered", "seen", "failed", "subscribed","unsubscribed", "conversation_started"]
-  @protocol_config %{auth_token: ""}
+  @protocol_config %{module_name: __MODULE__, method_name: :send_message}
 
 # ---- Init functions ----
   def start_link do
@@ -77,6 +77,7 @@ defmodule ViberProtocol do
   def handle_cast({"webhook", body}, state), do: {:noreply, state}
 
   def handle_cast({"seen", %{"message_token" => message_token} = body}, state) do
+    :io.format("~nstate: ~p~n", [state])
     message_info = Enum.find(state, fn x -> Map.get(x, :message_token, :nil) == message_token end)
     Process.cancel_timer(message_info.reference)
     new_state = List.delete(state, message_info)
@@ -131,11 +132,11 @@ defmodule ViberProtocol do
       RedisManager.get(message_id)
       |> Map.put(:sending_status, true)
     RedisManager.set(message_id, message_status_info)
-    message_status_info
+    apply(:'Elixir.MessagesRouter', :send_message, [%{message_id: message_id}])
   end
 
   defp end_sending_message(:error, message_id) do
-    message_id
+    apply(:'Elixir.MessagesRouter', :send_message, [%{message_id: message_id}])
   end
 
 

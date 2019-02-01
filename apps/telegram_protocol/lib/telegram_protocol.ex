@@ -19,7 +19,8 @@ defmodule TelegramProtocol do
   end
 
   def start_telegram_lib() do
-    Process.send_after(self(), :start_telegram_lib, 10000)
+    :io.format("~nstart_telegram_lib~n")
+    Process.send_after(__MODULE__, :start_telegram_lib, 10000)
   end
 
   def handle_info(:start_telegram_lib, state) do
@@ -73,8 +74,8 @@ defmodule TelegramProtocol do
 
 
   # For select code and password from config starting cron task which will be work every 'authentication_timeout' microsec
-  defp check_authentication_code(), do: Process.send_after(self(), :check_authentication_code , @authentication_timeout)
-  defp check_authentication_password(), do: Process.send_after(self(), :check_authentication_password , @authentication_timeout)
+  defp check_authentication_code(), do: Process.send_after(__MODULE__, :check_authentication_code , @authentication_timeout)
+  defp check_authentication_password(), do: Process.send_after(__MODULE__, :check_authentication_password , @authentication_timeout)
 
   def handle_info(:check_authentication_code,  state) do
     {:ok, app_name} = :application.get_application(__MODULE__)
@@ -115,7 +116,7 @@ defmodule TelegramProtocol do
 
     # if user number not fount in telegram or timeout will be more than 20 sec we canceled sending
     # and use for send another operator
-    reference = Process.send_after(self(), {:error_sending_messages, payload.message_id}, 20000)
+    reference = Process.send_after(__MODULE__, {:error_sending_messages, payload.message_id}, 20000)
 
     new_state = [%{phone_number: payload.contact, message_id: payload.message_id, reference_create_account: reference} | state]
     {:noreply, new_state}
@@ -151,7 +152,7 @@ defmodule TelegramProtocol do
   defp create_chat(user_id, contact, _, user_type, state) do
     {[state_info], old_state} = Enum.split_while(state, fn x -> x.phone_number == contact end)
     Process.cancel_timer(state_info.reference_create_account)
-    reference = Process.send_after(self(), {:error_sending_messages, state_info.message_id}, 30000)
+    reference = Process.send_after(__MODULE__, {:error_sending_messages, state_info.message_id}, 30000)
     new_state = %{user_id: user_id, phone_number: contact, message_id: state_info.message_id, error_reference: reference}
     query = %Method.CreatePrivateChat{user_id: user_id, force: false}
     do_query(query)
@@ -182,9 +183,9 @@ defmodule TelegramProtocol do
   end
 
   # select members from chat and cancel cron task
-  def handle_info({:recv, %Object.ChatMembers{members: member} = info},  state) do
-    :io.format("~nmembers: ~p~n", [member])
-    {[state_info], old_state} = Enum.split_while(state, fn x -> x.user_id == member.id end)
+  def handle_info({:recv, %Object.ChatMembers{members: [members]} = info},  state) do
+    :io.format("~nmembers: ~p~n", [members])
+    {[state_info], old_state} = Enum.split_while(state, fn x -> x.user_id == members.inviter_user_id end)
     Process.cancel_timer(state_info.error_reference)
     spawn(TelegramProtocol, :end_sending_messages, [:success, state_info.message_id])
     {:noreply, old_state}

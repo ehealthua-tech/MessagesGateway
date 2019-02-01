@@ -56,7 +56,7 @@ defmodule DbAgent.OperatorsRequests do
 
   def add_operator(params) do
     priority = calc_priority()
-    insert_params = Map.put(params, :priority, priority)
+    insert_params = Map.put(params, "priority", priority)
     %OperatorsSchema{}
     |> OperatorsSchema.changeset(insert_params)
     |> Repo.insert()
