@@ -77,8 +77,9 @@ defmodule MessagesGateway.MqManager do
 
   @spec connect(map()) :: map()
   def connect(%{queue_name: queue_name} = state) do
-    host = Application.get_env(:messages_gateway, :mq_host, "192.168.100.165")
-    port = Application.get_env(:messages_gateway, :mq_port, 5672)
+    config = Application.get_env(:messages_gateway,  MessagesGateway.MqManager)
+    host = config[:mq_host]
+    port = config[:mq_port]
 
     :io.format("~n~n~n!!!!!!!!!!!!!!host: ~p~n", [host])
     :io.format("~n~n~n!!!!!!!!!!!!!!port: ~p~n", [port])

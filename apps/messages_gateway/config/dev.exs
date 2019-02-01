@@ -7,7 +7,7 @@ use Mix.Config
 # watchers to your application. For example, we use it
 # with brunch.io to recompile .js and .css sources.
 config :messages_gateway, MessagesGatewayWeb.Endpoint,
-  http: [port: 4005],
+  http: [port: 4011],
   debug_errors: true,
   code_reloader: true,
   check_origin: false,
@@ -46,6 +46,11 @@ config :logger, :console, format: "[$level] $message\n"
 # Set a higher stacktrace during development. Avoid configuring such
 # in production as building large stacktraces may be expensive.
 config :phoenix, :stacktrace_depth, 20
+
+config :messages_gateway, MessagesGateway.MqManager,
+       namespace: MessagesRouter,
+       mq_host: "127.0.0.1",
+       mq_port: 5672
 
 config :messages_gateway, MessagesGateway.RedisManager,
        host: "127.0.0.1",
