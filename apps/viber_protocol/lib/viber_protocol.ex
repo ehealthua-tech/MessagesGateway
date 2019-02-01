@@ -60,25 +60,25 @@ defmodule ViberProtocol do
   defp check_status(_, message_info, _), do: end_sending_message(:error, message_info)
 
 # ---- Server functions ----
-  def handle_info({:resend, message_info, contact}, state) do
+  def handle_info({:resend, mess0age_info, contact}, state) do
     check_and_send_message(contact, message_info)
     {:noreply, state} #@todo remove from state this message
   end
 
-  def handle_info({:end_sending_message, message_info}, state) do
+  def handle_info({:end_sending_message, message_id}, state) do
+    {_, new_state} = Enum.split_while(state, fn x -> x.message_id == message_id end)
     end_sending_message(:error, message_info)
-    {:noreply, state}
+    {:noreply, new_state}
   end
 
   def handle_cast({:add_to_state, info}, _, state), do: {:noreply, [info | state]}
 
 # ---- End sending message functions ----
-  defp end_sending_message(:success, viber_message_id) do
+  defp end_sending_message(:success, message_id) do
     message_status_info =
-      RedisManager.get(viber_message_id) #@todo messages_id
+      RedisManager.get(message_id)
       |> Map.put(:sending_status, true)
-
-    RedisManager.set(viber_message_id, message_status_info) #@todo messages_id
+    RedisManager.set(message_id, message_status_info)
     message_status_info
   end
 
@@ -111,7 +111,6 @@ defmodule ViberProtocol do
       tracking_data: "Phone_number", type: "text", text: "Щоб отримувати повідомлення, будь ласка,
           увімкніть діалог(в меню інформація) та введіть Ваший номер телефону у форматі +380ххххххххх"}
     {:ok, _} = ViberEndpoint.request("send_message", body)
-
   end
 
   def check_body("message", body) do
