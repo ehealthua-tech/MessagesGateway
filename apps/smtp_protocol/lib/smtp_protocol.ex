@@ -29,5 +29,10 @@ defmodule SmtpProtocol do
   def send_email(%{message_id: message_id, contact: recipient, body: body, subject: subject}) do
     SmtpProtocol.Email.email(recipient, subject, body) |> SmtpProtocol.Mailer.deliver_now
     GenServer.cast(MgLogger.Server, {:log, __MODULE__, %{:message_id => message_id, status: "sending_smtp"}})
+    message_status_info =
+      RedisManager.get(message_id)
+      |> Map.put(:sending_status, true)
+    RedisManager.set(message_id, message_status_info)
+    apply(:'Elixir.MessagesRouter', :send_message, [%{message_id: message_id}])
   end
 end

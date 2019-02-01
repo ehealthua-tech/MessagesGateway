@@ -31,7 +31,7 @@ defmodule MessagesRouter do
   def sending_message_to_protocol(protocol, message_status_info) do
     protocol_config = MessagesGateway.RedisManager.get(protocol.protocol_name)
      apply(String.to_atom(protocol_config.module_name), String.to_atom(protocol_config.method_name), [message_status_info])
-     |> send_message()
+#     |> send_message()
   end
 
   @spec end_sending_message(map()| {:error, binary()}) :: :ok | {:error, binary()}
