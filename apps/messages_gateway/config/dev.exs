@@ -48,7 +48,6 @@ config :logger, :console, format: "[$level] $message\n"
 config :phoenix, :stacktrace_depth, 20
 
 config :messages_gateway, MessagesGateway.MqManager,
-       namespace: MessagesRouter,
        mq_host: "127.0.0.1",
        mq_port: 5672
 
