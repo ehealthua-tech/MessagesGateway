@@ -39,4 +39,4 @@ config :lifecell_sms_protocol,  LifecellSmsProtocol.RedisManager,
        pool_size: 5
 
 config :lifecell_sms_protocol,
-       callback_port: 6015
+       callback_port: 6016

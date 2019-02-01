@@ -132,11 +132,11 @@ defmodule DbAgent.OperatorTypesRequests do
     |> calc_priority()
   end
 
-  defp calc_priority(max_priority) when is_integer(max_priority), do: max_priority + 1
+  defp calc_priority([max_priority]) when is_integer(max_priority), do: max_priority + 1
   defp calc_priority(_), do: 1
 
   defp select_max_priority() do
     query = from ot in OperatorTypesSchema, select: max(ot.priority)
-    SQL.query(Repo, query)
+    Repo.all(query)
   end
 end
