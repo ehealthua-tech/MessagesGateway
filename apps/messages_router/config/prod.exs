@@ -9,7 +9,6 @@ config :messages_router, MessagesRouter.RedisManager,
 
 
 config :messages_router,
-       namespace: "{$MQ_NAMESPACE}",
        mq_host:  "{$MQ_HOST}",
        mq_port:  "{$MQ_PORT}",
        resend_timeout: "{$MQ_RESEND_TIMEOUT}"

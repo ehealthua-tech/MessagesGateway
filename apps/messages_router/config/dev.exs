@@ -30,7 +30,6 @@ use Mix.Config
 #     import_config "#{Mix.env()}.exs"
 
 config :messages_router, MessagesRouter.MqManager,
-       namespace: MessagesRouter,
        mq_host: "127.0.0.1",
        mq_port: 5672
 
