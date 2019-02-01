@@ -19,7 +19,7 @@ defmodule ViberProtocol do
   end
 
 # ---- API ----
-  def send_message(%{"contact" => phone} = message_info) do
+  def send_message(%{"contact" => phone, "message_id" => message_id} = message_info) do
     GenServer.cast(MgLogger.Server, {:log, __MODULE__, %{:message_id => message_id, status: "sending_viber"}})
     DbAgent.ContactsRequests.get_by_phone_number!(phone)
     |> check_and_send_message(message_info)
@@ -39,8 +39,7 @@ defmodule ViberProtocol do
 
 # ---- Send message  function ----
   defp check_and_send_message(nil, message_info), do: end_sending_message(:error, message_info)
-  defp check_and_send_message(contact, message_info) do
-    end_sending_message(message_info)
+  defp check_and_send_message(contact, %{"body" => message} = message_info) do
     body = %{receiver: contact.viber_id, min_api_version: 1, sender: %{name: "E-Test"},type: "text", text: message}
     ViberEndpoint.request("send_message", body)
     |> check_answer()
@@ -61,29 +60,29 @@ defmodule ViberProtocol do
   defp check_status(_, message_info, _), do: end_sending_message(:error, message_info)
 
 # ---- Server functions ----
-  defp handle_info({:resend, message_info, contact}, state) do
+  def handle_info({:resend, message_info, contact}, state) do
     check_and_send_message(contact, message_info)
     {:noreply, state} #@todo remove from state this message
   end
 
-  defp handle_info({:end_sending_message, message_info}, state) do
+  def handle_info({:end_sending_message, message_info}, state) do
     end_sending_message(:error, message_info)
     {:noreply, state}
   end
 
-  defp handle_cast({:add_to_state, info}, _, state), do: {:noreply, [info | state]}
+  def handle_cast({:add_to_state, info}, _, state), do: {:noreply, [info | state]}
 
 # ---- End sending message functions ----
-  defp end_sending_messages(:success, viber_message_id) do
+  defp end_sending_message(:success, viber_message_id) do
     message_status_info =
-      RedisManager.get(message_id)
+      RedisManager.get(viber_message_id) #@todo messages_id
       |> Map.put(:sending_status, true)
 
-    RedisManager.set(message_id, message_status_info)
+    RedisManager.set(viber_message_id, message_status_info) #@todo messages_id
     message_status_info
   end
 
-  defp end_sending_messages(:error, message_id) do
+  defp end_sending_message(:error, message_id) do
     RedisManager.get(message_id)
   end
 

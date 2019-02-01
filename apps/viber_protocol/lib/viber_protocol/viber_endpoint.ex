@@ -9,7 +9,7 @@ defmodule ViberEndpoint do
     method
     |> build_url()
     |> HTTPoison.post(newbody, headers())
-    |> decode_response(response)
+    |> decode_response()
   end
 
   defp decode_response(response) do
