@@ -6,6 +6,7 @@ defmodule ViberProtocol do
   @event_types ["delivered", "seen", "failed", "subscribed","unsubscribed", "conversation_started"]
   @protocol_config %{auth_token: ""}
 
+# ---- Init functions ----
   def start_link do
     GenServer.start_link(__MODULE__, [], name: __MODULE__)
   end
@@ -17,30 +18,17 @@ defmodule ViberProtocol do
     {:ok, []}
   end
 
-  def send_message(%{"message_id" => message_id, "contact" => phone, "body" => message} = payload) do
+# ---- API ----
+  def send_message(%{"contact" => phone} = message_info) do
     GenServer.cast(MgLogger.Server, {:log, __MODULE__, %{:message_id => message_id, status: "sending_viber"}})
-    conn = DbAgent.ContactsRequests.get_by_phone_number!(phone)
-    :io.format("~nconn: ~p~n", [conn])
-    case conn do
-      nil -> resend(payload)
-      _->
-        body = %{receiver: conn.viber_id, min_api_version: 1, sender: %{name: "E-Test"},type: "text", text: message}
-        {:ok, answer} = ViberEndpoint.request("send_message", body)
-        if "ok" ==  Map.get(answer, :status_message) do
-          GenServer.cast(MgLogger.Server, {:log, __MODULE__, %{"message_id" => message_id, "status" => "sent"}})
-          :ok
-        else
-          resend(payload)
-        end
-    end
+    DbAgent.ContactsRequests.get_by_phone_number!(phone)
+    |> check_and_send_message(message_info)
   end
 
   def add_contact(conn) do
-
     body = conn.body_params
     Map.get(body, "event")
     |> check_body(body)
-
   end
 
   def set_webhook(url)do
@@ -49,6 +37,57 @@ defmodule ViberProtocol do
     ViberEndpoint.request("set_webhook", body)
   end
 
+# ---- Send message  function ----
+  defp check_and_send_message(nil, message_info), do: end_sending_message(:error, message_info)
+  defp check_and_send_message(contact, message_info) do
+    end_sending_message(message_info)
+    body = %{receiver: contact.viber_id, min_api_version: 1, sender: %{name: "E-Test"},type: "text", text: message}
+    ViberEndpoint.request("send_message", body)
+    |> check_answer()
+    |> check_status(message_info, contact)
+  end
+
+  defp check_answer({:error, err} = error), do: error
+  defp check_answer({ok, response_map}), do: {response_map.status_message, response_map.message_token}
+
+  defp check_status({"ok", message_token} , message_info, contact) do
+    reference = Process.send_after(self(), {:end_sending_message, message_info, message_token}, 10000)
+    GenServer.cast(self(), {:add_to_state, %{message_token: message_token, message_id: message_info.message_id,
+                                                                           referense: reference}})
+  end
+  defp check_status({"tooManyRequests", _}, message_info, contact) do
+    Process.send_after(self(), {:resend, message_info, contact}, 5000)
+  end
+  defp check_status(_, message_info, _), do: end_sending_message(:error, message_info)
+
+# ---- Server functions ----
+  defp handle_info({:resend, message_info, contact}, state) do
+    check_and_send_message(contact, message_info)
+    {:noreply, state} #@todo remove from state this message
+  end
+
+  defp handle_info({:end_sending_message, message_info}, state) do
+    end_sending_message(:error, message_info)
+    {:noreply, state}
+  end
+
+  defp handle_cast({:add_to_state, info}, _, state), do: {:noreply, [info | state]}
+
+# ---- End sending message functions ----
+  defp end_sending_messages(:success, viber_message_id) do
+    message_status_info =
+      RedisManager.get(message_id)
+      |> Map.put(:sending_status, true)
+
+    RedisManager.set(message_id, message_status_info)
+    message_status_info
+  end
+
+  defp end_sending_messages(:error, message_id) do
+    RedisManager.get(message_id)
+  end
+
+# ---- Callback function ----
   def check_body("webhook", body) do
     :noreply
   end
@@ -87,9 +126,9 @@ defmodule ViberProtocol do
     check_phone_number(tracking_data, text, user_id)
   end
 
+# ---- Helper function ----
   def check_phone_number("Phone_number", text, user_id) do
-    length = String.length(text)
-    case length == 13 do
+    case String.length(text) == 13 do
       true ->
         [_, number] = String.split(text, "+380")
         case String.to_integer(number) do
@@ -101,17 +140,6 @@ defmodule ViberProtocol do
       _->  :noreply
     end
   end
-
-  #  defp resend(%{"priority_list" => priority_list} = payload) do
-  #    if priority_list != [] do
-  #      selected_operator = Enum.min_by(priority_list, fn e -> Map.get(e, "priority") end)
-  #      %{"operator_type_id" => operator_type_id} = selected_operator
-  #      new_priority_list = List.delete(priority_list, selected_operator)
-  #      ViberProtocol.MqManager.send_to_operator(Jason.encode!(Map.put(payload, :priority_list, new_priority_list)), operator_type_id)
-  #    else
-  #      :callback_failed
-  #    end
-  #  end
 
   defp resend(payload) do
     :ok

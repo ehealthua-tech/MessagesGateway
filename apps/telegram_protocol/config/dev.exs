@@ -29,7 +29,7 @@ use Mix.Config
 #
 #     import_config "#{Mix.env()}.exs"
 config :telegram_protocol,  TelegramProtocol.RedisManager,
-       host: "192.168.100.165",
+       host: "127.0.0.1",
        database: "1",
        password: nil,
        port: 6379,

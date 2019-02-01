@@ -32,7 +32,7 @@ config :lifecell_sms_protocol,
        sms_send_url: "http://bulk.bs-group.com.ua/clients.php"
 
 config :lifecell_sms_protocol,  LifecellSmsProtocol.RedisManager,
-       host: "192.168.100.165",
+       host: "127.0.0.1",
        database: "1",
        password: nil,
        port: 6379,

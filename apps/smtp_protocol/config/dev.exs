@@ -44,7 +44,7 @@ config :smtp_protocol, SmtpProtocol.Mailer,
        auth: :if_available # can be `always`. If your smtp relay requires authentication set it to `always`.
 
 config :smtp_protocol, SmtpProtocol.RedisManager,
-       host: "192.168.100.165",
+       host: "127.0.0.1",
        database: "1",
        password: nil,
        port: 6379,

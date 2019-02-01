@@ -48,7 +48,7 @@ config :logger, :console, format: "[$level] $message\n"
 config :phoenix, :stacktrace_depth, 20
 
 config :messages_gateway, MessagesGateway.RedisManager,
-       host: "192.168.100.165",
+       host: "127.0.0.1",
        database: "1",
        password: nil,
        port: 6379,

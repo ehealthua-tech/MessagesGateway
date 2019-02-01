@@ -30,8 +30,8 @@ defmodule MessagesGatewayWeb.OperatorTypeController do
           create_params: %{"resource": %{"operator_type_name": String.t(), "priority": integer()}},
           result: result()
 
-  def create(conn, %{"resource" => %{"operator_type_name" => operator_type_name, "priority" => priority}}) do
-    with {:ok,_} <- OperatorTypesRequests.add_operator_type(%{name: operator_type_name, priority: priority, active: @operator_active})
+  def create(conn, %{"resource" => %{"operator_type_name" => operator_type_name}}) do
+    with {:ok,_} <- OperatorTypesRequests.add_operator_type(%{name: operator_type_name, active: @operator_active})
       do
         render(conn, "create.json", %{status: "success"})
     end
