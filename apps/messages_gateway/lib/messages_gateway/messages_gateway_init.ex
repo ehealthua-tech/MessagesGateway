@@ -6,7 +6,7 @@ defmodule MessagesGatewayInit do
 
   @messages_gateway_conf "system_config"
   @operators_config "operators_config"
-  @sys_config %{default_sms_operator: "", org_name: "test", sending_time: "60" }
+  @sys_config %{default_sms_operator: "", org_name: "test", sending_time: "60", automatic_prioritization: false}
 
   @type priority_type() :: %{
                              protocol_name: String.t(),
@@ -33,6 +33,7 @@ defmodule MessagesGatewayInit do
   def init(_opts) do
     RedisManager.set(@messages_gateway_conf, @sys_config)
     RedisManager.set(@operators_config,  create_operators_list_to_redis())
+    select_protocol_config()
     {:ok, []}
   end
 
@@ -71,5 +72,10 @@ defmodule MessagesGatewayInit do
     create_priority_list(tail, [priority | acc])
   end
 
+  defp select_protocol_config() do
+    x = RedisManager.keys("*_protocol")
+    OperatorsRequests.list_operators()
+
+  end
 
 end

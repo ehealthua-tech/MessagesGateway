@@ -3,7 +3,7 @@ defmodule MessagesGatewayWeb.OperatorsController do
 
   use MessagesGatewayWeb, :controller
   alias DbAgent.OperatorsRequests
-
+  alias MessagesGateway.RedisManager
 
   action_fallback(MessagesGatewayWeb.FallbackController)
 
@@ -76,8 +76,7 @@ defmodule MessagesGatewayWeb.OperatorsController do
         |> add_operators_info_to_redis()
 
         operator_info = OperatorsRequests.operator_by_id(id)
-        :io.format("~n~p~n", [])
-        update_protocol_config(Map.get(operator_info, "protocol_name"), config)
+        update_protocol_config(operator_info.protocol_name, config)
         render(conn, "create.json", %{status: "success"})
     end
   end
