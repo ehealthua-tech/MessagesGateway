@@ -173,11 +173,17 @@ defmodule TelegramProtocol do
 
   # if user read message we selected UpdateChatReadOutbox
   def handle_info({:recv, %Object.UpdateChatReadOutbox{chat_id: chat_id}}, state) do
-    message_info = Enum.find(state, fn x ->  x.chat_id == chat_id end)
-    old_state = List.delete(state, message_info)
+    old_state =
+      Enum.find(state, fn x -> if Map.has_key?(x, :chat_id) do  x.chat_id == chat_id  end end)
+      |> remove_message_from_state(state)
+    {:noreply, old_state}
+  end
+
+  defp remove_message_from_state(nil, state), do: state
+  defp remove_message_from_state(message_info, state) do
     Process.cancel_timer(message_info.error_reference)
     spawn(TelegramProtocol, :end_sending_messages, [:success, message_info.message_id])
-    {:noreply, old_state}
+    List.delete(state, message_info)
   end
 
   # if we have some error remove this messages from state and ending sending it
