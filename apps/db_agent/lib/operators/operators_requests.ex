@@ -74,6 +74,8 @@ defmodule DbAgent.OperatorsRequests do
     OperatorsSchema
     |> where([ot], ot.id == ^id)
     |> Repo.update_all( set: operator_info)
+
+
   end
 
   @doc """
@@ -176,13 +178,26 @@ defmodule DbAgent.OperatorsRequests do
 
     operators_for_update = List.delete(sort_list, operator_for_adding)
     Enum.map(operators_for_update, fn(x)-> Map.put(x, :priority, Enum.find_index(sort_list,  fn(y) -> if Map.has_key?(y, :id) do y.id == x.id end end) + 1 ) end)
-    |> update_priority()
+    |> check_and_update_priority(operators_as_list_of_maps)
 
     Enum.find_index(sort_list,  fn(x) -> Map.has_key?(x, :id) == false end) + 1
   end
 
+#  defp calc_priority_on_price(operators_as_list_of_maps), do: ok
+  defp calc_priority_on_price() do
+    operators_as_list_of_maps = select_operators_as_list_of_maps
+    sort_list = Enum.sort_by(operators_as_list_of_maps, &{&1.price, String.downcase(&1.name)})
+    Enum.map(sort_list, fn(x)-> Map.put(x, :priority, Enum.find_index(sort_list,  fn(y) -> y.id == x.id end) + 1 ) end)
+    |> check_and_update_priority(operators_as_list_of_maps)
+  end
+
+
+  defp check_and_update_priority(operators_new, operators_old) when operators_new == operators_old,  do: :ok
+  defp check_and_update_priority(operators_new, operators_old), do: update_priority(operators_new)
+
   defp select_operators_as_list_of_maps() do
     query = from operators in OperatorsSchema, select: %{price: operators.price,
+      priority: operators.priority,
       name: operators.name,
       id: operators.id,
       active: operators.active}

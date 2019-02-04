@@ -16,8 +16,8 @@ defmodule TelegramProtocol do
     {:ok, app_name} = :application.get_application(__MODULE__)
     RedisManager.get(Atom.to_string(app_name))
     |> check_config()
-    RedisManager.set(Atom.to_string(app_name), @protocol_config_def)
-    TelegramProtocol.start_telegram_lib
+#    RedisManager.set(Atom.to_string(app_name), @protocol_config_def)
+#    TelegramProtocol.start_telegram_lib
     GenServer.cast(MgLogger.Server, {:log, __MODULE__, %{__MODULE__ => "started"}})
     {:ok, []}
   end
