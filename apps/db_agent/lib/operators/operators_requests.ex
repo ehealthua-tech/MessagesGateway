@@ -55,7 +55,7 @@ defmodule DbAgent.OperatorsRequests do
           result: {:ok, OperatorsSchema.t()} | {:error, Ecto.Changeset.t()}
 
   def add_operator(params) do
-    priority = calc_priority()
+    priority = calc_priority(params)
     insert_params = Map.put(params, "priority", priority)
     %OperatorsSchema{}
     |> OperatorsSchema.changeset(insert_params)
@@ -158,17 +158,34 @@ defmodule DbAgent.OperatorsRequests do
     new_acc = Enum.join([acc, ",(uuid('" , id, "'), ", Integer.to_string(priority), ", ", Atom.to_string(active), ")"])
     create_query_values(t, new_acc)
   end
-
-  defp calc_priority() do
-    select_max_priority()
-    |> calc_priority()
+  defp create_query_values([%{id: id, priority: priority, active: active}|t], acc) do
+    new_acc = Enum.join([acc, ",(uuid('" , id, "'), ", Integer.to_string(priority), ", ", Atom.to_string(active), ")"])
+    create_query_values(t, new_acc)
   end
 
-  defp calc_priority([max_priority]) when is_integer(max_priority), do: max_priority + 1
-  defp calc_priority(_), do: 1
+  def calc_priority(%{"name" => name, "price" => price}) do
+      select_operators_as_list_of_maps()
+      |> calc_priority_on_price(%{name: name, price: price})
+  end
 
-  defp select_max_priority() do
-    query = from ot in OperatorTypesSchema, select: max(ot.priority)
+  defp calc_priority_on_price([], operator_for_adding), do: 1
+  defp calc_priority_on_price(operators_as_list_of_maps, operator_for_adding) do
+    sort_list =
+      [operator_for_adding | operators_as_list_of_maps]
+      |> Enum.sort_by(&{&1.price, String.downcase(&1.name)})
+
+    operators_for_update = List.delete(sort_list, operator_for_adding)
+    Enum.map(operators_for_update, fn(x)-> Map.put(x, :priority, Enum.find_index(operators_for_update,  fn(y) -> y.id == x.id end) + 1 ) end)
+    |> update_priority()
+
+    Enum.find_index(sort_list,  fn(x) -> Map.has_key?(x, :id) == false end) + 1
+  end
+
+  defp select_operators_as_list_of_maps() do
+    query = from operators in OperatorsSchema, select: %{price: operators.price,
+      name: operators.name,
+      id: operators.id,
+      active: operators.active}
     Repo.all(query)
   end
 

@@ -41,7 +41,8 @@ defmodule TelegramProtocol do
     start_telegram_lib()
   end
 
-  defp check_config(protocol_config) when Map.keys(protocol_config) ==  Map.keys(@protocol_config_def) do
+  defp check_config(protocol_config) do
+    Map.keys(protocol_config) ==  Map.keys(@protocol_config_def)
     Map.merge(protocol_config, %{code: "", password: ""})
 
     config = struct(TDLib.default_config(), %{api_id: String.to_integer(protocol_config.api_id), api_hash: protocol_config.api_hash})
