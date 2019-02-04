@@ -74,7 +74,7 @@ defmodule DbAgent.OperatorsRequests do
     OperatorsSchema
     |> where([ot], ot.id == ^id)
     |> Repo.update_all( set: operator_info)
-
+    |> calc_priority_on_price()
 
   end
 
@@ -184,13 +184,14 @@ defmodule DbAgent.OperatorsRequests do
   end
 
 #  defp calc_priority_on_price(operators_as_list_of_maps), do: ok
-  defp calc_priority_on_price() do
+  defp calc_priority_on_price({1, _} = res) do
     operators_as_list_of_maps = select_operators_as_list_of_maps
     sort_list = Enum.sort_by(operators_as_list_of_maps, &{&1.price, String.downcase(&1.name)})
     Enum.map(sort_list, fn(x)-> Map.put(x, :priority, Enum.find_index(sort_list,  fn(y) -> y.id == x.id end) + 1 ) end)
     |> check_and_update_priority(operators_as_list_of_maps)
+    res
   end
-
+  defp calc_priority_on_price(err), do: err
 
   defp check_and_update_priority(operators_new, operators_old) when operators_new == operators_old,  do: :ok
   defp check_and_update_priority(operators_new, operators_old), do: update_priority(operators_new)
