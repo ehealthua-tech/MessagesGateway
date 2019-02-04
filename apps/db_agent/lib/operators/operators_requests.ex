@@ -175,7 +175,7 @@ defmodule DbAgent.OperatorsRequests do
       |> Enum.sort_by(&{&1.price, String.downcase(&1.name)})
 
     operators_for_update = List.delete(sort_list, operator_for_adding)
-    Enum.map(operators_for_update, fn(x)-> Map.put(x, :priority, Enum.find_index(sort_list,  fn(y) -> y.id == x.id end) + 1 ) end)
+    Enum.map(operators_for_update, fn(x)-> Map.put(x, :priority, Enum.find_index(sort_list,  fn(y) -> if Map.has_key?(y, :id) do y.id == x.id end end) + 1 ) end)
     |> update_priority()
 
     Enum.find_index(sort_list,  fn(x) -> Map.has_key?(x, :id) == false end) + 1
