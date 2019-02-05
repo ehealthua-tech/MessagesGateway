@@ -36,7 +36,7 @@ defmodule ViberProtocol do
   end
 
 # ---- Send message  function ----
-  defp check_and_send_message(nil, message_info), do: end_sending_message(:error, message_info.message_id)
+  defp check_and_send_message(nil, message_info), do: spawn(ViberProtocol, :end_sending_message, [:error, message_info.message_id])
   defp check_and_send_message(contact, %{body: message} = message_info) do
     body = %{receiver: contact.viber_id, min_api_version: 1, sender: %{name: "E-Test"},type: "text", text: message}
     ViberEndpoint.request("send_message", body)
@@ -55,7 +55,7 @@ defmodule ViberProtocol do
   defp check_status({"tooManyRequests", _}, message_info, contact) do
     Process.send_after( __MODULE__, {:resend, message_info, contact}, 5000)
   end
-  defp check_status(_, message_info, _), do: end_sending_message(:error, message_info.message_id)
+  defp check_status(_, message_info, _), do: spawn(ViberProtocol, :end_sending_message, [:error, message_info.message_id])
 
 # ---- Server functions ----
   def handle_info({:resend, message_info, contact}, state) do
@@ -66,7 +66,7 @@ defmodule ViberProtocol do
   def handle_info({:end_sending_message, message_token}, state) do
     message_info = Enum.find(state, fn x -> Map.get(x, :message_token, :nil) == message_token end)
     new_state = List.delete(state, message_info)
-    end_sending_message(:error, message_info.message_id)
+    spawn(ViberProtocol, :end_sending_message, [:error, message_info.message_id])
     {:noreply, new_state}
   end
 
@@ -82,7 +82,7 @@ defmodule ViberProtocol do
   defp remove_message_from_state(nil, state), do: state
   defp remove_message_from_state(message_info, state) do
     Process.cancel_timer(message_info.reference)
-    spawn(ViberProtocol, :end_sending_messages, [:success, message_info.message_id])
+    spawn(ViberProtocol, :end_sending_message, [:success, message_info.message_id])
     List.delete(state, message_info)
   end
 
