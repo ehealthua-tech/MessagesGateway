@@ -31,8 +31,11 @@ defmodule MessagesGatewayInit do
           result: {:ok, []}
 
   def init(_opts) do
-    RedisManager.set(@messages_gateway_conf, @sys_config)
-    RedisManager.set(@operators_config,  create_operators_list_to_redis())
+    RedisManager.get(@messages_gateway_conf)
+    |> check_and_set_system_config()
+
+    RedisManager.get(@messages_gateway_conf)
+    |> check_and_set_operators_config()
     select_protocol_config()
     {:ok, []}
   end
@@ -44,6 +47,20 @@ defmodule MessagesGatewayInit do
 
   def handle_info(msg, state) do
     {:noreply, state}
+  end
+
+  defp check_and_set_system_config({:error, _}), do: set_system_config()
+  defp check_and_set_system_config(_), do: :ok
+
+  defp check_and_set_operators_config({:error, _}), do: set_operators_config()
+  defp check_and_set_operators_config(_), do: :ok
+
+  def set_system_config() do
+    RedisManager.set(@messages_gateway_conf, @sys_config)
+  end
+
+  def set_operators_config() do
+    RedisManager.set(@operators_config,  create_operators_list_to_redis())
   end
 
   @spec create_operators_list_to_redis() :: result when
