@@ -49,7 +49,7 @@ defmodule MessagesGatewayWeb.OperatorsController do
   def create(conn, %{"resource" => operator_info_resp}) do
     operator_info = check_required_fuilds(Map.has_key?(operator_info_resp, "config"), operator_info_resp)
     with {:ok, _} <- OperatorsRequests.add_operator(operator_info) do
-      MessagesGateway.MessagesGatewayInit.set_operators_config()
+      MessagesGatewayInit.set_operators_config()
       render(conn, "create.json", %{status: "success"})
     end
   end
@@ -78,7 +78,7 @@ defmodule MessagesGatewayWeb.OperatorsController do
 
         operator_info = OperatorsRequests.operator_by_id(id)
         update_protocol_config(operator_info.protocol_name, config)
-        MessagesGateway.MessagesGatewayInit.set_operators_config()
+        MessagesGatewayInit.set_operators_config()
         render(conn, "create.json", %{status: "success"})
     end
   end
@@ -156,7 +156,7 @@ defmodule MessagesGatewayWeb.OperatorsController do
           {:ok, json} <- Jason.encode(priority),
           :ok <- MessagesGateway.RedisManager.set("operators_config", json)
       do
-      MessagesGateway.MessagesGatewayInit.set_operators_config()
+      MessagesGatewayInit.set_operators_config()
       render(conn, "create.json", %{status: "success"})
     end
   end
