@@ -26,14 +26,12 @@ defmodule ViberProtocol do
   end
 
   def callback_response(%{body_params: body}) do
-    :io.format("~nbody: ~p~n", [body])
     event = Map.get(body, "event")
     GenServer.cast(__MODULE__, {event, body})
   end
 
   def set_webhook(url)do
-    body = %{url: url, event_types: @event_types,
-      send_name: true, send_photo: true}
+    body = %{url: url, event_types: @event_types, send_name: true, send_photo: true}
     ViberEndpoint.request("set_webhook", body)
   end
 
@@ -50,9 +48,7 @@ defmodule ViberProtocol do
   defp check_answer({ok, response_map}), do: {response_map.status_message, response_map.message_token}
 
   defp check_status({"ok", message_token} , message_info, contact) do
-    :io.format("~nmessage_token: ~p~n", [message_token])
     reference = Process.send_after( __MODULE__, {:end_sending_message, message_token}, 10000)
-    :io.format("~nreference: ~p~n", [reference])
     GenServer.cast(__MODULE__, {:add_to_state, %{message_token: message_token, message_id: message_info.message_id,
       reference: reference}})
   end
@@ -77,12 +73,17 @@ defmodule ViberProtocol do
   def handle_cast({"webhook", body}, state), do: {:noreply, state}
 
   def handle_cast({"seen", %{"message_token" => message_token} = body}, state) do
-    :io.format("~nstate: ~p~n", [state])
-    message_info = Enum.find(state, fn x -> Map.get(x, :message_token, :nil) == message_token end)
-    Process.cancel_timer(message_info.reference)
-    new_state = List.delete(state, message_info)
-    end_sending_message(:success,  message_info)
+    new_state =
+    Enum.find(state, fn x -> Map.get(x, :message_token, :nil) == message_token end)
+    |> remove_message_from_state(state)
     {:noreply, new_state}
+  end
+
+  defp remove_message_from_state(nil, state), do: state
+  defp remove_message_from_state(message_info, state) do
+    Process.cancel_timer(message_info.reference)
+    spawn(ViberProtocol, :end_sending_messages, [:success, message_info.message_id])
+    List.delete(state, message_info)
   end
 
   def handle_cast({"delivered", body}, state), do: {:noreply, state}
@@ -118,16 +119,11 @@ defmodule ViberProtocol do
   end
 
   def handle_cast({:add_to_state, info}, state), do: {:noreply, [info | state]}
-  def handle_cast(info, state) do
-    :io.format("~ninfo: ~p~n", [info])
-    {:noreply, state}
-  end
-
-
+  def handle_cast(info, state), do:  {:noreply, state}
 
   # ---- End sending message functions ----
   defp end_sending_message(_, :nil), do: :ok
-  defp end_sending_message(:success, %{message_id: message_id}) do
+  defp end_sending_message(:success, message_id) do
     message_status_info =
       RedisManager.get(message_id)
       |> Map.put(:sending_status, true)
@@ -141,18 +137,12 @@ defmodule ViberProtocol do
 
 
 # ---- Helper function ----
-  def check_phone_number("Phone_number", text, user_id) do
-    case String.length(text) == 13 do
-      true ->
-        [_, number] = String.split(text, "+380")
-        case String.to_integer(number) do
-          x ->
-            DbAgent.ContactsRequests.add_viber_id(%{phone_number: text, viber_id: user_id})
-            :noreply
-          _-> :noreply
-        end
-      _->  :noreply
-    end
+  def check_phone_number("Phone_number", phone_number, user_id) when byte_size(phone_number) == 13 do
+    String.slice(phone_number, 1, 11)
+    |> String.to_integer()
+    |> add_viber_id(%{phone_number: phone_number, viber_id: user_id})
   end
+
+  defp add_viber_id(number, map) when is_integer(number), do: DbAgent.ContactsRequests.add_viber_id(map)
 
 end

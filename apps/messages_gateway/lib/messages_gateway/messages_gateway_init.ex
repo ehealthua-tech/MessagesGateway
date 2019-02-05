@@ -9,6 +9,7 @@ defmodule MessagesGatewayInit do
   @sys_config %{default_sms_operator: "", org_name: "test", sending_time: "60", automatic_prioritization: false}
 
   @type priority_type() :: %{
+                             id: String.t(),
                              protocol_name: String.t(),
                              priority: integer(),
                              operator_priority: integer(),
@@ -34,8 +35,7 @@ defmodule MessagesGatewayInit do
     RedisManager.get(@messages_gateway_conf)
     |> check_and_set_system_config()
 
-    RedisManager.get(@messages_gateway_conf)
-    |> check_and_set_operators_config()
+    set_operators_config
     select_protocol_config()
     {:ok, []}
   end
@@ -50,12 +50,16 @@ defmodule MessagesGatewayInit do
   end
 
   defp check_and_set_system_config({:error, _}), do: set_system_config()
-  defp check_and_set_system_config(_), do: :ok
+  defp check_and_set_system_config(system_config) do
+    case Map.keys(system_config) ==  Map.keys(@sys_config) do
+      true -> :ok
+      _->
+        config = for {k, v} <- @sys_config, into: %{}, do: {k, Map.get(system_config, k, v)}
+        RedisManager.set(@messages_gateway_conf, config)
+    end
+  end
 
-  defp check_and_set_operators_config({:error, _}), do: set_operators_config()
-  defp check_and_set_operators_config(_), do: :ok
-
-  def set_system_config() do
+   def set_system_config() do
     RedisManager.set(@messages_gateway_conf, @sys_config)
   end
 

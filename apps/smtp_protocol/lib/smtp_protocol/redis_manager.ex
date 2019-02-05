@@ -1,7 +1,7 @@
 defmodule SmtpProtocol.RedisManager do
   @moduledoc false
 
-  @spec get(binary) :: {:ok, term} | {:error, binary}
+  @spec get(binary) :: map()| {:error, binary}
   def get(key) when is_binary(key), do: command(["GET", key]) |> check_get(key)
 
   defp check_get({:ok, value}, _) when value == nil, do:  {:error, :not_found}

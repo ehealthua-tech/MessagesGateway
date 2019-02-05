@@ -2,6 +2,7 @@ defmodule MessagesGatewayWeb.MessageController do
   use MessagesGatewayWeb, :controller
   alias MessagesGateway.UUID
   alias MessagesGateway.Prioritization
+  alias MessagesGateway.RedisManager
 
   @sending_start_status true
   @status_not_send false
@@ -80,7 +81,7 @@ defmodule MessagesGatewayWeb.MessageController do
           result: result()
 
   def message_status(conn, %{"resource" => %{"message_id" => message_id}}) do
-    with message_info <- MessagesGateway.RedisManager.get(message_id)
+    with message_info <- RedisManager.get(message_id)
       do
       render(conn, "message_status.json", message_id: message_id, message_status: message_info.sending_status)
     end
@@ -95,7 +96,7 @@ defmodule MessagesGatewayWeb.MessageController do
 
   def change_message_status(conn, %{"resource" => %{"message_id" => message_id, "sending_active" => active}}) do
     with {:ok, json_body} <- Jason.encode(%{sending_status: active}),
-          :ok <- MessagesGateway.RedisManager.set(message_id, json_body)
+          :ok <- RedisManager.set(message_id, json_body)
       do
       render(conn, "message_change_status.json", %{sending_status: active})
     end
@@ -143,13 +144,9 @@ defmodule MessagesGatewayWeb.MessageController do
           result: :ok | :error
 
   def add_to_redis(message_id, body) do
-    case MessagesGateway.RedisManager.set(message_id, body) do
-      :ok ->
-        GenServer.cast(MgLogger.Server, {:log, __MODULE__, %{:message_id => "message_id", status: "add_to_redis"}})
-      {:error, error} ->
-        GenServer.cast(MgLogger.Server, {:log, __MODULE__, error})
-    end
-    :ok
+    status = RedisManager.set(message_id, body)
+    GenServer.cast(MgLogger.Server, {:log, __MODULE__, %{:message_id => message_id, status: status,
+      action: "add to redis"}})
   end
 
   @spec add_to_message_queue(body) :: result when

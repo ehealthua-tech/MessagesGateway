@@ -67,7 +67,7 @@ defmodule MessagesGatewayWeb.KeysController do
     end
   end
 
-  @spec generate() :: {:ok, id: String.t(), key: String.t()}
+  @spec generate() :: :ok | {:error, any()}
 
   defp generate() do
     key_binary = <<
@@ -85,7 +85,6 @@ defmodule MessagesGatewayWeb.KeysController do
     {:ok, ref} = :dets.open_file(:mydata_file, [])
     :dets.insert(ref, {id, {key, :true}})
     :dets.close(ref)
-    :ok
   end
 
   @spec all_keys() :: {:ok, list()}

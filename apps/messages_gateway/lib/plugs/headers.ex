@@ -9,7 +9,7 @@ defmodule MessagesGateway.Plugs.Headers do
   import Plug.Conn, only: [put_status: 2, get_req_header: 2, halt: 1]
   import Phoenix.Controller, only: [render: 4]
 
-  @spec required_headers(Plug.Conn.t(), map()) :: Plug.Conn.t() | :error
+  @spec required_headers(Plug.Conn.t(), any()) :: Plug.Conn.t() | :error
 
   def required_headers(%Plug.Conn{params: params, req_headers: headers} = conn, _) do
     authorization = get_header(headers, "Authorization")
@@ -22,7 +22,6 @@ defmodule MessagesGateway.Plugs.Headers do
     else
       :error
     end
-    conn
   end
 
   def get_header(headers, header) when is_list(headers) do

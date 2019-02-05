@@ -22,7 +22,7 @@ defmodule DbAgent.ContactsRequests do
     Add contact to database
   """
   @spec add_contact(params) :: result when
-          params: ContactsSchema.contacts_map(),
+          params: ContactsSchema.contacts_map() | %{phone_number: String.t(), viber_id: String.t},
           result: {:ok, ContactsSchema.t()} | {:error, Ecto.Changeset.t()}
 
   def add_contact(params) do
@@ -61,7 +61,7 @@ defmodule DbAgent.ContactsRequests do
     Add contact viber id
   """
   @spec add_viber_id(params) :: result when
-          params: ContactsSchema.contacts_map(),
+          params: %{phone_number: String.t(), viber_id: String.t},
           result: {:ok, ContactsSchema.t()} | {:error, Ecto.Changeset.t()}
 
   def add_viber_id(params) do
@@ -73,7 +73,7 @@ defmodule DbAgent.ContactsRequests do
     Add contact operaror id
   """
   @spec add_operator_id(params) :: result when
-          params: ContactsSchema.contacts_map(),
+          params: %{phone_number: String.t(), viber_id: String.t, operator_id: String.t()},
           result: {:ok, ContactsSchema.t()} | {:error, Ecto.Changeset.t()}
 
   def add_operator_id(params) do
@@ -86,7 +86,7 @@ defmodule DbAgent.ContactsRequests do
   """
   @spec insert_or_update(present_contact, params) :: result when
           present_contact: nil | String.t(),
-          params: ContactsSchema.contacts_map(),
+          params: %{phone_number: String.t(), viber_id: String.t} | %{phone_number: String.t(), viber_id: String.t, operator_id: String.t},
           result: {:ok, ContactsSchema.t()} | {:error, Ecto.Changeset.t()}
 
   def insert_or_update(nil, params), do: add_contact(params)

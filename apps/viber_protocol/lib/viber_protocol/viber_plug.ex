@@ -18,27 +18,16 @@ defmodule ViberPlug do
     |> response(conn)
   end
 
-  defp get_params(%{params: params} = conn) do
-    if is_map(params) and map_size(params) > 0 do
-      {:ok, params}
-    else
-      conn
-      |> read_body
-      |> decode_body
+  defp get_params(%{params: params} = conn) when is_map(params) do
+    case  map_size(params) > 0 do
+     true ->  params
+     _->
+       {:ok, body, _conn} = read_body(conn)
+       Poison.decode!(body)
     end
   end
 
-  defp decode_body({:ok, body, _conn}) do
-    case Poison.decode(body) do
-      {:ok, _params} = ok -> ok
-      _error -> :noreply
-    end
-  end
-
-  defp handle({:ok, params}, handler) when handler != nil do
-    handler.(params)
-  end
-
+  defp handle(params, handler) when handler != nil, do: handler.(params)
   defp handle(_, _), do: :noreply
 
   defp response({:reply, data}, conn) when is_map(data) do

@@ -21,8 +21,7 @@ defmodule DbAgent.OperatorTypesRequests do
 
   @typep operator_types_map :: %{
                                  active: boolean,
-                                 name:  String.t(),
-                                 priority: integer
+                                 name:  String.t()
                                 }
 
   @typep operator_types_map_req :: %{

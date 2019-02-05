@@ -1,10 +1,10 @@
 defmodule SmsRouter.RedisManager do
   @moduledoc false
 
-  @spec get(binary) :: term | {:error, binary}
+  @spec get(binary) :: map()| list(map()) | {:error, binary}
   def get(key) when is_binary(key), do: command(["GET", key]) |> check_get(key)
 
-  @spec check_get({:ok, nil} | {:ok, map()} | {:error, term()}, term()) :: {:error, :not_found} | map() | {:error, term()}
+  @spec check_get({:ok, nil} | {:ok, map()} | {:error, term()}, term()) :: {:error, :not_found} | map() | list(map()) | {:error, term()}
   defp check_get({:ok, value}, _) when value == nil, do:  {:error, :not_found}
   defp check_get({:ok, value}, _), do: Jason.decode!(value, [keys: :atoms])
   defp check_get({:error, _reason} = err, _key), do: err

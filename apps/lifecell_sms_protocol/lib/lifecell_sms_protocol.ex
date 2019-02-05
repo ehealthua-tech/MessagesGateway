@@ -60,11 +60,10 @@ defmodule LifecellSmsProtocol do
 
   def check_message_status(payload) do
     lifacell_sms_info = payload.lifecell_sms_info
-    with {:ok, request_body} <- check_status_body(lifacell_sms_info.lifecell_sms_id),
+    with request_body <- check_status_body(lifacell_sms_info.lifecell_sms_id),
          {:ok, response_body} <- EndpointManager.prepare_and_send_sms_request(request_body),
          {:ok, pars_body} <- xmap(response_body, @send_sms_response_parse_schema)
     do
-      :io.format("~npars_body: ~p~n", [pars_body])
       check_sending_status(pars_body, payload)
     else
       error -> end_sending_messages(payload)
