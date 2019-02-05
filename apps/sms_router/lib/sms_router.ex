@@ -51,12 +51,13 @@ defmodule SmsRouter do
     |> send_to_protocol(message_info)
   end
   defp select_protocol_for_send(protocol_config, message_info, viber_id) do
+    :io.format("~nprotocol_config: ~p~n", [protocol_config])
     ContactsRequests.add_operator_id(%{phone_number: message_info.contact, operator_id: protocol_config.id, viber_id: viber_id})
     RedisManager.get(protocol_config.protocol_name)
     |> send_to_protocol(message_info)
   end
 
-  defp send_to_protocol({:error, _}, message_info), do: message_info
+  defp send_to_protocol({:error, _}, message_info), do: apply(:'Elixir.MessagesRouter', :send_message, [%{message_id: message_info.message_id}])
   defp send_to_protocol(protocol_config, message_info) do
     apply(String.to_atom(protocol_config.module_name), String.to_atom(protocol_config.method_name), [message_info])
   end

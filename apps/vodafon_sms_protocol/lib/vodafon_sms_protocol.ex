@@ -6,19 +6,39 @@ defmodule VodafonSmsProtocol do
   use GenServer
   alias VodafonSmsProtocol.RedisManager
 
-  @protocol_config %{host: "", port: "",  phone_for_send: "", time_for_send: "", system_id: "", password: ""}
+  @protocol_config %{host: "", port: "",  phone_for_send: "", time_for_send: "", system_id: "", password: "",
+    module_name: __MODULE__, method_name: :send_message}
+
+  @protocol_config_def %{login: "", password: "", code: "", module_name: __MODULE__, method_name: :send_message }
+
+  #--- Init and start protocol------------------------------------------------------
 
   def start_link do
     GenServer.start_link(__MODULE__, [], name: __MODULE__)
   end
 
   def init(_opts) do
+    {:ok, app_name} = :application.get_application(__MODULE__)
+    RedisManager.get(Atom.to_string(app_name))
+    |> check_config(app_name)
+
     GenServer.cast(MgLogger.Server, {:log, __MODULE__, %{__MODULE__ => "started"}})
     {:ok, []}
   end
 
-  def send_message(payload) do
-    GenServer.cast(MgLogger.Server, {:log, __MODULE__, %{__MODULE__ => "not supported"}})
+  defp check_config({:error, _}, app_name), do: RedisManager.set(Atom.to_string(app_name), @protocol_config_def)
+  defp check_config(protocol_config, app_name) do
+    case Map.keys(protocol_config) ==  Map.keys(@protocol_config_def) do
+      true -> :ok
+      _->
+        config = for {k, v} <- @protocol_config_def, into: %{}, do: {k, Map.get(protocol_config, k, v)}
+        RedisManager.set(Atom.to_string(app_name), config)
+    end
+  end
+
+
+  def send_message(message_info) do
+    end_sending_messages(message_info)
 #    with {:ok, app_name} <- :application.get_application(__MODULE__),
 #        protocol_config <- RedisManager.get(Atom.to_string(app_name)),
 #        {:ok, esme} <- SMPPEX.ESME.Sync.start_link(protocol_config.host, protocol_config.port),
@@ -41,24 +61,10 @@ defmodule VodafonSmsProtocol do
     end
   end
 
-  defp end_sending_messages(:stop, delivery_report, esme, bind_resp, payload) do
-    :ok
-  end
-
-  defp end_sending_messages(:timeout, delivery_report, esme, bind_resp, payload) do
-    :ok
-  end
-
-  defp end_sending_messages(received_items, delivery_report, esme, bind_resp, payload) do
-    pdu =for {:pdu, pdu}  <- received_items, delivery_report.(pdu), do: pdu
-    case pdu == bind_resp do
-      true->
-        message_status_info = RedisManager.get(payload.message_id)
-        new_message_status_info = Map.put(message_status_info, :sending_status, true)
-        RedisManager.set(payload.message_id, new_message_status_info)
-
-      _-> :ok
-    end
+  defp end_sending_messages(message_info) do
+    :io.format("Vodafon SMS error sending message")
+    GenServer.cast(MgLogger.Server, {:log, __MODULE__, %{__MODULE__ => "not supported"}})
+    apply(:'Elixir.MessagesRouter', :send_message, [%{message_id: message_info.message_id}])
   end
 
 end
