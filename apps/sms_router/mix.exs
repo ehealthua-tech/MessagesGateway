@@ -18,8 +18,9 @@ defmodule SmsRouter.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger],
-      mod: {SmsRouter.Application, []}
+      mod: {SmsRouter.Application, []},
+      extra_applications: [:logger]
+
     ]
   end
 
@@ -28,7 +29,8 @@ defmodule SmsRouter.MixProject do
     [
 
         {:db_agent, in_umbrella: true},
-        {:jason, "~> 1.1"}
+        {:jason, "~> 1.1"},
+        {:redix, ">= 0.0.0"}
     ]
   end
 end

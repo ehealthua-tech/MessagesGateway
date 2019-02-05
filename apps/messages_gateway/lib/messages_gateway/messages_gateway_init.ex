@@ -61,8 +61,8 @@ defmodule MessagesGatewayInit do
 
   defp create_priority_list([], acc), do: acc
   defp create_priority_list([operator_config_map | tail], acc) do
-    :io.format("~n~p~n", [operator_config_map])
     priority = %{
+      id: operator_config_map.operator.id,
       protocol_name: operator_config_map.operator.protocol_name,
       priority: operator_config_map.operator_type.priority,
       operator_priority: operator_config_map.operator.priority,

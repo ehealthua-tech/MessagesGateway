@@ -14,7 +14,9 @@ defmodule LifecellSmsProtocol do
   @send_sms_response_parse_schema [status: ~x"//state/text()", lifecell_sms_id: ~x"./@id", date:  ~x"./@date",
     id: ~x"./@ext_id", error: ~x"//status/state/@error" ]
 
-  @protocol_config %{login: "", password: "", code: "+38063, +38093, +38073"}
+  @protocol_config_def %{login: "", password: "", code: "", module_name: __MODULE__, method_name: :send_message }
+
+#--- Init and start protocol------------------------------------------------------
 
   def start_link do
     GenServer.start_link(__MODULE__, [], name: __MODULE__)
@@ -22,14 +24,27 @@ defmodule LifecellSmsProtocol do
 
   def init(_opts) do
     {:ok, app_name} = :application.get_application(__MODULE__)
-    RedisManager.set(Atom.to_string(app_name), @protocol_config)
+    RedisManager.get(Atom.to_string(app_name))
+    |> check_config(app_name)
+
     GenServer.cast(MgLogger.Server, {:log, __MODULE__, %{__MODULE__ => "started"}})
     {:ok, []}
   end
 
-  def check_and_send(%{contact: phone, body: message} = payload) do
-    GenServer.cast(MgLogger.Server, {:log, __MODULE__, %{__MODULE__ => "not supported"}})
-    end_sending_messages(payload)
+  defp check_config({:error, _}, app_name), do: RedisManager.set(Atom.to_string(app_name), @protocol_config_def)
+  defp check_config(protocol_config, app_name) do
+    case Map.keys(protocol_config) ==  Map.keys(@protocol_config_def) do
+      true -> :ok
+      _->
+        config = for {k, v} <- @protocol_config_def, into: %{}, do: {k, Map.get(protocol_config, k, v)}
+        RedisManager.set(Atom.to_string(app_name), config)
+    end
+  end
+
+#--- send message ------------------------------------------------------
+  def send_message(%{contact: phone, body: message} = message_info) do
+
+    end_sending_messages(message_info)
 #    with {:ok, request_body} <- prepare_request_body(payload),
 #         {:ok, response_body} <- EndpointManager.prepare_and_send_sms_request(request_body),
 #         {:ok, pars_body} <- xmap(response_body, @send_sms_response_parse_schema)
@@ -95,8 +110,10 @@ defmodule LifecellSmsProtocol do
     "<request id="<>lifecell_sms_id<>">status</request>"
   end
 
-  defp end_sending_messages(payload) do
-    :ok
+  defp end_sending_messages(message_info) do
+    :io.format("LIFECELL SMS error sending message")
+    GenServer.cast(MgLogger.Server, {:log, __MODULE__, %{__MODULE__ => "not supported"}})
+    apply(:'Elixir.MessagesRouter', :send_message, [%{message_id: message_info.message_id}])
   end
 
 end

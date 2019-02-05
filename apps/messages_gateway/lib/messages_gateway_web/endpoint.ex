@@ -38,13 +38,10 @@ defmodule MessagesGatewayWeb.Endpoint do
   configuration should be loaded from the system environment.
   """
   def init(_key, config) do
-    :io.format("~nconfig start ~p~n", [config])
     if config[:load_from_system_env] do
       port = System.get_env("PORT") || raise "expected the PORT environment variable to be set"
-      :io.format("~nport: ~p~n", [port])
       {:ok, Keyword.put(config, :http, [:inet6, port: port])}
     else
-      :io.format("~nconfig else: ~p~n", [config])
       {:ok, config}
     end
 

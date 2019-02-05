@@ -43,12 +43,24 @@ defmodule MessagesRouter do
     check_message_status(message_status_info)
   end
 
-  @spec sending_message_to_protocol(map(), map()) :: term()
-  def sending_message_to_protocol(protocol, message_status_info) do
-    protocol_config = MessagesGateway.RedisManager.get(protocol.protocol_name)
-     apply(String.to_atom(protocol_config.module_name), String.to_atom(protocol_config.method_name), [message_status_info])
-#     |> send_message()
+#  @spec sending_message_to_protocol(map(), map()) :: term()
+#  def sending_message_to_protocol(protocol, message_status_info) do
+#    protocol_config = MessagesGateway.RedisManager.get(protocol.protocol_name)
+#     apply(String.to_atom(protocol_config.module_name), String.to_atom(protocol_config.method_name), [message_status_info])
+##     |> send_message()
+#  end
+
+@spec sending_message_to_protocol(map(), map()) :: term()
+def sending_message_to_protocol(protocol, message_status_info) do
+  :io.format("~nprotocol: ~p~n", [protocol])
+  case protocol.protocol_name =~ "sms_protocol" do
+    true ->  apply(String.to_atom("Elixir.SmsRouter"), :check_and_send, [message_status_info])
+    _->
+      protocol_config = MessagesGateway.RedisManager.get(protocol.protocol_name)
+      apply(String.to_atom(protocol_config.module_name), String.to_atom(protocol_config.method_name), [message_status_info])
   end
+  #     |> send_message()
+end
 
   @spec end_sending_message(map()| {:error, binary()}) :: :ok | {:error, binary()}
   defp end_sending_message(message_status_info) do

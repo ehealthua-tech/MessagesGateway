@@ -13,7 +13,7 @@ defmodule SmsRouter.Application do
     database = config[:database]
     port = config[:port]
 
-    children = for i <- 6..(config[:pool_size] + 5) do
+    children =  for i <- 0..(config[:pool_size] - 1) do
       worker(Redix,
         ["redis://#{password}@#{hostname}:#{port}/#{database}",
           [name: :"redis_#{i}"]
@@ -21,7 +21,6 @@ defmodule SmsRouter.Application do
         id: {Redix, i}
       )
     end
-
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: SmsRouter.Supervisor]
