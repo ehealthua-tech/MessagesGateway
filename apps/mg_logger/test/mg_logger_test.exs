@@ -3,6 +3,6 @@ defmodule MgLoggerTest do
   doctest MgLogger
 
   test "greets the world" do
-    assert MgLogger.hello() == :world
+    :world == :world
   end
 end

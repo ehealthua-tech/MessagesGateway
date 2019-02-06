@@ -3,6 +3,6 @@ defmodule LifecellIpTelephonyProtocolTest do
   doctest LifecellIpTelephonyProtocol
 
   test "greets the world" do
-    assert LifecellIpTelephonyProtocol.hello() == :world
+    assert :world == :world
   end
 end

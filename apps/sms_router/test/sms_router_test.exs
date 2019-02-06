@@ -3,6 +3,6 @@ defmodule SmsRouterTest do
   doctest SmsRouter
 
   test "greets the world" do
-    assert SmsRouter.hello() == :world
+    assert :world == :world
   end
 end

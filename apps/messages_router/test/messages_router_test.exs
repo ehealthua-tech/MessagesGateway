@@ -44,19 +44,23 @@ defmodule MessagesRouterTest do
 
 test "messages_router" do
 
-    MessagesRouter.RedisManager.set("a6ebd966-11a5-4f50-b89d-9fc00a3b8464", %{:active => true, :sending_status => true})
+    MessagesRouter.RedisManager.set("a6ebd966-11a5-4f50-b89d-9fc00a3b8464", %{:active => true, :sending_status => true,
+      :message_id => "a6ebd966-11a5-4f50-b89d-9fc00a3b8464", :callback_url => ""})
     assert :ok == MessagesRouter.send_message(@test_payload)
     MessagesRouter.RedisManager.del("a6ebd966-11a5-4f50-b89d-9fc00a3b8464")
 
-    MessagesRouter.RedisManager.set("a6ebd966-11a5-4f50-b89d-9fc00a3b8467", %{:active => false, :sending_status => false})
+    MessagesRouter.RedisManager.set("a6ebd966-11a5-4f50-b89d-9fc00a3b8467", %{:active => false, :sending_status => false,
+      :message_id => "a6ebd966-11a5-4f50-b89d-9fc00a3b8467", :callback_url => ""})
     assert :ok == MessagesRouter.send_message(@test_payload2)
     MessagesRouter.RedisManager.del("a6ebd966-11a5-4f50-b89d-9fc00a3b8467")
 
-    MessagesRouter.RedisManager.set("a6ebd966-11a5-4f50-b89d-9fc00a3b8468", %{:active => true, :sending_status => false})
+    MessagesRouter.RedisManager.set("a6ebd966-11a5-4f50-b89d-9fc00a3b8468", %{:active => true, :sending_status => false,
+      :message_id => "a6ebd966-11a5-4f50-b89d-9fc00a3b8468", :callback_url => ""})
     assert :ok == MessagesRouter.send_message(@test_payload3)
     MessagesRouter.RedisManager.del("a6ebd966-11a5-4f50-b89d-9fc00a3b8468")
 
-    MessagesRouter.RedisManager.set("a6ebd966-11a5-4f50-b89d-9fc00a3b8469", %{:active => true, :sending_status => false})
+    MessagesRouter.RedisManager.set("a6ebd966-11a5-4f50-b89d-9fc00a3b8469", %{:active => true, :sending_status => false,
+      :message_id => "a6ebd966-11a5-4f50-b89d-9fc00a3b8469", :callback_url => ""})
     assert :ok == MessagesRouter.send_message(@test_payload4)
     MessagesRouter.RedisManager.del("a6ebd966-11a5-4f50-b89d-9fc00a3b8469")
 

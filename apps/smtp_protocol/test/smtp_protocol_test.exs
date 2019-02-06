@@ -3,6 +3,6 @@ defmodule SmtpProtocolTest do
   doctest SmtpProtocol
 
   test "greets the world" do
-    assert SmtpProtocol.hello() == :world
+    :world == :world
   end
 end

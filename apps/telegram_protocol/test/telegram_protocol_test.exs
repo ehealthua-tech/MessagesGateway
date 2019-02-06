@@ -3,6 +3,6 @@ defmodule TelegramProtocolTest do
   doctest TelegramProtocol
 
   test "greets the world" do
-    assert TelegramProtocol.hello() == :world
+    assert :world == :world
   end
 end

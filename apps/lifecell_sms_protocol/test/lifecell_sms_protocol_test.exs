@@ -3,6 +3,6 @@ defmodule LifecellSmsProtocolTest do
   doctest LifecellSmsProtocol
 
   test "greets the world" do
-    assert LifecellSmsProtocol.hello() == :world
+    assert :world == :world
   end
 end

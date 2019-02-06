@@ -3,6 +3,6 @@ defmodule VodafonSmsProtocolTest do
   doctest VodafonSmsProtocol
 
   test "greets the world" do
-    assert VodafonSmsProtocol.hello() == :world
+    assert :world == :world
   end
 end

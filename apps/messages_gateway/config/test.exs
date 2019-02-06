@@ -6,5 +6,16 @@ config :messages_gateway, MessagesGatewayWeb.Endpoint,
   http: [port: 4001],
   server: false
 
+config :messages_gateway, MessagesGateway.MqManager,
+       mq_host: "127.0.0.1",
+       mq_port: 5672
+
+config :messages_gateway, MessagesGateway.RedisManager,
+       host: "127.0.0.1",
+       database: "1",
+       password: nil,
+       port: 6379,
+       pool_size: 5
+
 # Print only warnings and errors during test
 config :logger, level: :warn

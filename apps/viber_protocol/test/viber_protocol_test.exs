@@ -3,6 +3,6 @@ defmodule ViberProtocolTest do
   doctest ViberProtocol
 
   test "greets the world" do
-    assert ViberProtocol.hello() == :world
+    assert :world == :world
   end
 end

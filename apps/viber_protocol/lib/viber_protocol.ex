@@ -24,24 +24,30 @@ defmodule ViberProtocol do
     {:ok, []}
   end
 
-# ---- API ----
+  @spec send_message(map()) :: pid() | {pid(), reference()} | reference() | :ok
+
   def send_message(%{contact: phone, message_id: message_id} = message_info) do
     GenServer.cast(MgLogger.Server, {:log, __MODULE__, %{:message_id => message_id, status: "sending_viber"}})
     DbAgent.ContactsRequests.get_by_phone_number!(phone)
     |> check_and_send_message(message_info)
   end
 
+  @spec callback_response(map()) :: :ok
+
   def callback_response(%{body_params: body}) do
     event = Map.get(body, "event")
     GenServer.cast(__MODULE__, {event, body})
   end
+
+  @spec set_webhook(String.t()) :: {:ok, term()}
 
   def set_webhook(url)do
     body = %{url: url, event_types: @event_types, send_name: true, send_photo: true}
     ViberEndpoint.request("set_webhook", body)
   end
 
-# ---- Send message  function ----
+  @spec check_and_send_message(map() | nil, map()) :: pid() | {pid(), reference()} | reference() | :ok
+
   defp check_and_send_message(nil, message_info), do: spawn(ViberProtocol, :end_sending_message, [:error, message_info.message_id])
   defp check_and_send_message(contact, %{body: message} = message_info) do
     body = %{receiver: contact.viber_id, min_api_version: 1, sender: %{name: "E-Test"},type: "text", text: message}
@@ -50,8 +56,12 @@ defmodule ViberProtocol do
     |> check_status(message_info, contact)
   end
 
+  @spec check_answer({:error, term()} | {:ok, term()}) :: term() | {String.t(), String.t()}
+
   defp check_answer({:error, err} = error), do: error
   defp check_answer({ok, response_map}), do: {response_map.status_message, response_map.message_token}
+
+  @spec check_status({String.t(), String.t()}, map(), map()) :: pid() | {pid(), reference()} | reference() | :ok
 
   defp check_status({"ok", message_token} , message_info, contact) do
     reference = Process.send_after( __MODULE__, {:end_sending_message, message_token}, 10000)
@@ -80,6 +90,12 @@ defmodule ViberProtocol do
     {:noreply, new_state}
   end
 
+  @spec handle_cast(request :: term(), state :: term()) ::
+          {:noreply, new_state}
+          | {:noreply, new_state, timeout() | :hibernate | {:continue, term()}}
+          | {:stop, reason :: term(), new_state}
+        when new_state: term()
+
   def handle_cast({"webhook", body}, state), do: {:noreply, state}
 
   def handle_cast({"seen", %{"message_token" => message_token} = body}, state) do
@@ -88,6 +104,8 @@ defmodule ViberProtocol do
     |> remove_message_from_state(state)
     {:noreply, new_state}
   end
+
+  @spec remove_message_from_state(any(), term()) :: term() | list()
 
   defp remove_message_from_state(nil, state), do: state
   defp remove_message_from_state(message_info, state) do
@@ -131,7 +149,8 @@ defmodule ViberProtocol do
   def handle_cast({:add_to_state, info}, state), do: {:noreply, [info | state]}
   def handle_cast(info, state), do:  {:noreply, state}
 
-  # ---- End sending message functions ----
+  @spec end_sending_message(any(), :nil | String.t()) :: :ok | any()
+
   def end_sending_message(_, :nil), do: :ok
   def end_sending_message(:success, message_id) do
     message_status_info =
@@ -147,11 +166,16 @@ defmodule ViberProtocol do
 
 
 # ---- Helper function ----
+
+ # @spec check_phone_number(String.t(), String.t(), String.t()) :: {:ok, map()} | {:error, map()}
+
   def check_phone_number("Phone_number", phone_number, user_id) when byte_size(phone_number) == 13 do
     String.slice(phone_number, 1, 11)
     |> String.to_integer()
     |> add_viber_id(%{phone_number: phone_number, viber_id: user_id})
   end
+
+ # @spec add_viber_id(binary(), map()) :: {:ok, map()} | {:error, map()}
 
   defp add_viber_id(number, map) when is_integer(number), do: DbAgent.ContactsRequests.add_viber_id(map)
 
