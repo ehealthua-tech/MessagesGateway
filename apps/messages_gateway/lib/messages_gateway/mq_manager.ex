@@ -40,7 +40,7 @@ defmodule MessagesGateway.MqManager do
 
   def handle_call(:queue_size, _, %{chan: chan, queue_name: queue_name} = state) do
     queue_size = AMQP.Queue.message_count(chan, queue_name)
-    {:reply, {:ok, queue_size, DateTime.to_string(DateTime.utc_now())}, state}
+    {:reply, {:ok, queue_size, DateTime.to_string(DateTime.truncate(DateTime.utc_now(), :second))}, state}
   end
 
   @spec handle_info(msg :: :timeout | term(), state :: term()) ::
