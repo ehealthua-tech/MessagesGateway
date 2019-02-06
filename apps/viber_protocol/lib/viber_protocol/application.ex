@@ -1,6 +1,11 @@
 defmodule ViberProtocol.Application do
   use Application
 
+  @spec start(type, args) :: result when
+          type: atom(),
+          args: :permanent | :transient | :temporary,
+          result: {:ok, pid()} | {:ok, pid(), any()} | {:error, term()}
+
   def start(_type, _args) do
     import Supervisor.Spec
     config = Application.get_env(:viber_protocol, ViberProtocol.RedisManager)

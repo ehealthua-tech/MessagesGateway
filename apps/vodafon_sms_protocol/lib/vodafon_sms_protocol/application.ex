@@ -5,6 +5,18 @@ defmodule VodafonSmsProtocol.Application do
   import Supervisor.Spec
   use Application
 
+  @type spec() :: {child_id(), start_fun :: {module(), atom(), [term()]}, restart(), shutdown(), worker(), modules()}
+  @type child_id() :: term()
+  @type restart() :: :permanent | :transient | :temporary
+  @type modules() :: :dynamic | [module()]
+  @type shutdown() :: timeout() | :brutal_kill
+  @type worker() :: :worker | :supervisor
+
+  @spec start(type, args) :: result when
+          type: atom(),
+          args: :permanent | :transient | :temporary,
+          result: {:ok, pid()} | {:ok, pid(), any()} | {:error, term()}
+
   def start(_type, _args) do
     redis_connects = create_redis_connects()
     # List all child processes to be supervised
@@ -19,6 +31,8 @@ defmodule VodafonSmsProtocol.Application do
     opts = [strategy: :one_for_one, name: VodafonSmsProtocol.Supervisor]
     Supervisor.start_link(children, opts)
   end
+
+  @spec create_redis_connects() :: [spec()]
 
   defp create_redis_connects() do
     config = Application.get_env(:vodafon_sms_protocol, VodafonSmsProtocol.RedisManager)

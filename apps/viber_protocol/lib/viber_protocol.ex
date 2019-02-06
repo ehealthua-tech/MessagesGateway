@@ -6,10 +6,16 @@ defmodule ViberProtocol do
   @event_types ["delivered", "seen", "failed", "subscribed","unsubscribed", "conversation_started"]
   @protocol_config %{module_name: __MODULE__, method_name: :send_message}
 
-# ---- Init functions ----
+  @spec start_link() :: result when
+          result: {:ok, pid()} | :ignore | {:error, {:already_started, pid()} | {:shutdown, term()} | term()}
+
   def start_link do
     GenServer.start_link(__MODULE__, [], name: __MODULE__)
   end
+
+  @spec init(opts) :: result when
+          opts: term(),
+          result: {:ok, []}
 
   def init(_opts) do
     {:ok, app_name} = :application.get_application(__MODULE__)
@@ -57,7 +63,11 @@ defmodule ViberProtocol do
   end
   defp check_status(_, message_info, _), do: spawn(ViberProtocol, :end_sending_message, [:error, message_info.message_id])
 
-# ---- Server functions ----
+  @spec handle_info(msg, state) :: result when
+          msg: :timeout | term(),
+          state: term(),
+          result:  {:noreply, []} | {:noreply, [], timeout() | :hibernate | {:continue, term()}} | {:stop, term(), term()}
+
   def handle_info({:resend, message_info, contact}, state) do
     check_and_send_message(contact, message_info)
     {:noreply, state}
