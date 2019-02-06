@@ -83,7 +83,8 @@ defmodule MessagesGatewayWeb.KeysController do
     >>
     id = Base.hex_encode32(id_binary, case: :lower)
     {:ok, ref} = :dets.open_file(:mydata_file, [])
-    :dets.insert(ref, {id, {key, :true}})
+    now = DateTime.to_string(DateTime.truncate(DateTime.utc_now(), :second))
+    :dets.insert(ref, {id, {key, :true, now, now}})
     :dets.close(ref)
   end
 
@@ -92,7 +93,8 @@ defmodule MessagesGatewayWeb.KeysController do
   defp all_keys do
     {:ok, ref} = :dets.open_file(:mydata_file, [])
     list = :dets.select(ref, [{:"$1", [], [:"$1"]}])
-    map = Enum.map(list, fn({id, {key, status}}) -> %{id: id, key: key, active: status} end)
+    map = Enum.map(list, fn({id, {key, status, created, updated}}) ->
+      %{id: id, key: key, active: status, created: created, updated: updated} end)
     {:ok, map}
   end
 
@@ -100,11 +102,11 @@ defmodule MessagesGatewayWeb.KeysController do
 
   defp deactivate(id) do
     {:ok, ref} = :dets.open_file(:mydata_file, [])
-    [{id, {key,status}}] = :dets.lookup(ref, id)
+    [{id, {key,status,created,_updated}}] = :dets.lookup(ref, id)
     if status == :false do
       :ok
     else
-      :dets.insert(ref, {id, {key, :false}})
+      :dets.insert(ref, {id, {key, :false, created, DateTime.to_string(DateTime.truncate(DateTime.utc_now(), :second))}})
     end
     :dets.close(ref)
   end
@@ -113,11 +115,11 @@ defmodule MessagesGatewayWeb.KeysController do
 
   defp activate(id) do
     {:ok, ref} = :dets.open_file(:mydata_file, [])
-    [{id, {key,status}}] = :dets.lookup(ref, id)
+    [{id, {key,status,created,_updated}}] = :dets.lookup(ref, id)
     if status == :true do
       :ok
     else
-      :dets.insert(ref, {id, {key, :true}})
+      :dets.insert(ref, {id, {key, :true, created, DateTime.to_string(DateTime.truncate(DateTime.utc_now(), :second))}})
     end
     :dets.close(ref)
   end

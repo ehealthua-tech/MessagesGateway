@@ -2,9 +2,10 @@ defmodule MessagesGatewayWeb.MessageView do
   @moduledoc false
   use MessagesGatewayWeb, :view
 
-  def render("index.json", %{message_id: message_id}) do
+  def render("index.json", %{message_id: message_id, tag: tag}) do
     %{
       "message_id" => message_id,
+      "tag" => tag
     }
   end
 

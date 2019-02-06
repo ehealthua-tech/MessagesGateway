@@ -583,14 +583,18 @@ url: HOST:PORT/api/keys/all
     "data": {
         "keys": [
                     {
-                        "id": "vdvj56ue2ol0i8g=",
-                        "key": "2luvugfrfsb6pjgm58000282",
-                        "active": true
+                        "active": true,
+                        "created": "2019-02-06 11:16:57Z",
+                        "id": "t1gol2q4585g98g=",
+                        "key": "2m0c4dv8c5n70h1a1c000142",
+                        "updated": "2019-02-06 11:16:57Z"
                     },
                     {
+                        "active": true,
+                        "created": "2019-02-06 11:19:57Z",
                         "id": "onpd027i25qgn0g=",
                         "key": "2luvu7u5ub1hvsghek0002r2",
-                        "active": false
+                        "updated": "2019-02-06 11:22:57Z"
                     }
                 ]
     },

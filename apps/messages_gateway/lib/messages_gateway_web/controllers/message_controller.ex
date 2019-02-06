@@ -5,7 +5,7 @@ defmodule MessagesGatewayWeb.MessageController do
   alias MessagesGateway.RedisManager
 
   @sending_start_status true
-  @status_not_send false
+  @status_not_send "in_queue"
 
   action_fallback(MessagesGatewayWeb.FallbackController)
 
@@ -34,11 +34,11 @@ defmodule MessagesGatewayWeb.MessageController do
           new_message_params: message_request(),
           result: result()
 
-  def new_message(conn, %{"resource" => %{"contact" => contact, "body" => body} = resource}) do
+  def new_message(conn, %{"resource" => %{"contact" => contact, "body" => body, "tag" => tag} = resource}) do
     with {:ok, priority_list} <- Prioritization.get_message_priority_list(),
          {:ok, message_id} <- add_to_db_and_queue(resource, priority_list)
       do
-      render(conn, "index.json", message_id: message_id)
+      render(conn, "index.json", %{message_id: message_id, tag: tag})
     end
   end
 
@@ -49,11 +49,11 @@ defmodule MessagesGatewayWeb.MessageController do
           new_email_params: email_request(),
           result: result()
 
-  def new_email(conn, %{"resource" => %{"email" => email, "body" => body, "subject" => subject} = resource}) do
+  def new_email(conn, %{"resource" => %{"email" => email, "body" => body, "subject" => subject, "tag" => tag} = resource}) do
     with {:ok, priority_list} <- Prioritization.get_smtp_priority_list(),
          {:ok, message_id} <- add_email_to_db_and_queue(email, body, subject, priority_list)
       do
-      render(conn, "index.json", %{message_id: message_id})
+      render(conn, "index.json", %{message_id: message_id, tag: tag})
     end
 
   end
