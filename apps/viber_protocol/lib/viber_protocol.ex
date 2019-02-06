@@ -122,16 +122,16 @@ defmodule ViberProtocol do
   def handle_cast(info, state), do:  {:noreply, state}
 
   # ---- End sending message functions ----
-  defp end_sending_message(_, :nil), do: :ok
-  defp end_sending_message(:success, message_id) do
+  def end_sending_message(_, :nil), do: :ok
+  def end_sending_message(:success, message_id) do
     message_status_info =
       RedisManager.get(message_id)
-      |> Map.put(:sending_status, true)
+      |> Map.put(:sending_status, "read")
     RedisManager.set(message_id, message_status_info)
     apply(:'Elixir.MessagesRouter', :send_message, [%{message_id: message_id}])
   end
 
-  defp end_sending_message(:error, message_id) do
+  def end_sending_message(:error, message_id) do
     apply(:'Elixir.MessagesRouter', :send_message, [%{message_id: message_id}])
   end
 

@@ -215,8 +215,7 @@ defmodule TelegramProtocol do
   def end_sending_messages(:success, message_id) do
     message_status_info =
       RedisManager.get(message_id)
-      |> Map.put(:sending_status, true)
-
+      |> Map.put(:sending_status, "read")
     RedisManager.set(message_id, message_status_info)
     apply(:'Elixir.MessagesRouter', :send_message, [%{message_id: message_id}])
   end
