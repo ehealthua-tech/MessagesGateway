@@ -1,6 +1,8 @@
 defmodule MessagesGatewayWeb.Router do
   use MessagesGatewayWeb, :router
 
+  use Plug.ErrorHandler
+
   pipeline :api do
     plug :accepts, ["json"]
   end
@@ -44,7 +46,7 @@ defmodule MessagesGatewayWeb.Router do
   end
 
   scope "/sending", MessagesGatewayWeb do
-    pipe_through([:api, :auth])
+    pipe_through([:api])
     post "/message", MessageController, :new_message
     post "/email", MessageController, :new_email
     post "/status", MessageController, :message_status

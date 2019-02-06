@@ -21,26 +21,15 @@ defmodule MessagesGatewayWeb do
     quote do
       use Phoenix.Controller, namespace: MessagesGatewayWeb
       import Plug.Conn
+      import MessagesGatewayWeb.Proxy
       import MessagesGatewayWeb.Router.Helpers
-      import MessagesGatewayWeb.Gettext
       import MessagesGateway.Plugs.Headers
     end
   end
 
   def view do
     quote do
-      use Phoenix.View, root: "lib/messages_gateway_web/templates",
-                        namespace: MessagesGatewayWeb
-
-      # Import convenience functions from controllers
-      import Phoenix.Controller, only: [get_flash: 2, view_module: 1]
-
-      # Use all HTML functionality (forms, tags, etc)
-      use Phoenix.HTML
-
-      import MessagesGatewayWeb.Router.Helpers
-      import MessagesGatewayWeb.ErrorHelpers
-      import MessagesGatewayWeb.Gettext
+      use Phoenix.View, root: ""
     end
   end
 
@@ -53,10 +42,11 @@ defmodule MessagesGatewayWeb do
     end
   end
 
-  def channel do
+  def plugs do
     quote do
-      use Phoenix.Channel
-      import MessagesGatewayWeb.Gettext
+      import MessagesGatewayWeb.Proxy
+      import Plug.Conn, only: [put_status: 2, halt: 1, get_req_header: 2, assign: 3]
+      import Phoenix.Controller, only: [render: 2, render: 3, put_view: 2]
     end
   end
 

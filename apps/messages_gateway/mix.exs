@@ -38,12 +38,7 @@ defmodule MessagesGateway.Mixfile do
   defp deps do
     [
       {:db_agent, in_umbrella: true},
-
       {:phoenix, "~> 1.3.4"},
-      {:phoenix_pubsub, "~> 1.0"},
-      {:phoenix_html, "~> 2.10"},
-      {:phoenix_live_reload, "~> 1.0", only: :dev},
-      {:gettext, "~> 0.11"},
       {:amqp, "~> 1.1.0"},
       {:eview, "~> 0.12"},
       {:redix, ">= 0.0.0"},

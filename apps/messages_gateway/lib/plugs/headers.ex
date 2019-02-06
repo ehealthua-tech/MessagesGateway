@@ -2,36 +2,63 @@ defmodule MessagesGateway.Plugs.Headers do
   @moduledoc """
   Plug.Conn helpers
   """
+  use MessagesGatewayWeb, :plugs
 
-  @header_consumer_id "x-consumer-id"
-  @header_api_key "api-key"
+  @type dets_authorization_info() :: [{String.t, {String.t, boolean(), String.t, String.t}}]
 
-  import Plug.Conn, only: [put_status: 2, get_req_header: 2, halt: 1]
-  import Phoenix.Controller, only: [render: 4]
+  @authorization_header_key "authorization"
 
-  @spec required_headers(Plug.Conn.t(), any()) :: Plug.Conn.t() | :error
+#  --Error messages--
+  @inactive_user    "User is inactive or deleted"
+  @incorrect_key    "Incorrect key for authorization"
+  @missing_header   "Missing header authorization"
+  @incorrect_params "Incorrect params for authorization"
 
-  def required_headers(%Plug.Conn{params: params, req_headers: headers} = conn, _) do
-    authorization = get_header(headers, "Authorization")
-    ["Bearer", user_and_key ] =  String.split(authorization, " ")
-    [user, key_hash] = String.split(user_and_key, ":")
-    {:ok, ref} = :dets.open_file(:mydata_file, [])
-    [{user, {key, active}}] = :dets.lookup(ref, user)
-    if Base.hex_encode32(:crypto.hash(:sha256,key), case: :lower) == key_hash do
-      conn
-    else
-      :error
-    end
+  @spec required_headers(Plug.Conn.t(), any()) :: Plug.Conn.t() | no_return()
+  def required_headers(conn, _) do
+    get_req_header(conn,  @authorization_header_key)
+    |> select_authorization_params(conn)
   end
 
-  def get_header(headers, header) when is_list(headers) do
-    Enum.reduce_while(headers, nil, fn {k, v}, acc ->
-      if String.downcase(k) == String.downcase(header) do
-        {:halt, v}
-      else
-        {:cont, acc}
-      end
-    end)
+  @spec select_authorization_params(list(), Plug.Conn.t()) :: Plug.Conn.t() | no_return()
+  defp select_authorization_params([], conn), do: response_error(conn, @missing_header)
+  defp select_authorization_params([authorization], conn), do: check_authorization_params(authorization, conn)
+  defp select_authorization_params(_, conn), do: response_error(conn, @missing_header)
+
+  @spec check_authorization_params(String.t(), Plug.Conn.t()) :: Plug.Conn.t() | no_return()
+  defp check_authorization_params("Bearer" <> " " <> <<user::binary-size(16)>> <> ":" <> key_hash, conn) do
+    {:ok, ref} = :dets.open_file(:mydata_file, [])
+    :dets.lookup(ref, user)
+    |> check_user_status(key_hash, conn)
+  end
+  defp check_authorization_params(_, conn), do: response_error(conn,  @incorrect_params)
+
+  @spec check_user_status(dets_authorization_info(), String.t(), Plug.Conn.t()) :: Plug.Conn.t() | no_return()
+  defp check_user_status([{user, {key, true, _, _}}], key_hash, conn) do
+    Base.hex_encode32(:crypto.hash(:sha256, key), case: :lower)
+    |> check_authorization_keys(key_hash, conn)
+  end
+  defp check_user_status(_, _, conn), do: response_error(conn, @inactive_user)
+
+  @spec check_authorization_keys(String.t(), String.t(), Plug.Conn.t()) :: Plug.Conn.t() | no_return()
+  defp check_authorization_keys(our_key, key_hash, conn) when our_key == key_hash, do: conn
+  defp check_authorization_keys(our_key, key_hash, conn), do: response_error(conn,  @incorrect_key)
+
+  @spec response_error(Plug.Conn.t(), String.t()) ::  no_return()
+  defp response_error(conn, error_message) do
+    conn
+    |> put_status(:unauthorized)
+    |> put_view(EView.Views.Error)
+    |> render(:"401", %{
+      message: error_message,
+      invalid: [
+        %{
+          entry_type: :header,
+          entry: "header_name"
+        }
+      ]
+    })
+    |> halt()
   end
 
 end
