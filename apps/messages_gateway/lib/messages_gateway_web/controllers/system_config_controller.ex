@@ -1,8 +1,8 @@
 defmodule MessagesGatewayWeb.SystemConfigController do
   @moduledoc false
-  alias MessagesGateway.RedisManager
-
   use MessagesGatewayWeb, :controller
+
+  alias MessagesGateway.RedisManager
   action_fallback(MessagesGatewayWeb.FallbackController)
 
   @messages_gateway_conf "system_config"

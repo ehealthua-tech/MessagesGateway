@@ -4,9 +4,9 @@ defmodule MessagesGatewayWeb.FallbackController do
   """
 
   use MessagesGatewayWeb, :controller
+
   alias EView.Views.Error
   alias EView.Views.ValidationError
-  alias MessagesGatewayWeb.Proxy
 
   def call(conn, {:error, {:bad_request, reason}}) when is_binary(reason) do
     conn
@@ -84,18 +84,6 @@ defmodule MessagesGatewayWeb.FallbackController do
     |> render(Error, :"400", %{message: error})
   end
 
-#  def call(conn, %Ecto.Changeset{valid?: false} = changeset) do
-#    call(conn, {:error, changeset})
-#  end
-#
-#  def call(conn, {:error, %Ecto.Changeset{valid?: false} = changeset}) do
-#    conn
-#    |> put_status(:unprocessable_entity)
-#    |> render(ValidationError, :"422", changeset)
-#  end
-#
-#  def call(conn, {:error, %Ecto.Changeset{} = changeset, _status_code}), do: call(conn, {:error, changeset})
-
   def call(conn, {:error, {:unprocessable_entity, error}}) do
     conn
     |> put_status(:unprocessable_entity)
@@ -120,6 +108,13 @@ defmodule MessagesGatewayWeb.FallbackController do
     |> render(Error, :"400", %{message: "Before deleting an operator type - delete the operators attached to it"})
   end
 
+  def call(conn, _) do
+    :io.format("~nconn fffff: ~p~n", [conn])
+    conn
+    |> put_status(:conflict)
+    |> render(Error, :"502", %{message: "Internal server error"})
+  end
+
   @doc """
   Proxy response from APIs
   """
@@ -127,18 +122,4 @@ defmodule MessagesGatewayWeb.FallbackController do
     Proxy.proxy(conn, proxy_resp)
   end
 
-  @doc """
-  Guardian error messages
-  """
-  def auth_error(conn, {:invalid_token, :token_expired}, _opts) do
-    call(conn, {:error, {:access_denied, %{message: "JWT expired", type: :jwt_expired}}})
-  end
-
-  def auth_error(conn, {:invalid_token, "aud"}, _opts) do
-    call(conn, {:error, {:access_denied, %{message: "JWT is not permitted for this action", type: :jwt_aud_invalid}}})
-  end
-
-  def auth_error(conn, _, _opts) do
-    call(conn, {:error, :access_denied})
-  end
 end
