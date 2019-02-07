@@ -6,17 +6,17 @@ HOST: https://dev-messagesgateway.skywell.software
 This part covers general request such as send message,send email,check status
 
 ## Requests collection [/requests]
-### send message [POST/sending/message/{contact},{body},{system_id},{callback_url}]
+### send message [POST/sending/message/{contact},{body},{tag},{callback_url}]
  This request is used to send message with some body.
  
  Headers must contain key "Auhtorization" with value "Bearer *token*".
  
  
- Returns  message_id and  system_id as a response 
+ Returns  message_id and  tag as a response 
 + Parameters
      + contact: "+380631111111"(String,required),
      + body: "hello"(String,required),
-     + system_id: "1111111"(String,required),
+     + tag: "1111111"(String,required),
      + callback_url: "https://www.google.com" (String,optional)
 
 + Request 
@@ -24,7 +24,7 @@ This part covers general request such as send message,send email,check status
          {"resource": {
              "contact": "+380631111111",      
              "body": "hello",
-             "system_id": "1111111",
+             "tag": "1111111",
              "callback_url": "https://www.google.com"
           }
           }
@@ -34,7 +34,7 @@ This part covers general request such as send message,send email,check status
         {
           "data": {
         "message_id": "ddb576a5-27ca-4502-bdf2-f31f940833de",
-        "system_id": "1111111"
+        "tag": "1111111"
         },
         "meta": {
         "code": 200,
@@ -44,24 +44,24 @@ This part covers general request such as send message,send email,check status
         }
         }  
 
-### send email [POST /sending/email/{email},{body},{system_id}]
+### send email [POST /sending/email/{email},{body},{tag}]
 This request is used during email sending .
 
 Headers must contain key "Auhtorization" with value "Bearer *token*".
 
 
-Returns  message_id and  system_id as a response  
+Returns  message_id and  tag as a response  
 + Parameters
      + email: "u@u.u"(String,required),
      + body: "hello"(String,required),
-     + system_id: "1111111"(String,required),
+     + tag: "1111111"(String,required),
      
 + Request 
 
          {"resource": {
              "email": "u@u.u",      
              "body": "hello",
-             "system_id": "1111111"
+             "tag": "1111111"
           }
           }     
 
@@ -70,7 +70,7 @@ Returns  message_id and  system_id as a response
         {
           "data": {
         "message_id": "ddb576a5-27ca-4502-bdf2-f31f940833de",
-        "system_id": "1111111"
+        "tag": "1111111"
         },
         "meta": {
         "code": 200,
