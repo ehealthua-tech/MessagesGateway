@@ -6,7 +6,8 @@ defmodule MessagesGatewayInit do
 
   @messages_gateway_conf "system_config"
   @operators_config "operators_config"
-  @sys_config %{default_sms_operator: "", org_name: "test", sending_time: "60", automatic_prioritization: false}
+  @sys_config %{default_sms_operator: "", org_name: "test", sending_time: "60", automatic_prioritization: false,
+  sms_router_module: "Elixir.SmsRouter", sms_router_method: "check_and_send"}
 
   @type priority_type() :: %{
                              id: String.t(),

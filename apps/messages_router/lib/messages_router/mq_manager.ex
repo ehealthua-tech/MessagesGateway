@@ -18,34 +18,6 @@ defmodule MessagesRouter.MqManager do
       {:ok, connect(state)}
     end
 
-    @spec publish(String.t(), String.t()) :: term()
-    def publish(message, priority) do
-      GenServer.call(__MODULE__, {:publish, message, priority})
-    end
-
-    @spec send_to_operator(map(), String.t()) :: term()
-    def send_to_operator(message, operator_queue) do
-      GenServer.call(__MODULE__, {:send_to_operator,  Jason.encode!(message), operator_queue})
-    end
-
-    @spec handle_call(term(), {pid(), tag :: term()}, state :: term()) ::
-            {:reply, reply, new_state}
-            | {:reply, reply, new_state, timeout() | :hibernate | :infinity | non_neg_integer() | {:continue, term()}}
-            | {:noreply, new_state}
-              | {:noreply, new_state, timeout() | :hibernate | timeout(), {:continue, term()}}
-              | {:stop, reason, reply, new_state}
-                | {:stop, reason, new_state}
-    when reply: term(), new_state: term(), reason: term()
-    def handle_call({:publish, message, priority}, _, %{chan: chan, connected: true} = state) do
-      result = Basic.publish(chan, "", @queue, message, [persistent: true, priority: priority])
-      {:reply, result, state}
-    end
-
-    def handle_call({:send_to_operator, message, protocol_queue}, _, %{chan: chan, connected: true} = state) do
-      result = Basic.publish(chan, "", protocol_queue, message, [persistent: true, priority: 0])
-      {:reply, result, state}
-    end
-
     @spec handle_info(msg :: :timeout | term(), state :: term()) ::
             {:noreply, new_state}
             | {:noreply, new_state, timeout() | :hibernate | {:continue, term()}}
