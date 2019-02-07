@@ -7,4 +7,6 @@ use Mix.Config
 # they all use the same configuration. While one could
 # configure all applications here, we prefer to delegate
 # back to each application for organization purposes.
+
 import_config "../apps/*/config/config.exs"
+

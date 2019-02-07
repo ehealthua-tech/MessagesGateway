@@ -405,7 +405,7 @@ body:
  |-----|----|--------|
  |contact|String|required|
  |body|String|required|
- |system_id|String|required|
+ |tag|String|required|
  |callback_url|String|not required|
  
  *request:*
@@ -422,7 +422,7 @@ body:
  {"resource": {
              "contact": "+380631111111",      
              "body": "hello",
-             "system_id": "1111111",
+             "tag": "1111111",
              "callback_url": "https://www.google.com"
          }}
  
@@ -431,7 +431,7 @@ body:
  ```json
 {"data": {
         "message_id": "ddb576a5-27ca-4502-bdf2-f31f940833de",
-        "system_id": "1111111"
+        "tag": "1111111"
     },
     "meta": {
         "code": 200,
@@ -464,7 +464,7 @@ body:
  {"resource": {
              "email": "u@u.u",      
              "body": "hello",
-             "system_id": "1111111"
+             "tag": "1111111"
          }}
  
  ```
@@ -472,7 +472,7 @@ body:
  ```json
 {"data": {
         "message_id": "ddb576a5-27ca-4502-bdf2-f31f940833de",
-        "system_id": "1111111"
+        "tag": "1111111"
     },
     "meta": {
         "code": 200,
