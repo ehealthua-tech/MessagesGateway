@@ -11,6 +11,8 @@ defmodule SmsRouter.MixProject do
       lockfile: "../../mix.lock",
       elixir: "~> 1.7",
       start_permanent: Mix.env() == :prod,
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: ["coveralls": :test, "coveralls.detail": :test, "coveralls.post": :test, "coveralls.html": :test],
       deps: deps()
     ]
   end
@@ -30,6 +32,7 @@ defmodule SmsRouter.MixProject do
 
         {:db_agent, in_umbrella: true},
         {:jason, "~> 1.1"},
+        {:excoveralls, "~> 0.10", only: :test},
         {:redix, ">= 0.0.0"}
     ]
   end
