@@ -182,7 +182,7 @@ defmodule MessagesRouterTest do
     MessagesRouter.RedisManager.del(Map.get(@test_no_active_protocol, :message_id))
   end
 
-  test "try_get)atom_from_redis" do
+  test "test_redis" do
     MessagesRouter.RedisManager.set("test", "test")
     assert "test" = MessagesRouter.RedisManager.get("test")
     MessagesRouter.RedisManager.del("test")

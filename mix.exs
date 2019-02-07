@@ -33,7 +33,12 @@ defmodule MessagesGateway.MixProject do
   def aliases do
     [
       messages_router_test: "cmd --app messages_router mix test --color",
-      messages_router_coveralls: ["cmd --app messages_router mix coveralls.html --color"]
+      messages_router_coveralls: ["cmd --app messages_router mix coveralls.html --color"],
+      messages_gateway_test: "cmd --app messages_gateway mix test --color",
+      messages_gatewa_coveralls: ["cmd --app messages_gateway mix coveralls.html --color"],
+      db_agent_test: "cmd --app db_agent mix test --color",
+      db_agent_coveralls: ["cmd --app db_agent mix coveralls.html --color"]
     ]
   end
 end
+
