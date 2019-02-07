@@ -10,7 +10,7 @@ config :messages_router, MessagesRouter.MqManager,
 
 config :messages_router, MessagesRouter.RedisManager,
        host: "127.0.0.1",
-       database: "1",
+       database: "2",
        password: nil,
        port: 6379,
        pool_size: 5

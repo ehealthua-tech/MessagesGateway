@@ -19,16 +19,6 @@ defmodule MessagesRouter.RedisManager do
   defp check_set({:ok, _}, _), do: :ok
   defp check_set({:error, reason} = err, params), do: :error
 
-  @spec keys(key) :: result when
-          key: String.t(),
-          result: {:ok, [String.t()]}
-  def keys(key) when is_binary(key) do
-    case command(["KEYS", key]) do
-      {:ok, values} -> {:ok, values}
-      error ->  error
-    end
-  end
-
   @spec del(binary) :: {:ok, non_neg_integer} | {:error, binary}
   def del(key) when is_binary(key), do:  command(["DEL", key]) |> check_del()
 

@@ -61,7 +61,6 @@ defmodule MessagesRouter do
     end_sending_message(new_message_info)
   end
 
-
   defp select_priority(%{automatic_prioritization: false}, priority_list) do
     select_protocol = Enum.min_by(priority_list, fn x -> x.priority end)
   end
@@ -80,8 +79,10 @@ defmodule MessagesRouter do
 
 
   @spec sending_message_to_protocol(atom(), map(), map(), map()) :: term()
-  def sending_message_to_protocol(true, protocol, %{contact: contact} = message_info, %{automatic_prioritization: true} = system_config) do
-    protocol_config = MessagesGateway.RedisManager.get(protocol.protocol_name)
+  def sending_message_to_protocol(true, protocol, %{contact: contact} = message_info,
+        %{automatic_prioritization: true} = system_config) do
+    :io.format("~nprotocol~p~n", [protocol])
+    protocol_config = RedisManager.get(protocol.protocol_name)
     case Enum.member?(String.split(protocol_config.code), contact) do
       true ->
         apply(String.to_atom(protocol_config.module_name), String.to_atom(protocol_config.method_name), [message_info])
@@ -89,23 +90,28 @@ defmodule MessagesRouter do
     end
   end
 
-  def sending_message_to_protocol(true, protocol, message_status_info, %{automatic_prioritization: false}) do
-    apply(String.to_atom("Elixir.SmsRouter"), :check_and_send, [message_status_info])
+  def sending_message_to_protocol(true, protocol, message_status_info,
+        %{automatic_prioritization: false} = system_config) do
+    apply(String.to_atom(system_config.sms_router_module),  String.to_atom(system_config.sms_router_method),
+      [message_status_info])
   end
 
   def sending_message_to_protocol(_, protocol, message_status_info, system_config) do
-    protocol_config = MessagesGateway.RedisManager.get(protocol.protocol_name)
-    apply(String.to_atom(protocol_config.module_name), String.to_atom(protocol_config.method_name), [message_status_info])
+    protocol_config = RedisManager.get(protocol.protocol_name)
+    apply(String.to_atom(protocol_config.module_name), String.to_atom(protocol_config.method_name),
+      [message_status_info])
   end
 
   @spec end_sending_message(map()| {:error, binary()}) :: :ok | {:error, binary()}
   defp end_sending_message(message_status_info) do
     new_message_status_info = Map.merge(message_status_info, %{active: false})
-    send_status(message_status_info.callback_url, message_status_info.message_id, new_message_status_info.sending_status)
-    MessagesRouter.RedisManager.set(message_status_info.message_id, new_message_status_info)
+    send_status(message_status_info.callback_url, message_status_info.message_id,
+      new_message_status_info.sending_status)
+    RedisManager.set(message_status_info.message_id, new_message_status_info)
   end
 
-  @spec send_status(String.t(), String.t(), String.t()) :: :ok | {:ok, HTTPoison.Response.t | HTTPoison.AsyncResponse.t} |
+  @spec send_status(String.t(), String.t(), String.t()) :: :ok | {:ok, HTTPoison.Response.t |
+                                                                       HTTPoison.AsyncResponse.t} |
                                                                  {:error, HTTPoison.Error.t}
   defp send_status("",_,_), do: :ok
   defp send_status(callback_url, message_id, sending_status) do
