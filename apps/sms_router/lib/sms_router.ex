@@ -57,7 +57,11 @@ defmodule SmsRouter do
     |> send_to_protocol(message_info)
   end
 
-  defp send_to_protocol({:error, _}, message_info), do: apply(:'Elixir.MessagesRouter', :send_message, [%{message_id: message_info.message_id}])
+  defp send_to_protocol({:error, _}, message_info)  do
+    system_config =  RedisManager.get(@messages_gateway_conf)
+    apply(String.to_atom(system_config.messages_router_module), String.to_atom(system_config.messages_router_method), [message_info])
+  end
+
   defp send_to_protocol(protocol_config, message_info) do
     apply(String.to_atom(protocol_config.module_name), String.to_atom(protocol_config.method_name), [message_info])
   end
