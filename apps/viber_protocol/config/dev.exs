@@ -29,7 +29,7 @@ use Mix.Config
 #
 #     import_config "#{Mix.env()}.exs"
 config :viber_protocol,
-       auth_token: "48f01d9268e7d064-5c8b70def6243721-a025fd7b15cb0902"
+       auth_token: "4933484972a7d4e7-fc167580a909f0c6-d93108225af8ea6a"
 
 config :viber_protocol,  ViberProtocol.RedisManager,
        host: "127.0.0.1",

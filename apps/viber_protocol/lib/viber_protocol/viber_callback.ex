@@ -18,6 +18,11 @@ defmodule ViberCallback do
     response(conn)
   end
 
+  post "/" do
+    ViberProtocol.callback_response(conn)
+    response(conn)
+  end
+
 #  defp response({:reply, data}, conn) when is_map(data) do
 #    conn
 #    |> put_resp_header("content-type", "application/json")

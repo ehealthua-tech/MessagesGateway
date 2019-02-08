@@ -130,11 +130,14 @@ defmodule MessagesGatewayWeb.OperatorsController do
   end
 
   def update_protocol_config(protocol_name, config) do
-    :io.format("~nconfig: ~p~n", [config])
     old_config = RedisManager.get(protocol_name)
     config_key_atom = for {key, val} <- config, into: %{}, do: {String.to_atom(key), val}
-    new_config = Map.merge(old_config, config_key_atom)
-    :io.format("~nnew_config: ~p~n", [new_config])
+    new_config =
+      case Map.keys(config_key_atom) ==  Map.keys(old_config) do
+        true -> Map.merge(old_config, config_key_atom)
+        _->
+          config = for {k, v} <- old_config, into: %{}, do: {k, Map.get(config_key_atom, k, v)}
+      end
     RedisManager.set(protocol_name, new_config)
   end
 
