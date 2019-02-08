@@ -31,6 +31,7 @@ dev.secret.exs
 *.iml
 
 mydata_file
+mydata_file_test
 
 
 docker run -p 4000:4011 \

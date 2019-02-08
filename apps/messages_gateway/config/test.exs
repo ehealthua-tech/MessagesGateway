@@ -19,3 +19,6 @@ config :messages_gateway, MessagesGateway.RedisManager,
 
 # Print only warnings and errors during test
 config :logger, level: :warn
+
+config :messages_gateway, MessagesGatewayWeb.KeysController,
+       dets_file_name: :mydata_file_test

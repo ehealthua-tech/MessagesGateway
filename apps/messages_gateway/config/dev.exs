@@ -28,3 +28,6 @@ config :messages_gateway, MessagesGateway.RedisManager,
        password: nil,
        port: 6379,
        pool_size: 5
+
+config :messages_gateway, MessagesGatewayWeb.KeysController,
+       dets_file_name: :mydata_file

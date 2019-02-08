@@ -70,6 +70,7 @@ defmodule MessagesGatewayWeb.KeysController do
   @spec generate() :: :ok | {:error, any()}
 
   defp generate() do
+    file_name = Application.get_env(:messages_gateway, MessagesGatewayWeb.KeysController)[:dets_file_name]
     key_binary = <<
       System.system_time(:nanosecond)::64,
       :erlang.phash2({node(), self()}, 16_777_216)::24,
@@ -82,7 +83,7 @@ defmodule MessagesGatewayWeb.KeysController do
       :erlang.unique_integer()::16
     >>
     id = Base.hex_encode32(id_binary, case: :lower)
-    {:ok, ref} = :dets.open_file(:mydata_file, [])
+    {:ok, ref} = :dets.open_file(file_name, [])
     now = DateTime.to_string(DateTime.truncate(DateTime.utc_now(), :second))
     :dets.insert(ref, {id, {key, :true, now, now}})
     :dets.close(ref)
@@ -91,7 +92,8 @@ defmodule MessagesGatewayWeb.KeysController do
   @spec all_keys() :: {:ok, list()}
 
   defp all_keys do
-    {:ok, ref} = :dets.open_file(:mydata_file, [])
+    file_name = Application.get_env(:messages_gateway, MessagesGatewayWeb.KeysController)[:dets_file_name]
+    {:ok, ref} = :dets.open_file(file_name, [])
     list = :dets.select(ref, [{:"$1", [], [:"$1"]}])
     map = Enum.map(list, fn({id, {key, status, created, updated}}) ->
       %{id: id, key: key, active: status, created: created, updated: updated} end)
@@ -101,7 +103,8 @@ defmodule MessagesGatewayWeb.KeysController do
   @spec deactivate(id: String.t()) :: :ok
 
   defp deactivate(id) do
-    {:ok, ref} = :dets.open_file(:mydata_file, [])
+    file_name = Application.get_env(:messages_gateway, MessagesGatewayWeb.KeysController)[:dets_file_name]
+    {:ok, ref} = :dets.open_file(file_name, [])
     [{id, {key,status,created,_updated}}] = :dets.lookup(ref, id)
     if status == :false do
       :ok
@@ -114,7 +117,8 @@ defmodule MessagesGatewayWeb.KeysController do
   @spec activate(id: String.t()) :: :ok
 
   defp activate(id) do
-    {:ok, ref} = :dets.open_file(:mydata_file, [])
+    file_name = Application.get_env(:messages_gateway, MessagesGatewayWeb.KeysController)[:dets_file_name]
+    {:ok, ref} = :dets.open_file(file_name, [])
     [{id, {key,status,created,_updated}}] = :dets.lookup(ref, id)
     if status == :true do
       :ok
@@ -127,7 +131,8 @@ defmodule MessagesGatewayWeb.KeysController do
   @spec delete(id: String.t()) :: :ok
 
   defp delete(id) do
-    {:ok, ref} = :dets.open_file(:mydata_file, [])
+    file_name = Application.get_env(:messages_gateway, MessagesGatewayWeb.KeysController)[:dets_file_name]
+    {:ok, ref} = :dets.open_file(file_name, [])
     if [] == :dets.lookup(ref, id) do
       :ok
     else
