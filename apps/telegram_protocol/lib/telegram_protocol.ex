@@ -4,8 +4,7 @@ defmodule TelegramProtocol do
   alias TelegramProtocol.RedisManager
 
   @authentication_timeout 5000
-  @protocol_config_def %{api_id: "539444", api_hash: "1a6a0ad0726805c353f26b5f859ea279",  phone: "+380674294504",
-    session_name: "ehealth", code: "", password: "", module_name: __MODULE__, method_name: :send_message}
+  @protocol_config_def %{api_id: "", api_hash: "",  phone: "", session_name: "", code: "", password: "", module_name: __MODULE__, method_name: :send_message}
 
   #-Init and start protocol------------------------------------------------------
   def start_link do
@@ -16,8 +15,6 @@ defmodule TelegramProtocol do
     {:ok, app_name} = :application.get_application(__MODULE__)
     RedisManager.get(Atom.to_string(app_name))
     |> check_config()
-#    RedisManager.set(Atom.to_string(app_name), @protocol_config_def)
-#    TelegramProtocol.start_telegram_lib
     GenServer.cast(MgLogger.Server, {:log, __MODULE__, %{__MODULE__ => "started"}})
     {:ok, []}
   end
@@ -34,7 +31,11 @@ defmodule TelegramProtocol do
     {:noreply, []}
   end
 
-  defp check_config({:error, _}), do: start_telegram_lib()
+  defp check_config({:error, _}) do
+    {:ok, app_name} = :application.get_application(__MODULE__)
+    RedisManager.set(Atom.to_string(app_name), @protocol_config_def)
+    start_telegram_lib()
+  end
   defp check_config(%{api_id: api_id, api_hash: api_hash, phone: phone, session_name: session_name} = protocol_config)
        when api_id == "" and api_hash == "" and phone == "" and session_name == ""
     do
@@ -43,8 +44,9 @@ defmodule TelegramProtocol do
 
   defp check_config(protocol_config) do
     Map.keys(protocol_config) ==  Map.keys(@protocol_config_def)
-    Map.merge(protocol_config, %{code: "", password: ""})
-
+    new_protocol = Map.merge(protocol_config, %{code: "", password: ""})
+    {:ok, app_name} = :application.get_application(__MODULE__)
+    RedisManager.set(Atom.to_string(app_name), new_protocol)
     config = struct(TDLib.default_config(), %{api_id: String.to_integer(protocol_config.api_id), api_hash: protocol_config.api_hash})
     {:ok, _pid} = TDLib.open(String.to_atom(protocol_config.session_name), self(), config)
     TDLib.transmit(String.to_atom(protocol_config.session_name), "verbose 0")
@@ -100,9 +102,16 @@ defmodule TelegramProtocol do
     {:noreply, state}
   end
 
+  def code() do
+    {:ok, app_name} = :application.get_application(__MODULE__)
+    protocol_config = RedisManager.get(Atom.to_string(app_name))
+    send_code(protocol_config)
+  end
+
   defp send_code({:error, _}), do: check_authentication_code()
   defp send_code(%{code: code}) when code == "", do: check_authentication_code()
   defp send_code(protocol_config) do
+    :io.format("~nprotocol_config: ~p~n", [protocol_config])
     query = %Method.CheckAuthenticationCode{code: protocol_config.code}
     TDLib.transmit(String.to_atom(protocol_config.session_name), query)
   end

@@ -29,7 +29,15 @@ defmodule MessagesGatewayWeb.OperatorsController do
   def index(conn, _params) do
     with operators <- OperatorsRequests.list_operators()
       do
-      render(conn, "index.json", %{operators: operators})
+      updated_operators =
+        Enum.map(operators, fn(x) ->
+          operator_map = Map.from_struct(x.operator)
+          operator_config = RedisManager.get(operator_map.protocol_name)
+          new_config = Map.merge(operator_map.config, operator_config)
+          update_operator = put_in(operator_map[:config], new_config)
+          put_in(x[:operator], update_operator)
+        end)
+        render(conn, "index.json", %{operators: updated_operators})
     end
   end
 
@@ -68,6 +76,8 @@ defmodule MessagesGatewayWeb.OperatorsController do
           result: result()
 
   def change_info(conn, %{"resource" => %{"id" => id} = operator_info_resp}) do
+    :io.format("~noperator_info_resp: ~p~n", [operator_info_resp])
+
     operator_info = %{"config" => config} = check_required_fuilds(Map.has_key?(operator_info_resp, "config"), operator_info_resp)
     {_, operator_info_r} = Map.split(operator_info, ["id", "operator_type", "config"])
     with {1, _} <- OperatorsRequests.change_operator(id, [{:config, config} | convert(operator_info_r)])
@@ -120,8 +130,11 @@ defmodule MessagesGatewayWeb.OperatorsController do
   end
 
   def update_protocol_config(protocol_name, config) do
+    :io.format("~nconfig: ~p~n", [config])
     old_config = RedisManager.get(protocol_name)
-    new_config = Map.merge(old_config, config)
+    config_key_atom = for {key, val} <- config, into: %{}, do: {String.to_atom(key), val}
+    new_config = Map.merge(old_config, config_key_atom)
+    :io.format("~nnew_config: ~p~n", [new_config])
     RedisManager.set(protocol_name, new_config)
   end
 
@@ -133,7 +146,12 @@ defmodule MessagesGatewayWeb.OperatorsController do
   def show(conn, %{"id" => id}) do
     with result <- OperatorsRequests.operator_by_id(id)
       do
-      render(conn, "show.json", %{operator: result})
+      operator_map = Map.from_struct(result)
+      operator_config = RedisManager.get(operator_map.protocol_name)
+      config =  for {key, val} <- operator_map.config, into: %{}, do: {String.to_atom(key), val}
+      new_config = Map.merge(config, operator_config)
+      update_operator = put_in(operator_map[:config], new_config)
+      render(conn, "show.json", %{operator: update_operator})
     end
   end
 
