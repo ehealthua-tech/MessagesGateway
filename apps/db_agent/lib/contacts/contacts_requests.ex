@@ -90,7 +90,7 @@ defmodule DbAgent.ContactsRequests do
           result: {:ok, ContactsSchema.t()} | {:error, Ecto.Changeset.t()}
 
   def insert_or_update(nil, params), do: add_contact(params)
-  def insert_or_update(present_contact, params), do: change_contact(params)
+  def insert_or_update(_present_contact, params), do: change_contact(params)
 
   @doc """
     Delete contact by id

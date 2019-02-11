@@ -11,6 +11,8 @@ defmodule ViberProtocol.MixProject do
       lockfile: "../../mix.lock",
       elixir: "~> 1.7",
       start_permanent: Mix.env() == :prod,
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: [coveralls: :test, "coveralls.detail": :test, "coveralls.post": :test, "coveralls.html": :test],
       deps: deps()
     ]
   end
@@ -29,6 +31,7 @@ defmodule ViberProtocol.MixProject do
       {:db_agent, in_umbrella: true},
       {:httpoison, "~> 1.4"},
       {:jason, "~> 1.1"},
+      {:excoveralls, "~> 0.10", only: :test},
       {:plug_cowboy, "~> 1.0"},
       {:redix, ">= 0.0.0"},
       {:ex_doc, "~> 0.19", only: :dev, runtime: false}

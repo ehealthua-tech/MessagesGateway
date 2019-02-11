@@ -10,7 +10,7 @@ defmodule MessagesGateway.MixProject do
       erlang_otp: "21.0",
       dialyzer: [plt_add_apps: [:ex_unit]],
       test_coverage: [tool: ExCoveralls],
-      preferred_cli_env: ["coveralls": :test, "coveralls.detail": :test, "coveralls.post": :test, "coveralls.html": :test],
+      preferred_cli_env: [coveralls: :test, "coveralls.detail": :test, "coveralls.post": :test, "coveralls.html": :test],
       aliases: aliases()
     ]
   end

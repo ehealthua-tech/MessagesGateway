@@ -128,6 +128,7 @@ defmodule TelegramProtocol do
   # Importing contacts to our contact
   def handle_cast({:send_messages, payload},  state) do
     query = %Method.ImportContacts{contacts: [%{phone_number: payload.contact}]}
+    :io.format("~nTELE query:~n~p~n",[query])
     do_query(query)
 
     # if user number not fount in telegram or timeout will be more than 20 sec we canceled sending
