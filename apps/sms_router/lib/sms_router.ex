@@ -48,8 +48,10 @@ defmodule SmsRouter do
 
   defp select_protocol_for_send(:default, message_info, viber_id) do
     mg_config = RedisManager.get(@messages_gateway_conf)
-    RedisManager.get(Map.get(mg_config, :default_sms_operator, "nil"))
-    |> send_to_protocol(message_info)
+    :io.format("~nmg_config: ~p~n", [mg_config])
+    x = RedisManager.get(Map.get(mg_config, :default_sms_operator, "nil"))
+    :io.format("~nx : ~p~n", [x ])
+     send_to_protocol(x, message_info)
   end
   defp select_protocol_for_send(protocol_config, message_info, viber_id) do
     ContactsRequests.add_operator_id(%{phone_number: message_info.contact, operator_id: protocol_config.id, viber_id: viber_id})

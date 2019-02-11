@@ -6,7 +6,7 @@ WORKDIR /app
 
 ENV MIX_ENV=prod
 
-RUN apk update && apk add gperf alpine-sdk openssl-dev git cmake git
+RUN apk update && apk add git
 
 RUN mix do \
       local.hex --force, \
@@ -29,11 +29,8 @@ RUN apk add --no-cache \
       zlib \
       ca-certificates \
       openssl \
-      bash \
-      make \
-      cmake \
-      gperf \
-      gcc
+      bash
+
 
 WORKDIR /app
 

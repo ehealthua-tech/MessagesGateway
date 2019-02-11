@@ -29,7 +29,7 @@ defmodule SmtpProtocol.RedisManager do
 
   @spec command(list) :: {:ok, term} | {:error, term}
   def command(command) when is_list(command) do
-    pool_size = Application.get_env(:viber_protocol, ViberProtocol.RedisManager)[:pool_size]
+    pool_size = String.to_integer(Application.get_env(:viber_protocol, ViberProtocol.RedisManager)[:pool_size])
     connection_index = rem(System.unique_integer([:positive]), pool_size)
     {:ok, app_name} = :application.get_application(__MODULE__)
     Redix.command(:"redis_#{Atom.to_string(app_name)}_#{connection_index}", command)

@@ -2,7 +2,7 @@ use Mix.Config
 
 config :messages_router, MessagesRouter.RedisManager,
        database: "{$REDIS_NAME}",
-       password: "{$REDIS_PASSWORD}",
+       password: {:system, "REDIS_PASSWORD", nil},
        host: "{$REDIS_HOST}",
        port: "{$REDIS_PORT}",
        pool_size: "{$REDIS_POOL_SIZE}"

@@ -11,9 +11,10 @@ defmodule LifecellSmsProtocol.Application do
     hostname = config[:host]
     password = config[:password]
     database = config[:database]
-    port = config[:port]
+    port =  String.to_integer(config[:port])
+    pool_size =  String.to_integer(config[:pool_size])
     {:ok, app_name} = :application.get_application(__MODULE__)
-    redis_workers = for i <- 0..(config[:pool_size] - 1) do
+    redis_workers = for i <- 0..(pool_size - 1) do
       worker(Redix,
         ["redis://#{password}@#{hostname}:#{port}/#{database}",
           [name: :"redis_#{Atom.to_string(app_name)}_#{i}"]
@@ -21,7 +22,8 @@ defmodule LifecellSmsProtocol.Application do
         id: {Redix, i}
       )
     end
-    callback_port = Application.get_env(:lifecell_sms_protocol, :callback_port)
+    :io.format("~ncallback_port:~p~n", [Application.get_env(:lifecell_sms_protocol, :callback_port)])
+    callback_port = String.to_integer(Application.get_env(:lifecell_sms_protocol, :callback_port))
     children = redis_workers ++ [
       worker(LifecellSmsProtocol, []),
       Plug.Cowboy.child_spec(scheme: :http, plug: LifecellSmsProtocol.LifecellSmsCallback, options: [port: callback_port]),

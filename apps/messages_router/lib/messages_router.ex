@@ -49,11 +49,12 @@ defmodule MessagesRouter do
   end
 
   defp select_protocol_and_send(message_info, %{automatic_prioritization: true}) do
-    protocol_config =
+    protocol_from_db =
       RedisManager.get(@operators_config)
       |> Enum.filter( fn x -> x.protocol_name =~ @sms_protocol end)
-      |> Enum.min_by(fn x -> x.sms_price_for_external_operator end)
-    case protocol_config do
+      |> Enum.min_by(fn x -> x.configs.sms_price_for_external_operator end)
+    protocol_config = RedisManager.get(protocol_from_db.protocol_name)
+    case protocol_from_db do
       %{active_protocol_type: true, active: true} ->
         new_message_info = Map.put(message_info, :sending_status, @error_send_status)
         RedisManager.set(message_info.message_id, new_message_info)
