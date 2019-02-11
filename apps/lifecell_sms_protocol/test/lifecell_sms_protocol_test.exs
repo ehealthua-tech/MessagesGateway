@@ -10,4 +10,8 @@ defmodule LifecellSmsProtocolTest do
     assert {:error, :not_found} = LifecellSmsProtocol.RedisManager.get("test")
   end
 
+  test "message test" do
+    assert :ok ==  LifecellSmsProtocol.send_message(%{contact: "12345", body: "test", message_id: "123"})
+  end
+
 end

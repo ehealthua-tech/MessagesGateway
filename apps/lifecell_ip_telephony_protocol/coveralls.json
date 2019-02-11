@@ -1,0 +1,6 @@
+{
+  "skip_files": [
+    "lib/lifecell_ip_telephony_protocol/endpoint_manager.ex",
+    "lib/lifecell_ip_telephony_protocol/cron_manager.ex"
+  ]
+}
