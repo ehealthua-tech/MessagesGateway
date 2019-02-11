@@ -76,7 +76,6 @@ defmodule MessagesGatewayWeb.OperatorsController do
           result: result()
 
   def change_info(conn, %{"resource" => %{"id" => id} = operator_info_resp}) do
-    :io.format("~noperator_info_resp: ~p~n", [operator_info_resp])
 
     operator_info = %{"config" => config} = check_required_fuilds(Map.has_key?(operator_info_resp, "config"), operator_info_resp)
     {_, operator_info_r} = Map.split(operator_info, ["id", "operator_type", "config"])
