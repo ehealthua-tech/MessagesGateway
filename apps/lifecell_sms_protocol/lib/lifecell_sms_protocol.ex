@@ -42,7 +42,7 @@ defmodule LifecellSmsProtocol do
 
 #--- send message ------------------------------------------------------
   def send_message(%{contact: phone, body: message} = message_info) do
-
+    :io.format("~n~p~n", [phone])
     end_sending_messages(message_info)
 #    with {:ok, request_body} <- prepare_request_body(payload),
 #         {:ok, response_body} <- EndpointManager.prepare_and_send_sms_request(request_body),

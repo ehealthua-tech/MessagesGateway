@@ -79,7 +79,7 @@ defmodule MessagesGateway.MqManager do
   def connect(%{queue_name: queue_name} = state) do
     config = Application.get_env(:messages_gateway,  MessagesGateway.MqManager)
     host = config[:mq_host]
-    port = config[:mq_port]
+    port = String.to_integer(config[:mq_port])
 
     case Connection.open([host: host, port: port]) do
       {:ok, conn} ->

@@ -91,10 +91,11 @@ defmodule MessagesGatewayWeb.KeysController do
 
   @spec all_keys() :: {:ok, list()}
 
-  defp all_keys do
+  def all_keys do
     file_name = Application.get_env(:messages_gateway, MessagesGatewayWeb.KeysController)[:dets_file_name]
     {:ok, ref} = :dets.open_file(file_name, [])
     list = :dets.select(ref, [{:"$1", [], [:"$1"]}])
+    :io.format("~n~p~n", [list])
     map = Enum.map(list, fn({id, {key, status, created, updated}}) ->
       %{id: id, key: key, active: status, created: created, updated: updated} end)
     {:ok, map}

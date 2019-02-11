@@ -20,14 +20,14 @@ config :phoenix, :stacktrace_depth, 20
 
 config :messages_gateway, MessagesGateway.MqManager,
        mq_host: "127.0.0.1",
-       mq_port: 5672
+       mq_port: "5672"
 
 config :messages_gateway, MessagesGateway.RedisManager,
        host: "127.0.0.1",
        database: "1",
        password: nil,
-       port: 6379,
-       pool_size: 5
+       port: "6379",
+       pool_size: "5"
 
 config :messages_gateway, MessagesGatewayWeb.KeysController,
        dets_file_name: :mydata_file

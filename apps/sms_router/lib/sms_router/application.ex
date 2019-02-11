@@ -12,8 +12,8 @@ defmodule SmsRouter.Application do
     password = config[:password]
     database = config[:database]
     port = config[:port]
-
-    children =  for i <- 0..(config[:pool_size] - 1) do
+    pool_size =  String.to_integer(config[:pool_size])
+    children  = for i <- 0..(pool_size - 1) do
       worker(Redix,
         ["redis://#{password}@#{hostname}:#{port}/#{database}",
           [name: :"redis_#{i}"]

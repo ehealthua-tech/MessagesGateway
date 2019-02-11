@@ -25,9 +25,10 @@ defmodule LifecellIpTelephonyProtocol.Application do
     hostname = config[:host]
     password = config[:password]
     database = config[:database]
-    port = config[:port]
+    port = String.to_integer(config[:port])
+    pool_size = String.to_integer(config[:pool_size])
     {:ok, app_name} = :application.get_application(__MODULE__)
-    redis_workers = for i <- 0..(config[:pool_size] - 1) do
+    redis_workers = for i <- 0..(pool_size - 1) do
       worker(Redix,
         ["redis://#{password}@#{hostname}:#{port}/#{database}",
           [name: :"redis_#{Atom.to_string(app_name)}_#{i}"]
