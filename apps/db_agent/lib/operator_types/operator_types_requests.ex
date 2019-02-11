@@ -1,12 +1,10 @@
 defmodule DbAgent.OperatorTypesRequests do
   @moduledoc false
   alias DbAgent.OperatorTypes, as: OperatorTypesSchema
-  alias DbAgent.Operators, as: Operators
   alias DbAgent.Repo
   alias Ecto.Adapters.SQL
 
   import Ecto.Query
-  import Ecto.Changeset
 
   @typep operator_info_map :: %{
                                id: String.t(),

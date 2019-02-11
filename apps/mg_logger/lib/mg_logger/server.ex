@@ -25,10 +25,6 @@ defmodule MgLogger.Server do
     {:noreply, state}
   end
 
-  def handle_call(_msg, _from, state) do
-    {:reply, :ok, state}
-  end
-
   def handle_info(_msg, state) do
     {:noreply, state}
   end
