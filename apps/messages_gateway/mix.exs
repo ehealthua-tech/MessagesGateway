@@ -14,7 +14,9 @@ defmodule MessagesGateway.Mixfile do
       compilers: [:phoenix, :gettext] ++ Mix.compilers,
       start_permanent: Mix.env == :prod,
       deps: deps(),
-      dialyzer: [plt_add_apps: [:ex_unit]]
+      dialyzer: [plt_add_apps: [:ex_unit]],
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: ["coveralls": :test, "coveralls.detail": :test, "coveralls.post": :test, "coveralls.html": :test],
     ]
   end
 

@@ -109,7 +109,6 @@ defmodule MessagesGatewayWeb.FallbackController do
   end
 
   def call(conn, _) do
-    :io.format("~nconn fffff: ~p~n", [conn])
     conn
     |> put_status(:conflict)
     |> render(Error, :"502", %{message: "Internal server error"})

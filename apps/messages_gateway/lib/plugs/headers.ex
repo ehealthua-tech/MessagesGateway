@@ -27,7 +27,8 @@ defmodule MessagesGateway.Plugs.Headers do
 
   @spec check_authorization_params(String.t(), Plug.Conn.t()) :: Plug.Conn.t() | no_return()
   defp check_authorization_params("Bearer" <> " " <> <<user::binary-size(16)>> <> ":" <> key_hash, conn) do
-    {:ok, ref} = :dets.open_file(:mydata_file, [])
+    file_name = Application.get_env(:messages_gateway, MessagesGatewayWeb.KeysController)[:dets_file_name]
+    {:ok, ref} = :dets.open_file(file_name, [])
     :dets.lookup(ref, user)
     |> check_user_status(key_hash, conn)
   end

@@ -4,10 +4,9 @@ defmodule MessagesRouter.RedisManager do
   @spec get(binary) :: term | {:error, binary}
   def get(key) when is_binary(key), do: command(["GET", key]) |> check_get(key)
 
-  @spec check_get({:ok, nil} | {:ok, map()} | {:error, term()}, term()) :: {:error, :not_found} | map() | {:error, term()}
-  defp check_get({:ok, value}, _) when value == nil, do:  {:error, :not_found}
-  defp check_get({:ok, value}, _), do: Jason.decode!(value, [keys: :atoms])
-  defp check_get({:error, _reason} = err, _key), do: err
+  @spec check_get({:ok, nil} | {:ok, map()} | {:error, term()}, term()) :: {:error, :not_found} | map()
+  defp check_get({:ok, value}, _) when value != nil, do: Jason.decode!(value, [keys: :atoms])
+  defp check_get(_, _key), do: {:error, :not_found}
 
   @spec set(binary, term) :: :ok | {:error, binary}
   def set(key, value) when is_binary(key) and value != nil, do: do_set(["SET", key, Jason.encode!(value)])
@@ -17,7 +16,7 @@ defmodule MessagesRouter.RedisManager do
 
   @spec check_set({:ok, term} | {:error, term}, term()) :: :ok | {:error, term()}
   defp check_set({:ok, _}, _), do: :ok
-  defp check_set({:error, reason} = err, params), do: :error
+  defp check_set({:error, _}, _), do: :error
 
   @spec del(binary) :: {:ok, non_neg_integer} | {:error, binary}
   def del(key) when is_binary(key), do:  command(["DEL", key]) |> check_del()

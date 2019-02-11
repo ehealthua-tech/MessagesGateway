@@ -7,9 +7,9 @@ defmodule VodafonSmsProtocol do
   alias VodafonSmsProtocol.RedisManager
 
   @protocol_config %{host: "", port: "",  phone_for_send: "", time_for_send: "", system_id: "", password: "",
-    module_name: __MODULE__, method_name: :send_message}
+    module_name: __MODULE__, method_name: :send_message, sms_price_for_external_operator: 0}
 
-  @protocol_config_def %{login: "", password: "", code: "", module_name: __MODULE__, method_name: :send_message }
+  @protocol_config_def %{login: "", password: "", code: "", module_name: __MODULE__, method_name: :send_message, sms_price_for_external_operator: 0 }
 
   #--- Init and start protocol------------------------------------------------------
 

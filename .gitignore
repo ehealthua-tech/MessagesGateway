@@ -31,6 +31,7 @@ dev.secret.exs
 *.iml
 
 mydata_file
+mydata_file_test
 
 
 docker run -p 4000:4011 \
@@ -38,3 +39,5 @@ docker run -p 4000:4011 \
               --add-host=localhost:192.168.100.165 \
             --name messages_gateway_api \
             registry.skywell.software/message_gateway_admin_web/messages_gateway_api:latest
+
+apps/*/cover/

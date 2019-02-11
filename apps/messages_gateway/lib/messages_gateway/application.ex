@@ -12,7 +12,6 @@ defmodule MessagesGateway.Application do
     import Supervisor.Spec
 
     config = Application.get_env(:messages_gateway,  MessagesGateway.RedisManager)
-    :io.format("~nconfig~p~n",[config])
     hostname = config[:host]
     password = config[:password]
     database = config[:database]
