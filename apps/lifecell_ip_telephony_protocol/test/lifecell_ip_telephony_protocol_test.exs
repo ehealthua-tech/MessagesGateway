@@ -10,4 +10,8 @@ defmodule LifecellIpTelephonyProtocolTest do
     assert {:error, :not_found} = LifecellIpTelephonyProtocol.RedisManager.get("test")
   end
 
+  test "message test" do
+    assert :ok == LifecellIpTelephonyProtocol.send_message(%{message_id: "1234", phone: "+380632688394"})
+  end
+
 end
