@@ -103,6 +103,7 @@ defmodule MessagesRouter do
   end
 
   @spec end_sending_message(map()| {:error, binary()}) :: :ok | {:error, binary()}
+  defp end_sending_message({:error, :not_found}), do: :ok
   defp end_sending_message(message_status_info) do
     new_message_status_info = Map.merge(message_status_info, %{active: false})
     send_status(message_status_info.callback_url, message_status_info.message_id,

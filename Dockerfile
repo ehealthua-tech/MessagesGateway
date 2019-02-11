@@ -6,7 +6,7 @@ WORKDIR /app
 
 ENV MIX_ENV=prod
 
-RUN apk update && apk add git
+RUN apk update && apk add git make cmake
 
 RUN mix do \
       local.hex --force, \
@@ -22,8 +22,6 @@ RUN mix do \
 
 FROM alpine:3.8
 
-ARG messages_gateway_api
-
 RUN apk add --no-cache \
       ncurses-libs \
       zlib \
@@ -34,10 +32,8 @@ RUN apk add --no-cache \
 
 WORKDIR /app
 
-ENV PORT=4011 \
-    MIX_ENV=prod \
+ENV
     REPLACE_OS_VARS=true \
-    SHELL=/bin/bash
 
 COPY --from=builder /app/_build/prod/rel/messages_gateway_api/releases/0.1.0/messages_gateway_api.tar.gz /app
 #COPY --from=builder ./app/commits.txt /app
