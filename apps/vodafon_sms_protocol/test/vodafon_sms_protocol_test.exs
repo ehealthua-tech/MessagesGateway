@@ -2,7 +2,12 @@ defmodule VodafonSmsProtocolTest do
   use ExUnit.Case
   doctest VodafonSmsProtocol
 
-  test "greets the world" do
-    assert :world == :world
+  test "test_redis" do
+    VodafonSmsProtocol.RedisManager.set("test", "test")
+    assert "test" = VodafonSmsProtocol.RedisManager.get("test")
+    VodafonSmsProtocol.RedisManager.del("test")
+    assert {:ok, 0} ==  VodafonSmsProtocol.RedisManager.del("test")
+    assert {:error, :not_found} = VodafonSmsProtocol.RedisManager.get("test")
   end
+
 end

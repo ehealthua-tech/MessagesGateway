@@ -20,5 +20,5 @@ config :smtp_protocol, SmtpProtocol.RedisManager,
        host: "127.0.0.1",
        database: "1",
        password: nil,
-       port: 6379,
-       pool_size: 5
+       port: "6379",
+       pool_size: "5"

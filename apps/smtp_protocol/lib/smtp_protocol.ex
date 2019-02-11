@@ -28,7 +28,6 @@ defmodule SmtpProtocol do
   defp check_config(protocol_config), do: :ok
 
   def send_email(%{message_id: message_id, contact: recipient, body: body, subject: subject} = all) do
-    :io.format("~nEMAIL~n~p~n",[all])
     SmtpProtocol.Email.email(recipient, subject, body) |> SmtpProtocol.Mailer.deliver_now
     GenServer.cast(MgLogger.Server, {:log, __MODULE__, %{:message_id => message_id, status: "sending_smtp"}})
     message_status_info =

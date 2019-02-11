@@ -11,6 +11,8 @@ defmodule LifecellSmsProtocol.MixProject do
       lockfile: "../../mix.lock",
       elixir: "~> 1.7",
       start_permanent: Mix.env() == :prod,
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: [coveralls: :test, "coveralls.detail": :test, "coveralls.post": :test, "coveralls.html": :test],
       deps: deps()
     ]
   end
@@ -29,6 +31,7 @@ defmodule LifecellSmsProtocol.MixProject do
       {:sweet_xml, "~> 0.6.5"},
       {:httpoison, "~> 1.4"},
       {:plug_cowboy, "~> 1.0"},
+      {:excoveralls, "~> 0.10", only: :test},
       {:redix, ">= 0.0.0"}
       # {:dep_from_hexpm, "~> 0.3.0"},
       # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"},

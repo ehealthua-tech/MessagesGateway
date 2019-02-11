@@ -11,6 +11,8 @@ defmodule LifecellIpTelephonyProtocol.MixProject do
       deps_path: "../../deps",
       lockfile: "../../mix.lock",
       start_permanent: Mix.env() == :prod,
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: [coveralls: :test, "coveralls.detail": :test, "coveralls.post": :test, "coveralls.html": :test],
       deps: deps()
     ]
   end
@@ -27,7 +29,9 @@ defmodule LifecellIpTelephonyProtocol.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:httpoison, "~> 1.4"}
+      {:httpoison, "~> 1.4"},
+      {:redix, ">= 0.0.0"},
+      {:excoveralls, "~> 0.10", only: :test},
 #      {:speak_ex, "~> 0.3"},
     ]
   end
