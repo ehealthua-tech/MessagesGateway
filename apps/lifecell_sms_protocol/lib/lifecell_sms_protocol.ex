@@ -40,21 +40,20 @@ defmodule LifecellSmsProtocol do
     end
   end
 
-#--- send message ------------------------------------------------------
-  def send_message(%{contact: phone, body: message} = message_info) do
-    :io.format("~n~p~n", [phone])
-    end_sending_messages(message_info)
-#    with {:ok, request_body} <- prepare_request_body(payload),
-#         {:ok, response_body} <- EndpointManager.prepare_and_send_sms_request(request_body),
-#         {:ok, pars_body} <- xmap(response_body, @send_sms_response_parse_schema)
-#      do
-#      :io.format("~npars_body: ~p~n", [pars_body])
-#        check_sending_status(pars_body, payload)
-#      else
-#        error ->
-#          :io.format("~nerror: ~p~n", [error])
-#          end_sending_messages(payload)
-#    end
+  #--- send message ------------------------------------------------------
+  def send_message(%{contact: phone, body: message} = payload) do
+    with {:ok, request_body} <- prepare_request_body(payload),
+         {:ok, response_body} <- EndpointManager.prepare_and_send_sms_request(request_body),
+         {:ok, pars_body} <- xmap(response_body, @send_sms_response_parse_schema)
+      do
+      reference = Process.send_after( __MODULE__, {:end_sending_message, payload.message_id}, 10000)
+      GenServer.cast(__MODULE__, {:add_to_state, %{message_id: payload.message_id, reference: reference}})
+      check_sending_status(pars_body, payload)
+    else
+      error ->
+        :io.format("~nerror:~n~p~n", [error])
+        end_sending_message(:error, payload.message_id)
+    end
   end
 
   def check_message_status(payload) do
@@ -65,7 +64,7 @@ defmodule LifecellSmsProtocol do
     do
       check_sending_status(pars_body, payload)
     else
-      error -> end_sending_messages(payload)
+      error -> end_sending_message(:error, payload.message_id)
     end
   end
 
@@ -75,7 +74,14 @@ defmodule LifecellSmsProtocol do
   end
   def check_sending_status(%{status: status} = pars_body, payload)
       when status in @messages_error_status do
-    end_sending_messages(payload)
+    end_sending_message(:error, payload.message_id)
+  end
+
+  def handle_info({:end_sending_message, message_id}, state) do
+    message_info = Enum.find(state, fn x -> Map.get(x, :message_id, :nil) == message_id end)
+    new_state = List.delete(state, message_info)
+    spawn(__MODULE__, :end_sending_message, [:error, message_info.message_id])
+    {:noreply, new_state}
   end
 
   def handle_cast({:check_message_status, pars_body, message_info}, state) do
@@ -88,15 +94,15 @@ defmodule LifecellSmsProtocol do
     message_status_info = RedisManager.get(message_id)
     new_message_status_info = Map.put(message_status_info, :sending_status, true)
     RedisManager.set(payload.message_id, new_message_status_info)
-    end_sending_messages(payload)
+    end_sending_message(:error, payload.message_id)
   end
 
-  def check_sending_status(_, payload), do: end_sending_messages(payload)
+  def check_sending_status(_, payload), do: end_sending_message(:error, payload.message_id)
   defp prepare_request_body(payload) do
     with sys_config = RedisManager.get(@messages_gateway_conf)
       do
-      send_sms_body(%{phone: payload.contact, message: payload.body,
-        sending_time: sys_config.sending_time, from: sys_config.org_name, message_id: payload.message_id})
+      {:ok, send_sms_body(%{phone: payload.contact, message: payload.body,
+        sending_time: sys_config.sending_time, from: sys_config.org_name, message_id: payload.message_id})}
     end
   end
 
@@ -112,10 +118,24 @@ defmodule LifecellSmsProtocol do
     "<request id="<>lifecell_sms_id<>">status</request>"
   end
 
-  defp end_sending_messages(message_info) do
-    :io.format("LIFECELL SMS error sending message")
-    GenServer.cast(MgLogger.Server, {:log, __MODULE__, %{__MODULE__ => "not supported"}})
-    apply(:'Elixir.MessagesRouter', :send_message, [%{message_id: message_info.message_id}])
+  @spec end_sending_message(any(), :nil | String.t()) :: :ok | any()
+
+  def end_sending_message(_, :nil), do: :ok
+  def end_sending_message(:success, message_id) do
+    message_status_info =
+      RedisManager.get(message_id)
+      |> Map.put(:sending_status, "read")
+    RedisManager.set(message_id, message_status_info)
+    {:ok, app_name} = :application.get_application(__MODULE__)
+    protocol =  RedisManager.get(Atom.to_string(app_name))
+    apply(String.to_atom(protocol.module_name), String.to_atom(protocol.method_name), [%{message_id: message_id}])
+  end
+
+  def end_sending_message(:error, message_id) do
+    :io.format("~nmessage_id: ~p~n", [message_id])
+    {:ok, app_name} = :application.get_application(__MODULE__)
+    protocol =  RedisManager.get(Atom.to_string(app_name))
+    apply(String.to_atom(protocol.module_name), String.to_atom(protocol.method_name), [%{message_id: message_id}])
   end
 
 end
