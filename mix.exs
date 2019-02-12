@@ -37,7 +37,8 @@ defmodule MessagesGateway.MixProject do
       messages_gateway_test: "cmd --app messages_gateway mix test --color",
       messages_gateway_coveralls: ["cmd --app messages_gateway mix coveralls.html --color"],
       db_agent_test: "cmd --app db_agent mix test --color",
-      db_agent_coveralls: ["cmd --app db_agent mix coveralls.html --color"]
+      db_agent_coveralls: ["cmd --app db_agent mix coveralls.html --color"],
+      routes: ["cmd --app messages_gateway mix phx.routes"],
     ]
   end
 end

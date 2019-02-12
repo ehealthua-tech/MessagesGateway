@@ -76,7 +76,6 @@ defmodule MessagesGatewayWeb.OperatorsController do
           result: result()
 
   def change_info(conn, %{"resource" => %{"id" => id} = operator_info_resp}) do
-
     operator_info = %{"config" => config} = check_required_fuilds(Map.has_key?(operator_info_resp, "config"), operator_info_resp)
     {_, operator_info_r} = Map.split(operator_info, ["id", "operator_type", "config"])
     with {1, _} <- OperatorsRequests.change_operator(id, [{:config, config} | convert(operator_info_r)])
@@ -140,56 +139,11 @@ defmodule MessagesGatewayWeb.OperatorsController do
     RedisManager.set(protocol_name, new_config)
   end
 
-  @spec show(conn, show_params) :: result when
-          conn:   conn(),
-          show_params: %{"id": String.t()},
-          result: result()
-
-  def show(conn, %{"id" => id}) do
-    with result <- OperatorsRequests.operator_by_id(id)
-      do
-      operator_map = Map.from_struct(result)
-      operator_config = RedisManager.get(operator_map.protocol_name)
-      config =  for {key, val} <- operator_map.config, into: %{}, do: {String.to_atom(key), val}
-      new_config = Map.merge(config, operator_config)
-      update_operator = put_in(operator_map[:config], new_config)
-      render(conn, "show.json", %{operator: update_operator})
-    end
-  end
-
   @spec convert(value) :: result when
           value:  map() | any(),
           result: keyword()
 
   defp convert(map) when is_map(map), do: Enum.map(map, fn {k,v} ->{String.to_atom(k),convert(v)}  end)
   defp convert(v), do: v
-
-  @spec update_priority(conn, update_priority_params) :: result when
-          conn: conn(),
-          update_priority_params: %{"resource": [DbAgent.OperatorsRequests.operator_info_map()]},
-          result: result()
-
-  def update_priority(conn, %{"resource" => operator_info}) do
-    with {n, new_priority} <- OperatorsRequests.update_priority(operator_info),
-          operators <- OperatorsRequests.list_operators(),
-          priority <- select_operators_id(operators, []),
-          {:ok, json} <- Jason.encode(priority),
-          :ok <- MessagesGateway.RedisManager.set("operators_config", json)
-      do
-      MessagesGatewayInit.set_operators_config()
-      render(conn, "create.json", %{status: "success"})
-    end
-  end
-
-  @spec select_operators_id(value, acc) :: result when
-          value:  [DbAgent.Operators.t()] | [] | {:error, Ecto.Changeset.t()},
-          acc: [] | [%{required(String.t()) => %{operator_configs: map(), priority_on_price: integer(), }}],
-          result: [] | [%{required(String.t()) => %{operator_configs: map(), priority_on_price: integer(), }}]
-
-  def select_operators_id([], acc), do: acc
-  def select_operators_id([%{operator: operator_struct}| t], acc) do
-    operator = Map.from_struct(operator_struct)
-    select_operators_id(t, [%{operator.id => %{operator_configs: operator.config, priority_on_price: operator.priority}} | acc])
-  end
 
 end

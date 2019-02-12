@@ -4,29 +4,70 @@ defmodule MessagesGatewayWeb.OperatorsControllerTest do
   @test_type "test_sms_type"
 
 
-  test " check operators functionality", %{conn: conn} do
+  test "check operators functionality", %{conn: conn} do
       assert create_operator_type(@test_type, conn) == "success"
-      [operator_type_info] = select_all_operator_type(conn)
-      MessagesGateway.RedisManager.set("sms_protocol", %{})
+      operator_type_info =
+        select_all_operator_type(conn)
+        |> Enum.find(fn(x) -> get_in(x, ["name"]) == @test_type end)
+      assert operator_type_info != nil
 
-      create_operator(operator_type_info, conn)
-      [operator_info] = select_all_operator(conn)
+      MessagesGateway.RedisManager.set("test", %{})
+
+      create_operator(operator_type_info, "test", conn)
+      operator_info =
+        select_all_operator(conn)
+        |> Enum.find(fn(x) -> get_in(x, ["name"]) == "test" end)
+      assert operator_info != nil
+
       delete_operator(operator_info, conn)
-
-      assert select_all_operator(conn) == []
+      is_delete_operator =
+        select_all_operator(conn)
+        |> Enum.find(fn(x) -> get_in(x, ["name"]) == @test_type end)
+      assert is_delete_operator == nil
 
       delete_operator_type(operator_type_info, conn)
-
-      assert  select_all_operator_type(conn) == []
+      is_delete_type =
+        select_all_operator_type(conn)
+        |> Enum.find(fn(x) -> get_in(x, ["name"]) == @test_type end)
+      assert  is_delete_type == nil
   end
 
-  defp create_operator(operator_type_info, conn) do
+  test "operators change info", %{conn: conn} do
+    assert create_operator_type("test_for_change_type", conn) == "success"
+    operator_type_info =
+      select_all_operator_type(conn)
+      |> Enum.find(fn(x) -> get_in(x, ["name"]) == "test_for_change_type" end)
+    assert operator_type_info != nil
+
+    MessagesGateway.RedisManager.set("test_for_change", %{})
+
+    create_operator(operator_type_info, "test_for_change", conn)
+    operator_info =
+      select_all_operator(conn)
+      |> Enum.find(fn(x) -> get_in(x, ["name"]) == "test_for_change" end)
+    assert operator_info != nil
+    change_operator(operator_info, conn)
+
+
+
+
+
+    delete_operator(operator_info, conn)
+
+    assert select_all_operator(conn) == []
+
+    delete_operator_type(operator_type_info, conn)
+
+    assert  select_all_operator_type(conn) == []
+  end
+
+  defp create_operator(operator_type_info, operator_name, conn) do
 
     post(conn, "/api/operators" ,
     %{"resource" => %{
-      "name" => "sms4",
+      "name" =>operator_name,
       "operator_type_id" => get_in(operator_type_info, ["id"]),
-      "protocol_name" => "sms_protocol",
+      "protocol_name" => operator_name,
       "config" => %{},
       "price" => 18,
       "limit" => 1000,
@@ -54,10 +95,16 @@ defmodule MessagesGatewayWeb.OperatorsControllerTest do
     |> get_in(["data"])
   end
 
+  defp change_operator(operator_info, conn) do
+    operator_info_ch = Map.put(operator_info, "limit", 20)
+    post(conn, "/api/operators/change" , %{"resource" => operator_info_ch})
+    |> json_response(200)
+    |> get_in(["data", "status"])
+  end
+
   defp delete_operator(operator_info, conn) do
     url_info = "/api/operators/" <> get_in(operator_info, ["id"])
-    x = delete(conn, url_info)
-    :io.format("~nx: ~p~n", [x])
+    delete(conn, url_info)
   end
 
   defp delete_operator_type(operator_type_info, conn) do

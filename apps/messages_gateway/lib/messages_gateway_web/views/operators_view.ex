@@ -27,21 +27,6 @@ defmodule MessagesGatewayWeb.OperatorsView do
       price: operator.price,
       limit: operator.limit,
       active: operator.active
-#      last_update: operator.updated_at
-    }
-  end
-
-  def render("show.json",%{operator: operator}) do
-    %{
-      id: operator.id,
-      name: operator.name,
-      operator_type_id: operator.operator_type_id,
-      config: operator.config,
-      priority: operator.priority,
-      price: operator.price,
-      limit: operator.limit,
-      active: operator.active
- #     last_update: operator.updated_at
     }
   end
 

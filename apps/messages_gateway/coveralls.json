@@ -1,0 +1,8 @@
+{
+  "skip_files": [
+    "lib/messages_gateway_web.ex",
+    "lib/messages_gateway_web/proxy.ex",
+    "test/support/channel_case.ex",
+    "lib/messages_gateway_web/controllers/fallback_controller.ex"
+  ]
+}

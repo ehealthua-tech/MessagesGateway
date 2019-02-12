@@ -27,7 +27,6 @@ defmodule MessagesGatewayWeb.Router do
 
     scope "/operators" do
       post "/change", OperatorsController, :change_info
-      post "/update_priority", OperatorsController, :update_priority
       resources "/", OperatorsController, except: [:new, :edit, :update]
 
     end

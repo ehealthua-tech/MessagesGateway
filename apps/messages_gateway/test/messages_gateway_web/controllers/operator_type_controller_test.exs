@@ -29,7 +29,10 @@ defmodule MessagesGatewayWeb.OperatorTypeControllerTest do
 
     delete_operator(operator_info_deactivate, conn)
 
-    assert select_all_operator_type(conn) == []
+    is_delete_type =
+      select_all_operator_type(conn)
+      |> Enum.find(fn(x) -> get_in(x, ["name"]) == @test end)
+    assert  is_delete_type == nil
 
   end
 
