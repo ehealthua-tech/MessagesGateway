@@ -3,7 +3,7 @@ defmodule MessagesGatewayWeb.SystemConfigControllerTest do
 
   test "system config", %{conn: conn} do
     result_changing_sys_config =
-      select_sys_cofuffufnfig(conn)
+      select_sys_config(conn)
       |> Map.put("test", "test")
       |> add_sys_config(conn)
     assert result_changing_sys_config == "success"

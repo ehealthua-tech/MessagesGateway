@@ -3,6 +3,9 @@
     "lib/messages_gateway_web.ex",
     "lib/messages_gateway_web/proxy.ex",
     "test/support/channel_case.ex",
-    "lib/messages_gateway_web/controllers/fallback_controller.ex"
+    "lib/messages_gateway_web/controllers/fallback_controller.ex",
+    "lib/messages_gateway_web/endpoint.ex",
+    "lib/messages_gateway_web/views/changeset_view.ex",
+    "lib/messages_gateway.ex"
   ]
 }

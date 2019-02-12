@@ -32,17 +32,11 @@ RUN apk add --no-cache \
 
 WORKDIR /app
 
-ENV
-    REPLACE_OS_VARS=true \
+ENV REPLACE_OS_VARS=true \
+    SHELL=/bin/bash
 
 COPY --from=builder /app/_build/prod/rel/messages_gateway_api/releases/0.1.0/messages_gateway_api.tar.gz /app
-#COPY --from=builder ./app/commits.txt /app
 
 RUN tar -xzf messages_gateway_api.tar.gz; rm messages_gateway_api.tar.gz
-
-RUN chown -R root ./releases
-
-EXPOSE 4011
-USER root
 
 CMD ./bin/messages_gateway_api foreground

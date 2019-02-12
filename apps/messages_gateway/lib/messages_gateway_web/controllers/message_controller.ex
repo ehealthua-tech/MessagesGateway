@@ -95,8 +95,7 @@ defmodule MessagesGatewayWeb.MessageController do
           result: result()
 
   def change_message_status(conn, %{"resource" => %{"message_id" => message_id, "sending_active" => active}}) do
-    with {:ok, json_body} <- Jason.encode(%{sending_status: active}),
-          :ok <- RedisManager.set(message_id, json_body)
+    with :ok <- RedisManager.set(message_id, %{sending_status: active})
       do
       render(conn, "message_change_status.json", %{sending_status: active})
     end
