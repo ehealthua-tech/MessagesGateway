@@ -77,11 +77,11 @@ defmodule MessagesRouterTest do
     protocol_name: "first_sms_protocol", module_name: __MODULE__, method_name: "first_sms_protocol"}
 
   @sms_protocol_2 %{active: true, active_protocol_type: true,
-    limit: 1000, operator_priority: 1, priority: 1, sms_price_for_external_operator: 11,
+    limit: 1000, operator_priority: 1, priority: 1, configs: %{sms_price_for_external_operator: 11},
     protocol_name: "second_sms_protocol", module_name: __MODULE__, method_name: "second_sms_protocol"}
 
   @sms_protocol_2_no_active %{active: false, active_protocol_type: true, code: "+38000",
-    limit: 1000, operator_priority: 1, priority: 1, sms_price_for_external_operator: 11,
+    limit: 1000, operator_priority: 1, priority: 1,  configs: %{sms_price_for_external_operator: 11},
     protocol_name: "second_sms_protocol", module_name: __MODULE__, method_name: "second_sms_protocol"}
 
   @test_sms_automation_priority_with_empty_lists %{message_id: "a6ebd966-11a5-4f50-1111-9fc00a3b8469",

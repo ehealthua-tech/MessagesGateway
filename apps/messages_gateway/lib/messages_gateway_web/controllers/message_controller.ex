@@ -154,7 +154,8 @@ defmodule MessagesGatewayWeb.MessageController do
 
   def add_to_message_queue(body) do
     body_json = Jason.encode!(body)
-    MessagesGateway.MqManager.publish(body_json)
+    module = Module.concat([Application.get_env(:messages_gateway, MessagesGateway.MqManager)[:mq_modul]])
+    apply(module, :publish, [body_json])
   end
 
 end

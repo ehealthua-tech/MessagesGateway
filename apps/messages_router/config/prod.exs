@@ -9,6 +9,9 @@ config :messages_router, MessagesRouter.RedisManager,
 
 
 config :messages_router,  MessagesRouter.MqManager,
+       mq_modul: MessagesGateway.MqManager,
        mq_host:  "${MQ_HOST}",
        mq_port:  "${MQ_PORT}",
-       resend_timeout: "{$MQ_RESEND_TIMEOUT}"
+       resend_timeout: "{$MQ_RESEND_TIMEOUT}",
+       mq_queue:  "${MQ_QUEUE}",
+       mq_exchange: "${MQ_EXCHANGE}"

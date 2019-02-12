@@ -108,3 +108,7 @@ defmodule MessagesGatewayWeb.MessageControllerTest do
   end
 
 end
+
+defmodule MqManagerTest do
+  def publish(x), do: :ok
+end
