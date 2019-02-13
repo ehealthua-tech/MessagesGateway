@@ -34,4 +34,6 @@ defmodule SmtpProtocolTest do
     assert {:error, :not_found} = SmtpProtocol.RedisManager.get("test")
   end
 
+  def send(_value), do: :ok
+
 end
