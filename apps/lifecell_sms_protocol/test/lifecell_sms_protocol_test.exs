@@ -18,7 +18,7 @@ defmodule LifecellSmsProtocolTest do
       %{active: true, active_protocol_type: true,
         configs: %{host: "blabal"},
         limit: 1000, operator_priority: 1, priority: 1,
-        protocol_name: "lifecell_sms_protocol"}], subject: "new subject12345", active: true,
+        protocol_name: "lifecell_sms_protocol"}], active: true,
     sending_status: "sending"}
 
   test "test_redis" do
@@ -30,12 +30,14 @@ defmodule LifecellSmsProtocolTest do
   end
 
   test "message test" do
+    old_config = LifecellSmsProtocol.RedisManager.get(@messages_gateway_conf)
     LifecellSmsProtocol.RedisManager.set(@messages_gateway_conf, @sys_config)
     LifecellSmsProtocol.RedisManager.set(@lifecell_sms_protocol_name, @lifecell_sms_protocol_config)
     id = Map.get(@test_manual_priority, :message_id)
     LifecellSmsProtocol.RedisManager.set(id, @test_manual_priority)
     assert :ok ==  LifecellSmsProtocol.send_message(%{body: Map.get(@test_manual_priority, :body), contact: Map.get(@test_manual_priority, :contact), message_id: id})
     LifecellSmsProtocol.RedisManager.del(id)
+    LifecellSmsProtocol.RedisManager.set(@messages_gateway_conf, old_config)
   end
 
   def send(_value), do: :ok
