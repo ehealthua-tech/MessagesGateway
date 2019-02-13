@@ -4,6 +4,7 @@ use Mix.Config
 
 config :smtp_protocol, SmtpProtocol.Mailer,
        adapter: Bamboo.SMTPAdapter,
+       smtp_mailer: MailerTest,
        server: "smtp.office365.com",
        hostname: "skywell.software",
        port: 587,
