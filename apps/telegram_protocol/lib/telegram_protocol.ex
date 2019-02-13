@@ -153,7 +153,7 @@ defmodule TelegramProtocol do
   end
 
   # Creating private chat with importing contact (if it does not have telegram user id will be 0 and we send payload to messages router )
-  def handle_info({:recv, %Object.User{id: user_id, phone_number: contact, status: status, type: %Object.UserTypeRegular{}} = userinfo}, state) do
+  def handle_info({:recv, %Object.User{id: user_id, phone_number: contact, type: %Object.UserTypeRegular{}}}, state) do
     message_info = Enum.find(state, fn x ->  x.phone_number == "+" <> contact end)
     old_state = List.delete(state, message_info)
     Process.cancel_timer(message_info.reference_create_account)
@@ -193,6 +193,8 @@ defmodule TelegramProtocol do
 
   defp remove_message_from_state(nil, state), do: state
   defp remove_message_from_state(message_info, state) do
+
+    :io.format("~n~p~n", [message_info])
     Process.cancel_timer(message_info.error_reference)
     spawn(TelegramProtocol, :end_sending_messages, [:success, message_info.message_id])
     List.delete(state, message_info)
