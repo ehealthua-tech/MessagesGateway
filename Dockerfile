@@ -6,7 +6,7 @@ WORKDIR /app
 
 ENV MIX_ENV=prod
 
-RUN apk update && apk add git make cmake
+RUN apk update && apk add git make cmake alpine-sdk openssl-dev
 
 RUN mix do \
       local.hex --force, \
@@ -22,14 +22,16 @@ RUN mix do \
 
 FROM alpine:3.8
 
+ARG messages_gateway_api
+
 RUN apk add --no-cache \
       ncurses-libs \
       zlib \
       ca-certificates \
       openssl \
-      bash
-
-
+      bash \
+      libssl1.0
+      
 WORKDIR /app
 
 ENV REPLACE_OS_VARS=true \
