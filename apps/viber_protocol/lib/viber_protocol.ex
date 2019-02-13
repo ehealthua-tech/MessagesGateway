@@ -157,11 +157,15 @@ defmodule ViberProtocol do
       RedisManager.get(message_id)
       |> Map.put(:sending_status, "read")
     RedisManager.set(message_id, message_status_info)
-    apply(:'Elixir.MessagesRouter', :send_message, [%{message_id: message_id}])
+    {:ok, app_name} = :application.get_application(__MODULE__)
+    protocol =  RedisManager.get(Atom.to_string(app_name))
+    apply(String.to_atom(protocol.module_name), String.to_atom(protocol.method_name), [%{message_id: message_id}])
   end
 
   def end_sending_message(:error, message_id) do
-    apply(:'Elixir.MessagesRouter', :send_message, [%{message_id: message_id}])
+    {:ok, app_name} = :application.get_application(__MODULE__)
+    protocol =  RedisManager.get(Atom.to_string(app_name))
+    apply(String.to_atom(protocol.module_name), String.to_atom(protocol.method_name), [%{message_id: message_id}])
   end
 
 

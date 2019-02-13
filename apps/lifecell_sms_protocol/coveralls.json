@@ -1,0 +1,6 @@
+{
+  "skip_files": [
+    "lib/lifecell_sms_protocol/lifecell_sms_callback.ex",
+    "lib/lifecell_sms_protocol/endpoint_manager.ex"
+  ]
+}

@@ -3,7 +3,9 @@
 use Mix.Config
 
 config :lifecell_sms_protocol,
-       sms_send_url: "http://bulk.bs-group.com.ua/clients.php"
+       sms_send_url: "http://bulk.bs-group.com.ua/clients.php",
+       login: "test",
+       password: "test"
 
 config :lifecell_sms_protocol,  LifecellSmsProtocol.RedisManager,
        host: "127.0.0.1",
