@@ -6,8 +6,7 @@ WORKDIR /app
 
 ENV MIX_ENV=prod
 
-RUN apk update && apk add git make cmake alpine-sdk openssl-dev
-
+RUN apk update && apk add git make cmake
 RUN mix do \
       local.hex --force, \
       local.rebar --force, \
@@ -29,8 +28,7 @@ RUN apk add --no-cache \
       zlib \
       ca-certificates \
       openssl \
-      bash \
-      libssl1.0
+      bash
 
 WORKDIR /app
 
@@ -41,9 +39,5 @@ COPY --from=builder /app/_build/prod/rel/messages_gateway_api/releases/0.1.0/mes
 
 RUN tar -xzf messages_gateway_api.tar.gz; rm messages_gateway_api.tar.gz
 
-RUN chown -R root ./releases
-
-EXPOSE 4011
-USER root
 
 CMD ./bin/messages_gateway_api foreground

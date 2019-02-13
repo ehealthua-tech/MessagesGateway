@@ -5,16 +5,14 @@ config :smtp_protocol, SmtpProtocol.RedisManager,
        password: System.get_env("REDIS_PASSWORD"),
        host: "${REDIS_HOST}",
        port: "${REDIS_PORT}",
-       pool_size: "${REDIS_POOL_SIZE}",
-       host: "${REDIS_HOST}",
-       port: "${REDIS_PORT}",
        pool_size: "${REDIS_POOL_SIZE}"
 
-config :smtp_protocol, SmtpProtocol.RedisManager,
+
+config :smtp_protocol, SmtpProtocol.Mailer,
        adapter: Bamboo.SMTPAdapter,
        server: "${SMTP_SERVER}",
        hostname: "${SMTP_HOSTNAME}",
-       port: 587,
+       port: "${SMTP_PORT}",
        username: "${SMTP_USERNAME}",
        password: "${SMTP_PASSWORD}",
        tls: :if_available, # can be `:always` or `:never`
