@@ -95,8 +95,7 @@ defmodule MessagesGatewayWeb.MessageController do
           result: result()
 
   def change_message_status(conn, %{"resource" => %{"message_id" => message_id, "sending_active" => active}}) do
-    with {:ok, json_body} <- Jason.encode(%{sending_status: active}),
-          :ok <- RedisManager.set(message_id, json_body)
+    with :ok <- RedisManager.set(message_id, %{sending_status: active})
       do
       render(conn, "message_change_status.json", %{sending_status: active})
     end
@@ -155,7 +154,8 @@ defmodule MessagesGatewayWeb.MessageController do
 
   def add_to_message_queue(body) do
     body_json = Jason.encode!(body)
-    MessagesGateway.MqManager.publish(body_json)
+    module = Module.concat([Application.get_env(:messages_gateway, MessagesGateway.MqManager)[:mq_modul]])
+    apply(module, :publish, [body_json])
   end
 
 end

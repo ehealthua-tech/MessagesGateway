@@ -30,8 +30,11 @@ use Mix.Config
 #     import_config "#{Mix.env()}.exs"
 
 config :messages_router, MessagesRouter.MqManager,
+       mq_modul: MessagesGateway.MqManager,
        mq_host: "127.0.0.1",
-       mq_port: "5672"
+       mq_port: "5672",
+       mq_queue:  "message_queue",
+       mq_exchange: "message_exchange"
 
 
 config :messages_router, MessagesRouter.RedisManager,
@@ -40,4 +43,3 @@ config :messages_router, MessagesRouter.RedisManager,
        password: nil,
        port: "6379",
        pool_size: "5"
-

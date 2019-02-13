@@ -50,6 +50,7 @@ defmodule MessagesGatewayWeb.Router do
     post "/email", MessageController, :new_email
     post "/status", MessageController, :message_status
     get "/queue_size", MessageController, :queue_size
+    post "/change_message_status", MessageController, :change_message_status
   end
 
   defp handle_errors(%Plug.Conn{status: 500} = conn, %{kind: kind, reason: reason, stack: stacktrace}) do

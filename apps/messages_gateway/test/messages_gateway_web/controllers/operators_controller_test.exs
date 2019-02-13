@@ -48,17 +48,24 @@ defmodule MessagesGatewayWeb.OperatorsControllerTest do
     assert operator_info != nil
     change_operator(operator_info, conn)
 
+    changed_limit =
+      select_all_operator(conn)
+      |> Enum.find(fn(x) -> get_in(x, ["name"]) == "test_for_change" end)
+      |> get_in(["limit"])
 
-
-
+    assert changed_limit == 20
 
     delete_operator(operator_info, conn)
-
-    assert select_all_operator(conn) == []
+    is_delete_operator =
+      select_all_operator(conn)
+      |> Enum.find(fn(x) -> get_in(x, ["name"]) == "test_for_change" end)
+    assert is_delete_operator == nil
 
     delete_operator_type(operator_type_info, conn)
-
-    assert  select_all_operator_type(conn) == []
+    is_delete_type =
+      select_all_operator_type(conn)
+      |> Enum.find(fn(x) -> get_in(x, ["name"]) == "test_for_change_type" end)
+    assert  is_delete_type == nil
   end
 
   defp create_operator(operator_type_info, operator_name, conn) do

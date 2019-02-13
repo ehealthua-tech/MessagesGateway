@@ -3,8 +3,6 @@ defmodule MessagesRouter.MqManager do
     use AMQP
 
     @reconnect_timeout 5000
-    @exchange    "message_exchange"
-    @queue       "message_queue"
 
     @spec start_link() :: {:ok, pid()} | :ignore | {:error, {:already_started, pid()} | term()}
     def start_link do
@@ -14,7 +12,8 @@ defmodule MessagesRouter.MqManager do
     @spec init(term()) :: {:ok, any()} | {:ok, any(), :infinity | non_neg_integer() | :hibernate |
                  {:continue, term()}} | :ignore | {:stop, reason :: any()}
     def init(_opts) do
-      state = %{connected: false, chan: nil, queue_name: @queue, conn: nil, subscribe: nil}
+      queue = Application.get_env(:messages_gateway,  MessagesGateway.MqManager)[:mq_queue]
+      state = %{connected: false, chan: nil, queue_name: queue, conn: nil, subscribe: nil}
       {:ok, connect(state)}
     end
 
@@ -55,14 +54,15 @@ defmodule MessagesRouter.MqManager do
       config = Application.get_env(:messages_router,  MessagesRouter.MqManager)
       host = config[:mq_host]
       port = String.to_integer(config[:mq_port])
+      exchange = Application.get_env(:messages_gateway,  MessagesGateway.MqManager)[:mq_exchange]
 
       case Connection.open([host: host, port: port]) do
         {:ok, conn} ->
           Process.monitor(conn.pid)
           {:ok, chan} = Channel.open(conn)
           Queue.declare(chan, queue_name, [durable: true, arguments: [{"x-max-priority", :short, 10}]])
-          Exchange.fanout(chan, @exchange, durable: true)
-          Queue.bind(chan, queue_name, @exchange)
+          Exchange.fanout(chan, exchange, durable: true)
+          Queue.bind(chan, queue_name, exchange)
           {:ok, sub} = AMQP.Queue.subscribe(chan, queue_name,
             fn(payload, _meta) -> MessagesRouter.send_message(Jason.decode!(payload, [keys: :atoms])) end)
           %{ state | chan: chan, connected: true, conn: conn, subscribe: sub }

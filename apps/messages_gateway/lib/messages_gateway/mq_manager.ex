@@ -3,8 +3,6 @@ defmodule MessagesGateway.MqManager do
   use AMQP
 
   @reconnect_timeout 5000
-  @exchange    "message_exchange"
-  @queue       "message_queue"
 
   @spec start_link() :: {:ok, pid()} | :ignore | {:error, {:already_started, pid()} | term()}
   def start_link do
@@ -14,12 +12,14 @@ defmodule MessagesGateway.MqManager do
   @spec init(term()) :: {:ok, any()} | {:ok, any(), :infinity | non_neg_integer() | :hibernate |
                                                                                     {:continue, term()}} | :ignore | {:stop, reason :: any()}
   def init(_opts) do
-    state = %{connected: false, chan: nil, queue_name: @queue, conn: nil, subscribe: nil}
+    queue = Application.get_env(:messages_gateway,  MessagesGateway.MqManager)[:mq_queue]
+    state = %{connected: false, chan: nil, queue_name: queue, conn: nil, subscribe: nil}
     {:ok, connect(state)}
   end
 
   @spec publish(String.t()) :: term()
   def publish(message) do
+    :io.format("~nmessage: ~p~n", [message])
     GenServer.call(__MODULE__, {:publish, message})
   end
 
@@ -32,7 +32,8 @@ defmodule MessagesGateway.MqManager do
               | {:stop, reason, new_state}
         when reply: term(), new_state: term(), reason: term()
   def handle_call({:publish, message}, _, %{chan: chan, connected: true, queue_name: queue_name} = state) do
-    result = Basic.publish(chan, "", @queue, message, [persistent: true, priority: 0])
+    queue = Application.get_env(:messages_gateway,  MessagesGateway.MqManager)[:mq_queue]
+    result = Basic.publish(chan, "", queue, message, [persistent: true, priority: 0])
     message_id = Map.get(Jason.decode!(message), "message_id")
     GenServer.cast(MgLogger.Server, {:log, __MODULE__, %{:message_id => "message_id", status: "add_to_queue"}})
     {:reply, result, state}
@@ -80,6 +81,7 @@ defmodule MessagesGateway.MqManager do
     config = Application.get_env(:messages_gateway,  MessagesGateway.MqManager)
     host = config[:mq_host]
     port = String.to_integer(config[:mq_port])
+    exchange = Application.get_env(:messages_gateway,  MessagesGateway.MqManager)[:mq_exchange]
 
     case Connection.open([host: host, port: port]) do
       {:ok, conn} ->
@@ -89,8 +91,8 @@ defmodule MessagesGateway.MqManager do
         {:ok, chan} = Channel.open(conn)
 
         Queue.declare(chan, queue_name, [durable: true, arguments: [{"x-max-priority", :short, 10}]])
-        Exchange.fanout(chan, @exchange, durable: true)
-        Queue.bind(chan, queue_name, @exchange)
+        Exchange.fanout(chan, exchange, durable: true)
+        Queue.bind(chan, queue_name, exchange)
 
         %{ state | chan: chan, connected: true, conn: conn }
       {:error, _} ->
