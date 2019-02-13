@@ -6,7 +6,7 @@ WORKDIR /app
 
 ENV MIX_ENV=prod
 
-RUN apk update && apk add git make cmake libressl2.7-libcrypto
+RUN apk update && apk add git make cmake libressl2.7-libcrypto crypto++
 
 RUN mix do \
       local.hex --force, \
@@ -28,7 +28,8 @@ RUN apk add --no-cache \
       ca-certificates \
       openssl \
       bash \
-      libressl2.7-libcrypto
+      libressl2.7-libcrypto \
+      crypto++
 
 
 WORKDIR /app
