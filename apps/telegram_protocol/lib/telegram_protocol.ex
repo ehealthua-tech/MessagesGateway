@@ -47,7 +47,7 @@ defmodule TelegramProtocol do
 
   defp check_config(protocol_config) do
     Map.keys(protocol_config) ==  Map.keys(@protocol_config_def)
-    new_protocol = Map.merge(protocol_config, %{code: "", password: ""})
+    new_protocol = Map.merge(@protocol_config_def, protocol_config)
     {:ok, app_name} = :application.get_application(__MODULE__)
     RedisManager.set(Atom.to_string(app_name), new_protocol)
     config = struct(@tdlib.default_config(), %{api_id: String.to_integer(protocol_config.api_id), api_hash: protocol_config.api_hash})
@@ -229,12 +229,15 @@ defmodule TelegramProtocol do
       RedisManager.get(message_id)
       |> Map.put(:sending_status, "read")
     RedisManager.set(message_id, message_status_info)
-    apply(:'Elixir.MessagesRouter', :send_message, [%{message_id: message_id}])
+    {:ok, app_name} = :application.get_application(__MODULE__)
+    protocol =  RedisManager.get(Atom.to_string(app_name))
+    apply(String.to_atom(protocol.module_name), String.to_atom(protocol.method_name), [%{message_id: message_id}])
   end
 
   def end_sending_messages(:error, message_id) do
-    RedisManager.get(message_id)
-    apply(:'Elixir.MessagesRouter', :send_message, [%{message_id: message_id}])
+    {:ok, app_name} = :application.get_application(__MODULE__)
+    protocol =  RedisManager.get(Atom.to_string(app_name))
+    apply(String.to_atom(protocol.module_name), String.to_atom(protocol.method_name), [%{message_id: message_id}])
   end
 
 end
