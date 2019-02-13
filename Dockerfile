@@ -31,7 +31,7 @@ RUN apk add --no-cache \
       openssl \
       bash \
       libssl1.0
-      
+
 WORKDIR /app
 
 ENV REPLACE_OS_VARS=true \
