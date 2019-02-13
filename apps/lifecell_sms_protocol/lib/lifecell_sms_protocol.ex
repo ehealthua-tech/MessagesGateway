@@ -12,6 +12,7 @@ defmodule LifecellSmsProtocol do
   @messages_gateway_conf "system_config"
   @send_sms_response_parse_schema [status: ~x"//state/text()", lifecell_sms_id: ~x"./@id", date:  ~x"./@date",
     id: ~x"./@ext_id", error: ~x"//status/state/@error" ]
+  @endpoint Application.get_env(:viber_protocol, :viber_endpoint)
 
   @protocol_config_def %{login: "", password: "", code: "", module_name: __MODULE__, method_name: :send_message, sms_price_for_external_operator: 0 }
 
@@ -43,7 +44,7 @@ defmodule LifecellSmsProtocol do
   #--- send message ------------------------------------------------------
   def send_message(%{contact: phone, body: message} = payload) do
     with {:ok, request_body} <- prepare_request_body(payload),
-         {:ok, response_body} <- EndpointManager.prepare_and_send_sms_request(request_body),
+         {:ok, response_body} <- @endpoint.prepare_and_send_sms_request(request_body),
          {:ok, pars_body} <- xmap(response_body, @send_sms_response_parse_schema)
       do
       reference = Process.send_after( __MODULE__, {:end_sending_message, payload.message_id}, 10000)
@@ -59,7 +60,7 @@ defmodule LifecellSmsProtocol do
   def check_message_status(payload) do
     lifacell_sms_info = payload.lifecell_sms_info
     with request_body <- check_status_body(lifacell_sms_info.lifecell_sms_id),
-         {:ok, response_body} <- EndpointManager.prepare_and_send_sms_request(request_body),
+         {:ok, response_body} <- @endpoint.prepare_and_send_sms_request(request_body),
          pars_body <- xmap(response_body, @send_sms_response_parse_schema)
     do
       check_sending_status(pars_body, payload)
