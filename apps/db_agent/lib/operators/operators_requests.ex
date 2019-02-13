@@ -9,7 +9,6 @@ defmodule DbAgent.OperatorsRequests do
   alias Ecto.Adapters.SQL
 
   import Ecto.Query
-  import Ecto.Changeset
 
   @type operator_info_map :: %{
                                id: String.t(),
@@ -155,12 +154,12 @@ defmodule DbAgent.OperatorsRequests do
           query:  String.t(),
           result: binary()
 
-  defp create_query_values([], acc), do:  binary_part(acc, 1, byte_size(acc) - 1)
-  defp create_query_values([%{"id" => id, "priority" => priority, "active" => active}|t], acc) do
+  def create_query_values([], acc), do:  binary_part(acc, 1, byte_size(acc) - 1)
+  def create_query_values([%{"id" => id, "priority" => priority, "active" => active}|t], acc) do
     new_acc = Enum.join([acc, ",(uuid('" , id, "'), ", Integer.to_string(priority), ", ", Atom.to_string(active), ")"])
     create_query_values(t, new_acc)
   end
-  defp create_query_values([%{id: id, priority: priority, active: active}|t], acc) do
+  def create_query_values([%{id: id, priority: priority, active: active}|t], acc) do
     new_acc = Enum.join([acc, ",(uuid('" , id, "'), ", Integer.to_string(priority), ", ", Atom.to_string(active), ")"])
     create_query_values(t, new_acc)
   end
@@ -170,7 +169,7 @@ defmodule DbAgent.OperatorsRequests do
       |> calc_priority_on_price(%{name: name, price: price})
   end
 
-  defp calc_priority_on_price([], operator_for_adding), do: 1
+  defp calc_priority_on_price([], _operator_for_adding), do: 1
   defp calc_priority_on_price(operators_as_list_of_maps, operator_for_adding) do
     sort_list =
       [operator_for_adding | operators_as_list_of_maps]
@@ -185,7 +184,7 @@ defmodule DbAgent.OperatorsRequests do
 
 #  defp calc_priority_on_price(operators_as_list_of_maps), do: ok
   defp calc_priority_on_price({1, _} = res) do
-    operators_as_list_of_maps = select_operators_as_list_of_maps
+    operators_as_list_of_maps = select_operators_as_list_of_maps()
     sort_list = Enum.sort_by(operators_as_list_of_maps, &{&1.price, String.downcase(&1.name)})
     Enum.map(sort_list, fn(x)-> Map.put(x, :priority, Enum.find_index(sort_list,  fn(y) -> y.id == x.id end) + 1 ) end)
     |> check_and_update_priority(operators_as_list_of_maps)
@@ -194,7 +193,7 @@ defmodule DbAgent.OperatorsRequests do
   defp calc_priority_on_price(err), do: err
 
   defp check_and_update_priority(operators_new, operators_old) when operators_new == operators_old,  do: :ok
-  defp check_and_update_priority(operators_new, operators_old), do: update_priority(operators_new)
+  defp check_and_update_priority(operators_new, _operators_old), do: update_priority(operators_new)
 
   defp select_operators_as_list_of_maps() do
     query = from operators in OperatorsSchema, select: %{price: operators.price,

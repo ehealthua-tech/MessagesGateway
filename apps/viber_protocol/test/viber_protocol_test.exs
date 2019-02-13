@@ -1,6 +1,7 @@
 defmodule ViberProtocolTest do
   use ExUnit.Case
   doctest ViberProtocol
+  use DbAgent.DataCase
 
   test "message test" do
     assert ViberProtocol.send_message(%{message_id: "1234", contact: "+380632688394", body: "test body"})

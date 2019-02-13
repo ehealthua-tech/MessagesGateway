@@ -34,3 +34,6 @@ config :telegram_protocol,  TelegramProtocol.RedisManager,
        password: nil,
        port: "6379",
        pool_size: "5"
+
+config :telegram_protocol, TelegramProtocol,
+      telegram_driver: TDLib

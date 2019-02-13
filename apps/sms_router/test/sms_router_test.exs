@@ -1,5 +1,6 @@
 defmodule SmsRouterTest do
   use ExUnit.Case
+  use DbAgent.DataCase
   alias SmsRouter.RedisManager
   doctest SmsRouter
 

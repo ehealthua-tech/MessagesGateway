@@ -1,5 +1,6 @@
 defmodule MessagesGatewayWeb.OperatorTypeControllerTest do
   use MessagesGatewayWeb.ConnCase
+  use DbAgent.DataCase
 
   @test "operator_type tests"
 

@@ -1,3 +1,3 @@
 defmodule MessagesGatewayWeb.PageViewTest do
-  use MessagesGatewayWeb.ConnCase, async: true
+  use MessagesGatewayWeb.ConnCase, async: false
 end

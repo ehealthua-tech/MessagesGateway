@@ -1,7 +1,9 @@
 defmodule MessagesGatewayWeb.SystemConfigControllerTest do
   use MessagesGatewayWeb.ConnCase
+  use DbAgent.DataCase
 
   test "system config", %{conn: conn} do
+    MessagesGateway.RedisManager.set("system_config", %{})
     result_changing_sys_config =
       select_sys_config(conn)
       |> Map.put("test", "test")

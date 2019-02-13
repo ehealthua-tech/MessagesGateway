@@ -1,4 +1,7 @@
 defmodule TelegramProtocol do
+
+  @tdlib Application.get_env(:telegram_protocol, TelegramProtocol)[:telegram_driver]
+
   alias TDLib.{Method, Object}
   use GenServer
   alias TelegramProtocol.RedisManager
@@ -47,9 +50,9 @@ defmodule TelegramProtocol do
     new_protocol = Map.merge(protocol_config, %{code: "", password: ""})
     {:ok, app_name} = :application.get_application(__MODULE__)
     RedisManager.set(Atom.to_string(app_name), new_protocol)
-    config = struct(TDLib.default_config(), %{api_id: String.to_integer(protocol_config.api_id), api_hash: protocol_config.api_hash})
-    {:ok, _pid} = TDLib.open(String.to_atom(protocol_config.session_name), self(), config)
-    TDLib.transmit(String.to_atom(protocol_config.session_name), "verbose 0")
+    config = struct(@tdlib.default_config(), %{api_id: String.to_integer(protocol_config.api_id), api_hash: protocol_config.api_hash})
+    {:ok, _pid} = @tdlib.open(String.to_atom(protocol_config.session_name), self(), config)
+    @tdlib.transmit(String.to_atom(protocol_config.session_name), "verbose 0")
   end
 
   #-Authorization process------------------------------------------------------
@@ -70,7 +73,7 @@ defmodule TelegramProtocol do
       phone_number: protocol_config.phone,
       allow_flash_call: false
     }
-    TDLib.transmit(String.to_atom(protocol_config.session_name), query)
+    @tdlib.transmit(String.to_atom(protocol_config.session_name), query)
   end
 
   # Telegram send to you code and if you enter it in config Authorization process will continue
@@ -113,14 +116,14 @@ defmodule TelegramProtocol do
   defp send_code(protocol_config) do
     :io.format("~nprotocol_config: ~p~n", [protocol_config])
     query = %Method.CheckAuthenticationCode{code: protocol_config.code}
-    TDLib.transmit(String.to_atom(protocol_config.session_name), query)
+    @tdlib.transmit(String.to_atom(protocol_config.session_name), query)
   end
 
   defp send_password({:error, _}), do: check_authentication_password()
   defp send_password(%{password: password}) when password == "", do: check_authentication_password()
   defp send_password(protocol_config) do
     query = %Method.CheckAuthenticationCode{code: protocol_config.password}
-    TDLib.transmit(String.to_atom(protocol_config.session_name), query)
+    @tdlib.transmit(String.to_atom(protocol_config.session_name), query)
   end
 
   #-Sending message------------------------------------------------------------
@@ -209,7 +212,7 @@ defmodule TelegramProtocol do
   defp do_query(query) do
     {:ok, app_name} = :application.get_application(__MODULE__)
     protocol_config = RedisManager.get(Atom.to_string(app_name))
-    TDLib.transmit(String.to_atom(protocol_config.session_name), query)
+    @tdlib.transmit(String.to_atom(protocol_config.session_name), query)
   end
 
   #-API------------------------------------------------------------------------

@@ -1,5 +1,6 @@
 defmodule MessagesGatewayWeb.MessageControllerTest do
   use MessagesGatewayWeb.ConnCase
+  use DbAgent.DataCase
 
   test "send message without auth", %{conn: conn} do
     response = send_message(conn, 401, ["error", "message"])
@@ -110,5 +111,5 @@ defmodule MessagesGatewayWeb.MessageControllerTest do
 end
 
 defmodule MqManagerTest do
-  def publish(x), do: :ok
+  def publish(_), do: :ok
 end

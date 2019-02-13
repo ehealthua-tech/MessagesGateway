@@ -45,9 +45,10 @@ defmodule DbAgent.DbAgentTest do
     {:ok, created_contact} = DbAgent.ContactsRequests.add_contact(new_contact)
     assert %{operator_id: created_operator.id, phone_number: "+380971112233", viber_id: "viber_id123"} ==
              %{operator_id: created_contact.operator_id, phone_number: created_contact.phone_number, viber_id: created_contact.viber_id}
-    {1, nil} == DbAgent.ContactsRequests.add_viber_id(%{:phone_number => "+380971112233", :viber_id => "viber_id1234", :operator_id => created_operator.id})
-    {1, nil} == DbAgent.ContactsRequests.add_operator_id(%{:phone_number => "+380971112233", :viber_id => "viber_id1234", :operator_id => created_operator.id})
-    {1, nil} == DbAgent.ContactsRequests.add_viber_id(%{:phone_number => "+380971112237", :viber_id => "viber_id1234", :operator_id => created_operator.id})
+    assert {1, nil} == DbAgent.ContactsRequests.add_viber_id(%{:phone_number => "+380971112233", :viber_id => "viber_id1234", :operator_id => created_operator.id})
+    assert {1, nil} == DbAgent.ContactsRequests.add_operator_id(%{:phone_number => "+380971112233", :viber_id => "viber_id1234", :operator_id => created_operator.id})
+    {:ok, res} = DbAgent.ContactsRequests.add_viber_id(%{:phone_number => "+380971112237", :viber_id => "viber_id1234", :operator_id => created_operator.id})
+    assert res.phone_number == "+380971112237"
     updated_contact = DbAgent.ContactsRequests.get_by_phone_number!("+380971112233")
     updated_contact2 = DbAgent.ContactsRequests.get_by_phone_number!("+380971112237")
     assert %{id: created_contact.id, operator_id: created_operator.id, viber_id: "viber_id1234"} ==

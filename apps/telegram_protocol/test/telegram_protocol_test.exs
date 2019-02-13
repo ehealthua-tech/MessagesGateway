@@ -1,5 +1,5 @@
 defmodule TelegramProtocolTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: false
   doctest TelegramProtocol
 
   test "test_redis" do
@@ -16,5 +16,7 @@ defmodule TelegramProtocolTest do
     TelegramProtocol.start_telegram_lib()
     :timer.sleep(4000)
   end
+
+
 
 end

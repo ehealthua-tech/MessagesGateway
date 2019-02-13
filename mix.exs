@@ -44,7 +44,10 @@ defmodule MessagesGateway.MixProject do
       sms_router_test: "cmd --app sms_router mix test --color",
       sms_router_coveralls: ["cmd --app sms_router mix coveralls.html --color"],
 
-      routes: ["cmd --app messages_gateway mix phx.routes"],
+      telegram_coveralls: ["cmd --app telegram_protocol mix coveralls.html --color"],
+
+      routes: ["cmd --app messages_gateway mix phx.routes"]
+
     ]
   end
 end

@@ -1,5 +1,6 @@
 defmodule MessagesGatewayWeb.ProtocolsControllerTest do
   use MessagesGatewayWeb.ConnCase
+  use DbAgent.DataCase
 
   @protocols_name ["sms_protocol", "ip_protocol", "mmmmess_protocol", "mail_protocol"]
 
