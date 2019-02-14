@@ -37,8 +37,6 @@ defmodule ViberProtocolTest do
   end
 
   test "message test" do
-    old_config = ViberProtocol.RedisManager.get(@messages_gateway_conf)
-    old_protocol_config = ViberProtocol.RedisManager.get(@viber_protocol_name)
     ViberProtocol.RedisManager.set(@messages_gateway_conf, @sys_config)
     ViberProtocol.RedisManager.set(@viber_protocol_name, @viber_protocol_config)
     id = Map.get(@test_manual_priority, :message_id)
@@ -53,8 +51,8 @@ defmodule ViberProtocolTest do
     ViberProtocol.end_sending_message(:success, id)
     :timer.sleep(12000)
     ViberProtocol.RedisManager.del(id)
-    ViberProtocol.RedisManager.set(@messages_gateway_conf, old_config)
-    ViberProtocol.RedisManager.set(@viber_protocol_name, old_protocol_config)
+    ViberProtocol.RedisManager.del(@messages_gateway_conf)
+    ViberProtocol.RedisManager.del(@viber_protocol_name)
   end
 
   def send(_value), do: :ok

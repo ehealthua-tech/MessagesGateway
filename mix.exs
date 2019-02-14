@@ -46,7 +46,11 @@ defmodule MessagesGateway.MixProject do
 
       telegram_coveralls: ["cmd --app telegram_protocol mix coveralls.html --color"],
 
-      routes: ["cmd --app messages_gateway mix phx.routes"]
+      routes: ["cmd --app messages_gateway mix phx.routes"],
+
+      "ecto.setup": ["ecto.create", "ecto.migrate"],
+      "ecto.reset": ["ecto.drop", "ecto.setup"],
+      coveralls: [ "ecto.reset", "coveralls --umbrella"]
 
     ]
   end
