@@ -18,12 +18,12 @@ defmodule SmtpProtocolTest do
     sending_status: "sending"}
 
   test "email test" do
-    old_protocol_config = SmtpProtocol.RedisManager.get(@smtp_protocol_name)
+    SmtpProtocol.RedisManager.set(@smtp_protocol_name, @smtp_protocol_config)
     id = Map.get(@test_manual_priority, :message_id)
     SmtpProtocol.RedisManager.set(id, @test_manual_priority)
     SmtpProtocol.send_email(@test_manual_priority)
     SmtpProtocol.RedisManager.del(id)
-    SmtpProtocol.RedisManager.set(@smtp_protocol_name, old_protocol_config)
+    SmtpProtocol.RedisManager.del(@smtp_protocol_name)
   end
 
   test "test_redis" do

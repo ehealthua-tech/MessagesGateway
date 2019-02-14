@@ -4,7 +4,7 @@ use Mix.Config
 
 config :smtp_protocol, SmtpProtocol.Mailer,
        adapter: Bamboo.SMTPAdapter,
-       smtp_mailer: MailerTest,
+       smtp_mailer: TestMailer,
        server: "smtp.office365.com",
        hostname: "skywell.software",
        port: 587,
@@ -19,7 +19,7 @@ config :smtp_protocol, SmtpProtocol.Mailer,
 
 config :smtp_protocol, SmtpProtocol.RedisManager,
        host: "127.0.0.1",
-       database: "1",
+       database: "2",
        password: nil,
        port: "6379",
        pool_size: "5"
