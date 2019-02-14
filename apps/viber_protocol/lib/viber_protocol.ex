@@ -3,6 +3,7 @@ defmodule ViberProtocol do
   alias ViberProtocol.RedisManager
   alias ViberEndpoint
 
+  @viber_endpoint Application.get_env(:viber_protocol, :viber_endpoint)
   @event_types ["delivered", "seen", "failed", "subscribed","unsubscribed", "conversation_started"]
   @protocol_config %{module_name: __MODULE__, method_name: :send_message}
 
@@ -43,27 +44,27 @@ defmodule ViberProtocol do
 
   def set_webhook(url)do
     body = %{url: url, event_types: @event_types, send_name: true, send_photo: true}
-    ViberEndpoint.request("set_webhook", body)
+    @viber_endpoint.request("set_webhook", body)
   end
 
   @spec check_and_send_message(map() | nil, map()) :: pid() | {pid(), reference()} | reference() | :ok
 
-  defp check_and_send_message(nil, message_info), do: spawn(ViberProtocol, :end_sending_message, [:error, message_info.message_id])
-  defp check_and_send_message(contact, %{body: message} = message_info) do
+  def check_and_send_message(nil, message_info), do: spawn(ViberProtocol, :end_sending_message, [:error, message_info.message_id])
+  def check_and_send_message(contact, %{body: message} = message_info) do
     body = %{receiver: contact.viber_id, min_api_version: 1, sender: %{name: "E-Test"},type: "text", text: message}
-    ViberEndpoint.request("send_message", body)
+    @viber_endpoint.request("send_message", body)
     |> check_answer()
     |> check_status(message_info, contact)
   end
 
   @spec check_answer({:error, term()} | {:ok, term()}) :: term() | {String.t(), String.t()}
 
-  defp check_answer({:error, err} = error), do: error
-  defp check_answer({ok, response_map}), do: {response_map.status_message, response_map.message_token}
+  defp check_answer({:error, _err} = error), do: error
+  defp check_answer({_ok, response_map}), do: {response_map.status_message, response_map.message_token}
 
   @spec check_status({String.t(), String.t()}, map(), map()) :: pid() | {pid(), reference()} | reference() | :ok
 
-  defp check_status({"ok", message_token} , message_info, contact) do
+  defp check_status({"ok", message_token} , message_info, _contact) do
     reference = Process.send_after( __MODULE__, {:end_sending_message, message_token}, 10000)
     GenServer.cast(__MODULE__, {:add_to_state, %{message_token: message_token, message_id: message_info.message_id,
       reference: reference}})
@@ -96,32 +97,23 @@ defmodule ViberProtocol do
           | {:stop, reason :: term(), new_state}
         when new_state: term()
 
-  def handle_cast({"webhook", body}, state), do: {:noreply, state}
+  def handle_cast({"webhook", _body}, state), do: {:noreply, state}
 
-  def handle_cast({"seen", %{"message_token" => message_token} = body}, state) do
+  def handle_cast({"seen", %{"message_token" => message_token}}, state) do
     new_state =
     Enum.find(state, fn x -> Map.get(x, :message_token, :nil) == message_token end)
     |> remove_message_from_state(state)
     {:noreply, new_state}
   end
 
-  @spec remove_message_from_state(any(), term()) :: term() | list()
-
-  defp remove_message_from_state(nil, state), do: state
-  defp remove_message_from_state(message_info, state) do
-    Process.cancel_timer(message_info.reference)
-    spawn(ViberProtocol, :end_sending_message, [:success, message_info.message_id])
-    List.delete(state, message_info)
-  end
-
-  def handle_cast({"delivered", body}, state), do: {:noreply, state}
+  def handle_cast({"delivered", _body}, state), do: {:noreply, state}
 
   def handle_cast({"conversation_started", body}, state) do
     id = get_in(body, ["user", "id"])
     body = %{receiver: id, min_api_version: 1, sender: %{name: "E-Test", avatar: "http://avatar.example.com"},
       tracking_data: "Phone_number", type: "text", text: "Щоб отримувати повідомлення, будь ласка,
           увімкніть діалог(в меню інформація) та введіть Ваший номер телефону у форматі +380ххххххххх"}
-    {:ok, _} = ViberEndpoint.request("send_message", body)
+    {:ok, _} = @viber_endpoint.request("send_message", body)
     {:noreply, state}
   end
 
@@ -142,12 +134,21 @@ defmodule ViberProtocol do
     body = %{receiver: id, min_api_version: 1, sender: %{name: "E-Test", avatar: "http://avatar.example.com"},
       tracking_data: "Phone_number", type: "text", text: "Щоб отримувати повідомлення, будь ласка,
           увімкніть діалог(в меню інформація) та введіть Ваший номер телефону у форматі +380ххххххххх"}
-    {:ok, _} = ViberEndpoint.request("send_message", body)
+    {:ok, _} = @viber_endpoint.request("send_message", body)
     {:noreply, state}
   end
 
   def handle_cast({:add_to_state, info}, state), do: {:noreply, [info | state]}
-  def handle_cast(info, state), do:  {:noreply, state}
+  def handle_cast(_info, state), do:  {:noreply, state}
+
+  @spec remove_message_from_state(any(), term()) :: term() | list()
+
+  defp remove_message_from_state(nil, state), do: state
+  defp remove_message_from_state(message_info, state) do
+    Process.cancel_timer(message_info.reference)
+    spawn(ViberProtocol, :end_sending_message, [:success, message_info.message_id])
+    List.delete(state, message_info)
+  end
 
   @spec end_sending_message(any(), :nil | String.t()) :: :ok | any()
 
@@ -179,7 +180,9 @@ defmodule ViberProtocol do
     |> add_viber_id(%{phone_number: phone_number, viber_id: user_id})
   end
 
- # @spec add_viber_id(binary(), map()) :: {:ok, map()} | {:error, map()}
+  def check_phone_number(_, _, _), do: :ok
+
+  # @spec add_viber_id(binary(), map()) :: {:ok, map()} | {:error, map()}
 
   defp add_viber_id(number, map) when is_integer(number), do: DbAgent.ContactsRequests.add_viber_id(map)
 

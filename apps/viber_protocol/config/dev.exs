@@ -40,3 +40,6 @@ config :viber_protocol,  ViberProtocol.RedisManager,
 
 config :viber_protocol,
        callback_port: "6012"
+
+config :viber_protocol,
+       viber_endpoint: ViberEndpoint

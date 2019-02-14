@@ -10,3 +10,6 @@ config :lifecell_sms_protocol, LifecellSmsProtocol.RedisManager,
 
 config :lifecell_sms_protocol,
        callback_port: "${LIFECELL_CALLBACK_PORT}"
+
+config :lifecell_sms_protocol,
+       endpoint: EndpointManager

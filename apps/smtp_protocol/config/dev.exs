@@ -33,6 +33,7 @@ config :smtp_protocol, SmtpProtocol.Mailer,
        adapter: Bamboo.SMTPAdapter,
        server: "smtp.office365.com",
        hostname: "skywell.software",
+       smtp_mailer: SmtpProtocol.Mailer,
        port: 587,
        username: "r.moroz@skywell.software", # or {:system, "SMTP_USERNAME"}
        password: "Gembird1nser%", # or {:system, "SMTP_PASSWORD"}

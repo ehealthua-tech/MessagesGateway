@@ -10,6 +10,7 @@ config :smtp_protocol, SmtpProtocol.RedisManager,
 
 config :smtp_protocol, SmtpProtocol.Mailer,
        adapter: Bamboo.SMTPAdapter,
+       smtp_mailer: SmtpProtocol.Mailer,
        server: "${SMTP_SERVER}",
        hostname: "${SMTP_HOSTNAME}",
        port: "${SMTP_PORT}",
