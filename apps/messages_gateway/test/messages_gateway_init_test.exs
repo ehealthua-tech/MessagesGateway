@@ -5,6 +5,7 @@ defmodule MessagesGatewayInitTest do
   test "app test" do
     MessagesGatewayInit.start_link()
     MessagesGatewayInit.init(nil)
+    MessagesGateway.Application.start(nil,nil)
   end
 
 end

@@ -1,6 +1,5 @@
 {
   "skip_files": [
-    "lib/messages_gateway/application.ex",
     "lib/messages_gateway_web.ex",
     "lib/messages_gateway_web/proxy.ex",
     "test/support/channel_case.ex",
