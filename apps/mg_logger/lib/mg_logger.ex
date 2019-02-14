@@ -1,2 +1,0 @@
-defmodule MgLogger do
-end

@@ -26,6 +26,12 @@ defmodule SmtpProtocolTest do
     SmtpProtocol.RedisManager.del(@smtp_protocol_name)
   end
 
+  test "app start" do
+    SmtpProtocol.Application.start(nil,nil)
+    SmtpProtocol.start_link()
+    SmtpProtocol.init(nil)
+  end
+
   test "test_redis" do
     SmtpProtocol.RedisManager.set("test", "test")
     assert "test" = SmtpProtocol.RedisManager.get("test")

@@ -2,6 +2,12 @@ defmodule LifecellIpTelephonyProtocolTest do
   use ExUnit.Case
   doctest LifecellIpTelephonyProtocol
 
+  test "app start" do
+    LifecellIpTelephonyProtocol.Application.start(nil,nil)
+    LifecellIpTelephonyProtocol.start_link()
+    LifecellIpTelephonyProtocol.init(nil)
+  end
+
   test "test_redis" do
     LifecellIpTelephonyProtocol.RedisManager.set("test", "test")
     assert "test" = LifecellIpTelephonyProtocol.RedisManager.get("test")

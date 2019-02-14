@@ -21,6 +21,12 @@ defmodule LifecellSmsProtocolTest do
         protocol_name: "lifecell_sms_protocol"}], active: true,
     sending_status: "sending"}
 
+  test "app start" do
+    LifecellSmsProtocol.Application.start(nil,nil)
+    LifecellSmsProtocol.start_link()
+    LifecellSmsProtocol.init(nil)
+  end
+
   test "test_redis" do
     LifecellSmsProtocol.RedisManager.set("test", "test")
     assert "test" = LifecellSmsProtocol.RedisManager.get("test")

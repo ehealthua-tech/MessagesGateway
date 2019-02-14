@@ -12,6 +12,11 @@ defmodule DbAgent.DbAgentTest do
   @doc """
     Run tests for operator_types, operators and contacts
   """
+
+  test "app start" do
+    DbAgent.Application.start(nil,nil)
+  end
+
   test "database_test" do
     assert [] == DbAgent.OperatorTypesRequests.list_operator_types()
     new_operator_type = %{:active => :true, :name => "type_name"}
@@ -38,7 +43,6 @@ defmodule DbAgent.DbAgentTest do
     DbAgent.OperatorsRequests.update_priority([%{id: created_operator_type.id, priority: 12, active: :false}])
     DbAgent.OperatorsRequests.operator_by_operator_type_id(created_operator_type.id)
     DbAgent.OperatorsRequests.calc_priority(%{"name" => "test", "price" => 12})
-
 
     assert [] == DbAgent.ContactsRequests.list_contacts()
     new_contact = %{"phone_number" => "+380971112233", "viber_id" => "viber_id123", "operator_id" => created_operator.id}

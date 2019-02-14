@@ -43,6 +43,12 @@ defmodule TelegramProtocolTest do
     assert {:error, :not_found} = TelegramProtocol.RedisManager.get("test")
   end
 
+  test "app start" do
+    TelegramProtocol.Application.start(nil,nil)
+    TelegramProtocol.start_link()
+    TelegramProtocol.init(nil)
+  end
+
   @user_id "1"
   @chat_id "2"
   test "telegram protocol message send" do

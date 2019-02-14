@@ -2,6 +2,12 @@ defmodule VodafonSmsProtocolTest do
   use ExUnit.Case
   doctest VodafonSmsProtocol
 
+  test "app start" do
+    VodafonSmsProtocol.Application.start(nil,nil)
+    VodafonSmsProtocol.start_link()
+    VodafonSmsProtocol.init(nil)
+  end
+
   test "test_redis" do
     VodafonSmsProtocol.RedisManager.set("test", "test")
     assert "test" = VodafonSmsProtocol.RedisManager.get("test")

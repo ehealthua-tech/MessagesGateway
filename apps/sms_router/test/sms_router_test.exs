@@ -24,6 +24,10 @@ defmodule SmsRouterTest do
 
   @operators_config [@sms_protocol_1, @sms_protocol_2]
 
+  test "app start" do
+    SmsRouter.Application.start(nil,nil)
+  end
+
   test "sms_router" do
 
     message_id = "test_id678"

@@ -107,6 +107,9 @@ defmodule MessagesRouterTest do
   @operators_config [@sms_protocol_2]
   @operators_config_no_active  [@sms_protocol_2_no_active]
 
+  test "app start" do
+    MessagesRouter.Application.start(nil,nil)
+  end
 
   test "send_message_manual_priority" do
     MessagesRouter.RedisManager.set("system_config", @sys_config)
