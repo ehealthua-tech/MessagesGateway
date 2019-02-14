@@ -6,7 +6,7 @@ defmodule SmtpProtocol.RedisManager do
 
   defp check_get({:ok, value}, _) when value == nil, do:  {:error, :not_found}
   defp check_get({:ok, value}, _), do: Jason.decode!(value, [keys: :atoms])
-  defp check_get({:error, reason} = err, key) do
+  defp check_get({:error, _reason} = err, _key) do
     err
   end
 
@@ -17,7 +17,7 @@ defmodule SmtpProtocol.RedisManager do
   defp do_set(params), do: command(params) |> check_set(params)
 
   defp check_set({:ok, _}, _), do: :ok
-  defp check_set({:error, reason} = err, params) do
+  defp check_set({:error, _reason} = err, _params) do
     err
   end
 

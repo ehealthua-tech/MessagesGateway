@@ -26,7 +26,7 @@ defmodule SmtpProtocol do
     RedisManager.set(Atom.to_string(app_name), @protocol_config)
   end
 
-  defp check_config(protocol_config), do: :ok
+  defp check_config(_protocol_config), do: :ok
 
   def send_email(%{message_id: message_id, contact: recipient, body: body, subject: subject}) do
     SmtpProtocol.Email.email(recipient, subject, body) |> @smtp_server.deliver_now
