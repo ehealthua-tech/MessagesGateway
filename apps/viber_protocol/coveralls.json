@@ -2,6 +2,8 @@
   "skip_files": [
     "lib/viber_protocol/viber_plug.ex",
     "lib/viber_protocol/viber_endpoint.ex",
-    "lib/viber_protocol/viber_callback.ex"
+    "lib/viber_protocol/viber_callback.ex",
+    "lib/viber_protocol/application.ex",
+    "test/support/test_endpoint.ex"
   ]
 }

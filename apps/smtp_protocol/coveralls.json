@@ -1,0 +1,6 @@
+{
+  "skip_files": [
+    "lib/smtp_protocol/mailer.ex",
+    "lib/smtp_protocol/application.ex"
+  ]
+}
