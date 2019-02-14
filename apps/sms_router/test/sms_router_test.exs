@@ -32,9 +32,10 @@ defmodule SmsRouterTest do
       body: "test message", callback_url: "", priority_list: [], active: true, sending_status: "in_queue"})
 
     assert :ok == SmsRouter.check_and_send(%{contact: "+380500000000", body: "test message", message_id: message_id})
-    RedisManager.del("system_config")
+    assert {:ok, 1} == RedisManager.del("system_config")
     RedisManager.keys("system_config")
     RedisManager.del("system_config1")
+    assert {:ok, 1} == RedisManager.del(message_id)
   end
 
   test "select operators sms_router" do
@@ -46,9 +47,11 @@ defmodule SmsRouterTest do
     RedisManager.set(get_in(@sms_info, [:message_id]), @sms_info)
 
     assert :second_sms_protocol == SmsRouter.check_and_send(@sms_info)
-    RedisManager.del("system_config")
-    RedisManager.keys("system_config")
-    RedisManager.del("system_config1")
+    assert {:ok, 1} == RedisManager.del("system_config")
+    assert {:ok, 1} == RedisManager.del("operators_config")
+    assert {:ok, 1} == RedisManager.del(get_in(@sms_protocol_1, [:protocol_name]))
+    assert {:ok, 1} == RedisManager.del(get_in(@sms_protocol_2, [:protocol_name]))
+    assert {:ok, 1} == RedisManager.del(get_in(@sms_info, [:message_id]))
   end
 
   def send(_), do: :ok

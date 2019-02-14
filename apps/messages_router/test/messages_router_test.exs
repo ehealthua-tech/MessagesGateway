@@ -194,5 +194,8 @@ defmodule MessagesRouterTest do
   def first_sms_protocol(_), do: :first_sms_protocol
   def second_sms_protocol(_), do: :second_sms_protocol
 
+  defp delete_from_redis(key) do
+    RedisManager.del(key)
+  end
 
 end
