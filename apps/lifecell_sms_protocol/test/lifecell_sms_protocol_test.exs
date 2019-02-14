@@ -30,7 +30,6 @@ defmodule LifecellSmsProtocolTest do
   end
 
   test "message test" do
-    old_config = LifecellSmsProtocol.RedisManager.get(@messages_gateway_conf)
     LifecellSmsProtocol.RedisManager.set(@messages_gateway_conf, @sys_config)
     LifecellSmsProtocol.RedisManager.set(@lifecell_sms_protocol_name, @lifecell_sms_protocol_config)
     id = Map.get(@test_manual_priority, :message_id)
@@ -38,7 +37,7 @@ defmodule LifecellSmsProtocolTest do
     assert :ok ==  LifecellSmsProtocol.send_message(%{body: Map.get(@test_manual_priority, :body), contact: Map.get(@test_manual_priority, :contact), message_id: id})
     :timer.sleep(12000)
     LifecellSmsProtocol.RedisManager.del(id)
-    LifecellSmsProtocol.RedisManager.set(@messages_gateway_conf, old_config)
+    LifecellSmsProtocol.RedisManager.del(@messages_gateway_conf)
   end
 
   def send(_value), do: :ok

@@ -44,4 +44,14 @@ defmodule MessagesGateway.RedisManager do
     Redix.command(:"redis_#{Atom.to_string(app_name)}_#{connection_index}", command)
   end
 
+  def delete_from_redis() do
+    {:ok, res} = MessagesGateway.RedisManager.keys("*")
+    del(res)
+  end
+
+  def del([]), do: :ok
+  def del([h|t]) do
+    MessagesGateway.RedisManager.del(h)
+    del(t)
+  end
 end

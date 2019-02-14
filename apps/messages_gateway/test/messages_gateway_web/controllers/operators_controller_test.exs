@@ -31,6 +31,7 @@ defmodule MessagesGatewayWeb.OperatorsControllerTest do
         select_all_operator_type(conn)
         |> Enum.find(fn(x) -> get_in(x, ["name"]) == @test_type end)
       assert  is_delete_type == nil
+      assert {:ok, 1} == MessagesGateway.RedisManager.del("test")
   end
 
   test "operators change info", %{conn: conn} do
@@ -67,6 +68,7 @@ defmodule MessagesGatewayWeb.OperatorsControllerTest do
       select_all_operator_type(conn)
       |> Enum.find(fn(x) -> get_in(x, ["name"]) == "test_for_change_type" end)
     assert  is_delete_type == nil
+    assert {:ok, 1} == MessagesGateway.RedisManager.del("test_for_change")
   end
 
   defp create_operator(operator_type_info, operator_name, conn) do

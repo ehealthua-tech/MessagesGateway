@@ -10,12 +10,14 @@ defmodule MessagesGatewayWeb.ProtocolsControllerTest do
       select_all_protocols(conn)
       |> Enum.member?("mmmmess_protocol")
     assert res == true
+    MessagesGateway.RedisManager.del(@protocols_name)
   end
 
   test "select_protocol_config", %{conn: conn} do
     :ok = set_protocols(@protocols_name)
     res = select_protocol_on_id("sms_protocol", conn)
     assert res != {:error, :not_found}
+    MessagesGateway.RedisManager.del(@protocols_name)
   end
 
   defp set_protocols([]), do: :ok
