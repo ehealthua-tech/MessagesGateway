@@ -1,6 +1,5 @@
 defmodule MgLoggerTest do
   use ExUnit.Case
-  doctest MgLogger
 
   test "log test" do
     assert :ok == GenServer.cast(MgLogger.Server, {:log, __MODULE__, %{__MODULE__ => "test"}})

@@ -22,6 +22,12 @@ defmodule ViberProtocolTest do
         protocol_name: "viber_protocol"}], active: true,
     sending_status: "sending"}
 
+  test "app start" do
+    ViberProtocol.Application.start(nil,nil)
+    ViberProtocol.start_link()
+    ViberProtocol.init(nil)
+  end
+
   test "test_redis" do
     ViberProtocol.RedisManager.set("test", "test")
     assert "test" = ViberProtocol.RedisManager.get("test")
