@@ -1,6 +1,5 @@
 {
   "skip_files": [
-    "lib/application.ex",
     "lib/repo.ex"
   ]
 }

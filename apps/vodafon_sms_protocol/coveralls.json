@@ -1,0 +1,5 @@
+{
+  "skip_files": [
+    "lib/vodafon_sms_protocol.ex"
+  ]
+}

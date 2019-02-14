@@ -1,0 +1,5 @@
+{
+  "skip_files": [
+    "lib/messages_router/mq_manager.ex"
+  ]
+}
