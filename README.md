@@ -4,13 +4,14 @@ MessagesGateway.API is a part of the software package which is responsible for s
 
 MessagesGateway consists of two main parts:
 
-- [REST API back-end](https://github.com/),
-- [Admin UI](https://github.com/).
+- [REST API back-end](https://github.com/)
+- [Admin UI](https://github.com/)
 
 ## Specification
-The project consist two different API ( for sending messages and for admin part)
+The project consist two different API (for sending messages and for admin part)
  - [API for sending messages](docs/apiaryGeneral.apib)
  - [API for admin part](docs/apiary.apib)
+ - [All rests](docs/rest_api.md)
 
 ## Installation
 Official Docker containers can be found on Docker Hub:
@@ -25,7 +26,7 @@ Also you can use [docker-compose](docker/)
 - Elasticsearch is used for storage logs
 
 ## Configuration
-See [ENVIRONMENT.md](docs/ENVIRONMENT.md).
+See [ENVIRONMENT.md](docs/ENVIRONMENT.md)
 
 ## License
-See [LICENSE.md](docs/LICENSE.md).
+See [LICENSE.md](docs/LICENSE.md)
