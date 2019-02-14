@@ -1,5 +1,6 @@
 defmodule TelegramProtocol do
 
+  @compile if Mix.env == :test, do: :export_all
   @tdlib Application.get_env(:telegram_protocol, TelegramProtocol)[:telegram_driver]
 
   alias TDLib.{Method, Object}
@@ -26,13 +27,6 @@ defmodule TelegramProtocol do
     Process.send_after(__MODULE__, :start_telegram_lib, 3000)
   end
 
-  def handle_info(:start_telegram_lib, state) do
-    {:ok, app_name} = :application.get_application(__MODULE__)
-    new_state =
-      RedisManager.get(Atom.to_string(app_name))
-      |> check_config()
-    {:noreply, []}
-  end
 
   defp check_config({:error, _}) do
     {:ok, app_name} = :application.get_application(__MODULE__)
@@ -46,21 +40,20 @@ defmodule TelegramProtocol do
   end
 
   defp check_config(protocol_config) do
-    Map.keys(protocol_config) ==  Map.keys(@protocol_config_def)
-    new_protocol = Map.merge(@protocol_config_def, protocol_config)
-    {:ok, app_name} = :application.get_application(__MODULE__)
-    RedisManager.set(Atom.to_string(app_name), new_protocol)
+    check_correct_configs(Map.keys(protocol_config) ==  Map.keys(@protocol_config_def), protocol_config)
     config = struct(@tdlib.default_config(), %{api_id: String.to_integer(protocol_config.api_id), api_hash: protocol_config.api_hash})
     {:ok, _pid} = @tdlib.open(String.to_atom(protocol_config.session_name), self(), config)
     @tdlib.transmit(String.to_atom(protocol_config.session_name), "verbose 0")
   end
 
-  #-Authorization process------------------------------------------------------
-
-  def handle_info({:recv, %Object.UpdateAuthorizationState{authorization_state: auth_state}}, state) do
-    telegram_authorization_process(auth_state)
-    {:noreply, state}
+  def check_correct_configs(true, _), do: :ok
+  def check_correct_configs(false, protocol_config) do
+    new_protocol = Map.merge(@protocol_config_def, protocol_config)
+    {:ok, app_name} = :application.get_application(__MODULE__)
+    RedisManager.set(Atom.to_string(app_name), new_protocol)
   end
+
+  #-Authorization process------------------------------------------------------
 
   def telegram_authorization_process(%Object.AuthorizationStateWaitTdlibParameters{}), do: :ignore
 
@@ -89,6 +82,19 @@ defmodule TelegramProtocol do
   defp check_authentication_code(), do: Process.send_after(__MODULE__, :check_authentication_code , @authentication_timeout)
   defp check_authentication_password(), do: Process.send_after(__MODULE__, :check_authentication_password , @authentication_timeout)
 
+
+  def handle_info(:start_telegram_lib, _state) do
+    {:ok, app_name} = :application.get_application(__MODULE__)
+    RedisManager.get(Atom.to_string(app_name))
+    |> check_config()
+    {:noreply, []}
+  end
+
+  def handle_info({:recv, %Object.UpdateAuthorizationState{authorization_state: auth_state}}, state) do
+    telegram_authorization_process(auth_state)
+    {:noreply, state}
+  end
+
   def handle_info(:check_authentication_code,  state) do
     {:ok, app_name} = :application.get_application(__MODULE__)
     RedisManager.get(Atom.to_string(app_name))
@@ -105,6 +111,62 @@ defmodule TelegramProtocol do
     {:noreply, state}
   end
 
+  # Creating private chat with importing contact (if it does not have telegram user id will be 0 and we send payload to messages router )
+  def handle_info({:recv, %Object.ImportedContacts{user_ids: [user_ids]}}, state) do
+    select_user_info(user_ids)
+    {:noreply, state}
+  end
+
+  # Creating private chat with importing contact (if it does not have telegram user id will be 0 and we send payload to messages router )
+  def handle_info({:recv, %Object.User{id: user_id, phone_number: contact, type: %Object.UserTypeRegular{}}}, state) do
+    message_info = Enum.find(state, fn x ->  x.phone_number == "+" <> contact end)
+    old_state = List.delete(state, message_info)
+    Process.cancel_timer(message_info.reference_create_account)
+    reference = Process.send_after(__MODULE__, {:error_sending_messages, message_info.message_id}, 30000)
+    new_state = %{user_id: user_id, phone_number: contact, message_id: message_info.message_id, error_reference: reference, body: message_info.body}
+    query = %Method.CreatePrivateChat{user_id: user_id, force: false}
+    do_query(query)
+    {:noreply, [new_state | old_state]}
+  end
+  def handle_info({:recv, %Object.User{}}, state), do: state
+
+  # Select chat id and send message
+  def handle_info({:recv, %Object.Chat{id: chat_id, type: %Object.ChatTypePrivate{user_id: user_id}}}, state) do
+    message_info = Enum.find(state, fn x ->  x.user_id == user_id end)
+    old_state = List.delete(state, message_info)
+    new_state = Map.put(message_info, :chat_id, chat_id)
+    query = %Method.SendMessage{
+      chat_id: chat_id,
+      reply_to_message_id: 0,
+      disable_notification: false,
+      from_background: true,
+      input_message_content:
+      %Object.InputMessageText{
+        text: %Object.FormattedText{
+          text: message_info.body}}}
+    do_query(query)
+    {:noreply, [new_state | old_state]}
+  end
+
+  # if user read message we selected UpdateChatReadOutbox
+  def handle_info({:recv, %Object.UpdateChatReadOutbox{chat_id: chat_id}}, state) do
+    old_state =
+      Enum.find(state, fn x -> if Map.has_key?(x, :chat_id) do  x.chat_id == chat_id  end end)
+      |> remove_message_from_state(state)
+    {:noreply, old_state}
+  end
+
+  # if we have some error remove this messages from state and ending sending it
+  def handle_info({:error_sending_messages, message_id}, state) do
+    {_, old_state} = Enum.split_while(state, fn x -> x.message_id == message_id end)
+    spawn(TelegramProtocol, :end_sending_messages, [:error, message_id])
+    {:noreply, old_state}
+  end
+
+  def handle_info(_,  state) do
+    {:noreply, state}
+  end
+
   def code() do
     {:ok, app_name} = :application.get_application(__MODULE__)
     protocol_config = RedisManager.get(Atom.to_string(app_name))
@@ -114,7 +176,6 @@ defmodule TelegramProtocol do
   defp send_code({:error, _}), do: check_authentication_code()
   defp send_code(%{code: code}) when code == "", do: check_authentication_code()
   defp send_code(protocol_config) do
-    :io.format("~nprotocol_config: ~p~n", [protocol_config])
     query = %Method.CheckAuthenticationCode{code: protocol_config.code}
     @tdlib.transmit(String.to_atom(protocol_config.session_name), query)
   end
@@ -135,80 +196,23 @@ defmodule TelegramProtocol do
 
     # if user number not fount in telegram or timeout will be more than 20 sec we canceled sending
     # and use for send another operator
-    reference = Process.send_after(__MODULE__, {:error_sending_messages, payload.message_id}, 20000)
+    reference = Process.send_after(__MODULE__, {:error_sending_messages, payload.message_id}, 3000)
     new_state = [%{phone_number: payload.contact, message_id: payload.message_id, reference_create_account: reference, body: payload.body}] ++ state
     {:noreply, new_state}
   end
 
-  # Creating private chat with importing contact (if it does not have telegram user id will be 0 and we send payload to messages router )
-  def handle_info({:recv, %Object.ImportedContacts{user_ids: [user_ids], importer_count: importer_count}}, state) do
-    select_user_info(user_ids)
-    {:noreply, state}
-  end
-
   def select_user_info(0), do: :ignore
+  def select_user_info("0"), do: :ignore
   def select_user_info(user_id) do
     query = %Method.GetUser{user_id: user_id}
     do_query(query)
   end
 
-  # Creating private chat with importing contact (if it does not have telegram user id will be 0 and we send payload to messages router )
-  def handle_info({:recv, %Object.User{id: user_id, phone_number: contact, type: %Object.UserTypeRegular{}}}, state) do
-    message_info = Enum.find(state, fn x ->  x.phone_number == "+" <> contact end)
-    old_state = List.delete(state, message_info)
-    Process.cancel_timer(message_info.reference_create_account)
-    reference = Process.send_after(__MODULE__, {:error_sending_messages, message_info.message_id}, 30000)
-    new_state = %{user_id: user_id, phone_number: contact, message_id: message_info.message_id, error_reference: reference, body: message_info.body}
-    query = %Method.CreatePrivateChat{user_id: user_id, force: false}
-    do_query(query)
-    {:noreply, [new_state | old_state]}
-  end
-  def handle_info({:recv, %Object.User{}}, state), do: state
-
-  # Select chat id and send message
-  def handle_info({:recv, %Object.Chat{id: chat_id, type: %Object.ChatTypePrivate{user_id: user_id}} = chat}, state) do
-    message_info = Enum.find(state, fn x ->  x.user_id == user_id end)
-    old_state = List.delete(state, message_info)
-    new_state = Map.put(message_info, :chat_id, chat_id)
-    query = %Method.SendMessage{
-      chat_id: chat_id,
-      reply_to_message_id: 0,
-      disable_notification: false,
-      from_background: true,
-      input_message_content:
-      %Object.InputMessageText{
-        text: %Object.FormattedText{
-          text: message_info.body}}}
-    do_query(query)
-    {:noreply, [new_state | state]}
-  end
-
-  # if user read message we selected UpdateChatReadOutbox
-  def handle_info({:recv, %Object.UpdateChatReadOutbox{chat_id: chat_id}}, state) do
-    old_state =
-      Enum.find(state, fn x -> if Map.has_key?(x, :chat_id) do  x.chat_id == chat_id  end end)
-      |> remove_message_from_state(state)
-    {:noreply, old_state}
-  end
-
   defp remove_message_from_state(nil, state), do: state
   defp remove_message_from_state(message_info, state) do
-
-    :io.format("~n~p~n", [message_info])
     Process.cancel_timer(message_info.error_reference)
     spawn(TelegramProtocol, :end_sending_messages, [:success, message_info.message_id])
     List.delete(state, message_info)
-  end
-
-  # if we have some error remove this messages from state and ending sending it
-  def handle_info({:error_sending_messages, message_id}, state) do
-    {_, old_state} = Enum.split_while(state, fn x -> x.message_id == message_id end)
-    spawn(TelegramProtocol, :end_sending_messages, [:error, message_id])
-    {:noreply, old_state}
-  end
-
-  def handle_info(info,  state) do
-    {:noreply, state}
   end
 
   defp do_query(query) do
@@ -220,8 +224,6 @@ defmodule TelegramProtocol do
   #-API------------------------------------------------------------------------
   def send_message(%{message_id: message_id} = payload) do
     GenServer.cast(MgLogger.Server, {:log, __MODULE__, %{:message_id => message_id, status: "sending_telegram"}})
-    {:ok, app_name} = :application.get_application(__MODULE__)
-    protocol_config = RedisManager.get(Atom.to_string(app_name))
     GenServer.cast(__MODULE__, {:send_messages, payload})
   end
 
@@ -237,6 +239,10 @@ defmodule TelegramProtocol do
   end
 
   def end_sending_messages(:error, message_id) do
+    message_status_info =
+      RedisManager.get(message_id)
+      |> Map.put(:sending_status, "sending Telegram error")
+    RedisManager.set(message_id, message_status_info)
     {:ok, app_name} = :application.get_application(__MODULE__)
     protocol =  RedisManager.get(Atom.to_string(app_name))
     apply(String.to_atom(protocol.module_name), String.to_atom(protocol.method_name), [%{message_id: message_id}])
