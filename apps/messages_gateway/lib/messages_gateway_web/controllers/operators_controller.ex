@@ -127,6 +127,19 @@ defmodule MessagesGatewayWeb.OperatorsController do
     end
   end
 
+  @spec show(conn, show_params) :: result when
+          conn:   conn(),
+          show_params: %{"id": String.t()},
+          result: result()
+
+  def show(conn, %{"id" => id}) do
+    with result <- OperatorsRequests.operator_by_id(id)
+      do
+      render(conn, "show.json", %{operator: result})
+    end
+  end
+
+
   def update_protocol_config(protocol_name, config) do
     old_config = RedisManager.get(protocol_name)
     config_key_atom = for {key, val} <- config, into: %{}, do: {String.to_atom(key), val}

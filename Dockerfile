@@ -39,5 +39,9 @@ ENV REPLACE_OS_VARS=true \
 COPY --from=builder /app/_build/prod/rel/messages_gateway_api/releases/0.1.0/messages_gateway_api.tar.gz /app
 
 RUN tar -xzf messages_gateway_api.tar.gz; rm messages_gateway_api.tar.gz
+RUN ls -la
+RUN ls -la lib/
+RUN ls -la lib/tdlib-0.0.2/
+RUN ls -la lib/tdlib-0.0.2/priv
 
 CMD ./bin/messages_gateway_api foreground
