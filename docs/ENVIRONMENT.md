@@ -33,11 +33,11 @@ Also sample .env can be used as payload for docker run cli.
 
 | VAR_NAME        | Default Value    | Description    |
 | --------------- | ---------------- | -------------- |
-| REDIS_NAME      | `mithril_api_dev`| Redis name     |
-| REDIS_PASSWORD  | `postgres`       | Redis password |
-| REDIS_HOST      | `postgres`       | Redis host     |
-| REDIS_PORT      | `postgres`       | Redis port     |
-| REDIS_POOL_SIZE | `5432`           | Redis pool size|
+| REDIS_NAME      | `1`              | Redis name     |
+| REDIS_PASSWORD  | `1`              | Redis password |
+| REDIS_HOST      | `redis`          | Redis host     |
+| REDIS_PORT      | `6379`           | Redis port     |
+| REDIS_POOL_SIZE | `5`              | Redis pool size|
 
 ### RabbiMQ
 
