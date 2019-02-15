@@ -1,6 +1,8 @@
 defmodule MessagesRouter.RedisManager do
   @moduledoc false
 
+  @expire_time 60*60
+
   @spec get(binary) :: term | {:error, binary}
   def get(key) when is_binary(key), do: command(["GET", key]) |> check_get(key)
 
@@ -10,6 +12,9 @@ defmodule MessagesRouter.RedisManager do
 
   @spec set(binary, term) :: :ok | {:error, binary}
   def set(key, value) when is_binary(key) and value != nil, do: do_set(["SET", key, Jason.encode!(value)])
+
+  @spec setex(binary, term) :: :ok | {:error, binary}
+  def setex(key, value) when is_binary(key) and value != nil, do: do_set(["SETEX", key, @expire_time, Jason.encode!(value)])
 
   @spec do_set(list) :: :ok | {:error, binary}
   defp do_set(params), do: command(params) |> check_set(params)

@@ -108,7 +108,7 @@ defmodule MessagesRouter do
     new_message_status_info = Map.merge(message_status_info, %{active: false})
     send_status(message_status_info.callback_url, message_status_info.message_id,
       new_message_status_info.sending_status)
-    RedisManager.set(message_status_info.message_id, new_message_status_info)
+    RedisManager.setex(message_status_info.message_id, new_message_status_info)
   end
 
   @spec send_status(String.t(), String.t(), String.t()) :: :ok | {:ok, HTTPoison.Response.t |
