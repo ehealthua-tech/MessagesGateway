@@ -8,7 +8,7 @@ MessagesGateway consists of two main parts:
 - [Admin UI](https://github.com/)
 
 ## Specification
-The project consist two different API (for sending messages and for admin part)
+The project consists two different API (for sending messages and for admin part)
  - [API for sending messages](docs/apiaryGeneral.apib)
  - [API for admin part](docs/apiary.apib)
  - [All rests](docs/rest_api.md)
@@ -20,10 +20,10 @@ Official Docker containers can be found on Docker Hub:
 Also you can use [docker-compose](docker/)
 
 ## Dependencies
-- PostgreSQL 9.6 is used as storage back-end
-- RabbitMQ is used for messages queue
-- Redis is used for cashing messages and configurations
-- Elasticsearch is used for storage logs
+- PostgreSQL 9.6 is using as storage back-end
+- RabbitMQ is using for messages queue
+- Redis is using for cashing messages and configurations
+- Elasticsearch is using for storage logs
 
 ## Configuration
 See [ENVIRONMENT.md](docs/ENVIRONMENT.md)
