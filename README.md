@@ -4,8 +4,8 @@ MessagesGateway.API is a part of the software package which is responsible for s
 
 MessagesGateway consists of two main parts:
 
-- [REST API back-end](https://github.com/)
-- [Admin UI](https://github.com/)
+- [REST API back-end](https://github.com/ehealthua-tech/MessagesGateway)
+- [Admin UI](https://github.com/ehealthua-tech/MessagesGatewayWeb)
 
 ## Specification
 The project consists two different API (for sending messages and for admin part)
