@@ -1,4 +1,4 @@
-FROM elixir:1.7.4-alpine as builder
+FROM bitwalker/alpine-elixir:1.7.4 as builder
 
 ADD . /app
 
