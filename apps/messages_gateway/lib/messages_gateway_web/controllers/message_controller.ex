@@ -80,10 +80,12 @@ defmodule MessagesGatewayWeb.MessageController do
           message_status_params: check_status_request(),
           result: result()
 
-  def message_status(conn, %{"resource" => %{"message_id" => message_id}}) do
-    with message_info <- RedisManager.get(message_id)
+  def message_status(conn, %{"message_id" => message_id}) do
+    with message_info when message_info != {:error, :not_found} <- RedisManager.get(message_id)
       do
       render(conn, "message_status.json", message_id: message_id, message_status: message_info.sending_status)
+    else
+      _ -> render(conn, "message_status.json", message_id: message_id, message_status: :not_found)
     end
   end
 
