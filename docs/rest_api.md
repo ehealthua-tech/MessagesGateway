@@ -410,7 +410,7 @@ body:
  ```
  Method: POST 
  
- url: HOST:PORT/sending/message
+ url: HOST:PORT/message
  
  Headers must contain key "Auhtorization" with value "Bearer *token*".
  ```
@@ -435,7 +435,7 @@ body:
         "code": 200,
         "request_id": "2lttqf04g643qgp6oc000cm1",
         "type": "object",
-        "url": "http://localhost:4011/sending/messagel"
+        "url": "http://localhost:4011/message"
     }
 }
  ```
@@ -490,32 +490,26 @@ body:
 
 *request:*
 ```
-Method: POST 
+Method: GET 
 
-url: HOST:PORT/sending/status
+url: HOST:PORT/message/?message_id=dd830ede-6790-4f66-9ee5-76022640e4eb
 
 Headers must contain key "Auhtorization" with value "Bearer *token*".
 ```
-body:
-  ```json
-  
-  {"resource": {
-              "message_id": "ddb576a5-27ca-4502-bdf2-f31f940833de"
-          }}
-  
-  ```
+
+
   *response:*
   ```json
  {"data": {    
-         "message_id": "ddb576a5-27ca-4502-bdf2-f31f940833de",
-         "message_status": true
+         "message_id": "dd830ede-6790-4f66-9ee5-76022640e4eb",
+         "message_status": "not_found"
 
      },
      "meta": {
          "code": 200,
          "request_id": "2lttqf04g643qgp6oc000cm1",
          "type": "object",
-         "url": "http://localhost:4011/sending/status"
+         "url": "http://localhost:4011/message/?message_id=dd830ede-6790-4f66-9ee5-76022640e4ebs"
      }
  }
   ```

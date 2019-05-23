@@ -6,7 +6,7 @@ HOST: https://dev-messagesgateway.skywell.software
 This part covers general request such as send message,send email,check status
 
 ## Requests collection [/requests]
-### send message [POST/sending/message/{contact},{body},{tag},{callback_url}]
+### send message [POST/message/{contact},{body},{tag},{callback_url}]
  This request is used to send message with some body.
  
  Headers must contain key "Auhtorization" with value "Bearer *token*".
@@ -40,7 +40,7 @@ This part covers general request such as send message,send email,check status
         "code": 200,
         "request_id": "2lttqf04g643qgp6oc000cm1",
         "type": "object",
-        "url": "http://localhost:4011/sending/messagel"
+        "url": "http://localhost:4011/message"
         }
         }  
 
@@ -80,34 +80,26 @@ Returns  message_id and  tag as a response
         }
         }   
 
-### check status [POST /sending/status/{message_id}]
+### check status [GET /message/{message_id}]
 This request is used to check message_status via its message_id.
 
 Headers must contain key "Auhtorization" with value "Bearer *token*".
 + Parameters
-      + message_id: "ddb576a5-27ca-4502-bdf2-f31f940833de"(String,required)
+      + message_id: "dd830ede-6790-4f66-9ee5-76022640e4eb"(String,required)
 
-+ Request
-
-          {"resource":
-          {
-              "message_id": "ddb576a5-27ca-4502-bdf2-f31f940833de"
-           }
-           }
-          
 + Response 200 (application/json)
 
         {
           "data": {    
-         "message_id": "ddb576a5-27ca-4502-bdf2-f31f940833de",
-         "message_status": true
+         "message_id": "dd830ede-6790-4f66-9ee5-76022640e4eb",
+         "message_status": "not_found"
 
          },
          "meta": {
          "code": 200,
          "request_id": "2lttqf04g643qgp6oc000cm1",
          "type": "object",
-         "url": "http://localhost:4011/sending/status"
+         "url": "http://localhost:4011/message/?message_id=dd830ede-6790-4f66-9ee5-76022640e4eb"
          }
          }  
          
