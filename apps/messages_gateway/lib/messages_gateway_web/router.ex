@@ -44,11 +44,14 @@ defmodule MessagesGatewayWeb.Router do
     end
   end
 
+  scope "/message", MessagesGatewayWeb do
+    get "/", MessageController, :message_status
+    post "/", MessageController, :new_message
+  end
+
   scope "/sending", MessagesGatewayWeb do
     pipe_through([:api, :auth])
-    post "/message", MessageController, :new_message
     post "/email", MessageController, :new_email
-    get "/status", MessageController, :message_status
     get "/queue_size", MessageController, :queue_size
     post "/change_message_status", MessageController, :change_message_status
   end
