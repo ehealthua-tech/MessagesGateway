@@ -10,4 +10,4 @@ config :telegram_protocol, TelegramProtocol.RedisManager,
 config :telegram_protocol, TelegramProtocol,
        telegram_driver: TDLib
 
-config :tdlib, backend_binary: "/app/lib/tdlib-0.0.2/priv/tdlib-json-cli"
+config :tdlib, backend_binary: "/messages_gateway_api/lib/tdlib-0.0.2/priv/tdlib-json-cli"

@@ -45,8 +45,7 @@ defmodule MessagesGatewayWeb.Router do
   end
 
   scope "/message", MessagesGatewayWeb do
-    get "/", MessageController, :message_status
-    post "/", MessageController, :new_message
+    resources "/", MessageController, except: [:new, :edit, :update, :delete, :index]
   end
 
   scope "/sending", MessagesGatewayWeb do

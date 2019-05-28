@@ -21,20 +21,19 @@ defmodule MessagesGatewayWeb.MessageController do
   @type email_request_body() :: %{"email": String.t(), "body": String.t(), "subject": String.t()}
   @type email_request :: %{"resource": email_request_body}
 
-  @type check_status_request_body() :: %{"message_id": String.t()}
-  @type check_status_request() :: %{"resource": check_status_request_body()}
+  @type check_status_request_body() :: %{"id": String.t()}
 
   @type change_status_request_body() :: %{"message_id": String.t()}
   @type change_status_request() :: %{"resource": change_status_request_body()}
 
   #  ---- send a message to the client any available way ----------------------
 
-  @spec new_message(conn, new_message_params) :: result when
+  @spec create(conn, new_message_params) :: result when
           conn: conn(),
           new_message_params: message_request(),
           result: result()
 
-  def new_message(conn, %{"resource" => %{"contact" => contact, "body" => body, "tag" => tag} = resource}) do
+  def create(conn, %{"resource" => %{"contact" => contact, "body" => body, "tag" => tag} = resource}) do
     with {:ok, priority_list} <- Prioritization.get_message_priority_list(),
          {:ok, message_id} <- add_to_db_and_queue(resource, priority_list)
       do
@@ -75,12 +74,12 @@ defmodule MessagesGatewayWeb.MessageController do
 
 # ---- Check message status ---------------------------------------------------------
 
-  @spec message_status(conn, message_status_params) :: result when
+  @spec show(conn, check_status_request_body) :: result when
           conn:   conn(),
-          message_status_params: check_status_request(),
+          check_status_request_body: check_status_request_body(),
           result: result()
 
-  def message_status(conn, %{"message_id" => message_id}) do
+  def show(conn, params = %{"id" => message_id}) do
     with message_info when message_info != {:error, :not_found} <- RedisManager.get(message_id)
       do
       render(conn, "message_status.json", message_id: message_id, message_status: message_info.sending_status)

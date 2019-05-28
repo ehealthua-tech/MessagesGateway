@@ -235,7 +235,7 @@ defmodule TelegramProtocol do
     RedisManager.set(message_id, message_status_info)
     {:ok, app_name} = :application.get_application(__MODULE__)
     protocol =  RedisManager.get(Atom.to_string(app_name))
-    apply(String.to_atom(protocol.module_name), String.to_atom(protocol.method_name), [%{message_id: message_id}])
+    apply(:'Elixir.MessagesRouter', :send_message, [%{message_id: message_id}])
   end
 
   def end_sending_messages(:error, message_id) do
@@ -245,7 +245,7 @@ defmodule TelegramProtocol do
     RedisManager.set(message_id, message_status_info)
     {:ok, app_name} = :application.get_application(__MODULE__)
     protocol =  RedisManager.get(Atom.to_string(app_name))
-    apply(String.to_atom(protocol.module_name), String.to_atom(protocol.method_name), [%{message_id: message_id}])
+    apply(:'Elixir.MessagesRouter', :send_message, [%{message_id: message_id}])
   end
 
 end
